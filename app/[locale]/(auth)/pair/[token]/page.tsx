@@ -1,10 +1,9 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import type { Locale } from "@/i18n/routing";
 
 export default async function PairPage({
   params,
 }: {
-  params: Promise<{ locale: Locale; token: string }>;
+  params: Promise<{ locale: string; token: string }>;
 }) {
   const { locale, token } = await params;
   setRequestLocale(locale);

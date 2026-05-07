@@ -1,13 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
 import { AppNav } from "@/components/ui/AppNav";
-import type { Locale } from "@/i18n/routing";
 
 export default async function AppLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);

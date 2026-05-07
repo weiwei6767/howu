@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Noto_Sans_TC, Inter, Caveat } from "next/font/google";
-import { routing, type Locale } from "@/i18n/routing";
+import { routing } from "@/i18n/routing";
 import "../globals.css";
 
 const notoTC = Noto_Sans_TC({
@@ -66,7 +66,7 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  setRequestLocale(locale as Locale);
+  setRequestLocale(locale);
   const messages = await getMessages();
 
   return (
