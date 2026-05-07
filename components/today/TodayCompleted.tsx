@@ -112,5 +112,17 @@ function AnswerView({ value, type }: { value: unknown; type: string }) {
       </span>
     );
   }
+  if (type === "letter") {
+    const text = String(value).trim();
+    if (!text) return <span className="text-zinc-400">沒寫</span>;
+    return (
+      <div
+        className="rounded-[var(--radius-card)] bg-[var(--color-rose-soft)]/20 border-l-4 border-[var(--color-rose)] px-4 py-3 leading-relaxed text-base whitespace-pre-wrap"
+        style={{ fontFamily: "var(--font-handwritten)" }}
+      >
+        {text}
+      </div>
+    );
+  }
   return <span>{String(value).trim() || <span className="text-zinc-400">空白</span>}</span>;
 }

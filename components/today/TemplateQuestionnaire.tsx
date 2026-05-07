@@ -196,6 +196,23 @@ function QuestionField({
       </div>
     );
   }
+  if (question.type === "letter") {
+    const text = typeof value === "string" ? value : "";
+    return (
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">✍️ {question.text}</label>
+        <Textarea
+          rows={10}
+          value={text}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={"親愛的...\n\n想到什麼寫什麼,沒字數限制,我們幫你存下來。"}
+          className="text-base leading-relaxed"
+          style={{ fontFamily: "var(--font-handwritten)" }}
+        />
+        <p className="text-xs text-zinc-400 text-right">{text.length} 字</p>
+      </div>
+    );
+  }
   // short_text
   return (
     <div className="flex flex-col gap-2">
