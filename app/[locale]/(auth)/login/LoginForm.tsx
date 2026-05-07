@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +17,8 @@ const schema = z.object({
 
 export function LoginForm() {
   const t = useTranslations();
+  const sp = useSearchParams();
+  const next = sp.get("next") || "/";
   const [sent, setSent] = useState(false);
   const {
     register,
@@ -30,9 +33,11 @@ export function LoginForm() {
       const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin)
         .replace(/^[﻿ ]+/, "")
         .trim();
+      // 把 next 串進 callback URL,登入完轉去原本要去的頁面
+      const callbackUrl = `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`;
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: `${siteUrl}/auth/callback` },
+        options: { emailRedirectTo: callbackUrl },
       });
       if (error) {
         toast(error.message, { tone: "error" });
