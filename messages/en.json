@@ -1,0 +1,80 @@
+{
+  "brand": {
+    "name": "howu",
+    "tagline": "Two diaries, one shared everyday"
+  },
+  "common": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again"
+  },
+  "nav": {
+    "home": "Today's Check-in",
+    "us": "Us",
+    "journal": "My Journal",
+    "memories": "Memory Book",
+    "store": "Store",
+    "leaderboard": "Leaderboard",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Sign in",
+    "signup": "Sign up",
+    "logout": "Sign out",
+    "with_line": "Continue with LINE",
+    "with_google": "Continue with Google",
+    "with_apple": "Continue with Apple",
+    "pair_invite_title": "You're invited to share an everyday",
+    "pair_accept": "Accept invite"
+  },
+  "questionnaire": {
+    "title": "Today's Check-in",
+    "complete": "Finish today",
+    "completed_today": "Done for today",
+    "wait_partner": "Waiting for your partner",
+    "fixed": {
+      "happiness": "Happiness today",
+      "energy": "Energy",
+      "stress": "Stress",
+      "miss_partner": "Missing you",
+      "us_overall": "How are we"
+    },
+    "mood": {
+      "title": "Mood tags",
+      "placeholder": "Today I feel..."
+    },
+    "secret_message": {
+      "label": "Whisper",
+      "placeholder": "Something I want to whisper...",
+      "delivery_mode": {
+        "immediate": "Send now",
+        "tomorrow": "Tomorrow 00:00",
+        "scheduled": "Pick a date",
+        "private": "Just for me"
+      }
+    }
+  },
+  "sync": {
+    "score": "Sync",
+    "level": "Sync level",
+    "growth": "Your sync just grew +{delta}"
+  },
+  "us": {
+    "dday": "Together for",
+    "days": "{n} days",
+    "next_milestone": "Next milestone"
+  },
+  "couple": {
+    "promises": "Our Promises",
+    "memory_book": "Our Memory Book",
+    "four_grid": "Today in 4 Frames",
+    "whisper": "Whisper"
+  }
+}

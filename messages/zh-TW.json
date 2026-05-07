@@ -1,0 +1,80 @@
+{
+  "brand": {
+    "name": "howu",
+    "tagline": "兩個人的日記、一份共寫的日常"
+  },
+  "common": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "save": "儲存",
+    "cancel": "取消",
+    "next": "下一步",
+    "back": "上一步",
+    "submit": "送出",
+    "loading": "載入中...",
+    "error": "發生錯誤",
+    "retry": "重試"
+  },
+  "nav": {
+    "home": "今日問卷",
+    "us": "我們",
+    "journal": "我的日記",
+    "memories": "回憶冊",
+    "store": "商城",
+    "leaderboard": "排行榜",
+    "settings": "設定"
+  },
+  "auth": {
+    "login": "登入",
+    "signup": "註冊",
+    "logout": "登出",
+    "with_line": "用 LINE 登入",
+    "with_google": "用 Google 登入",
+    "with_apple": "用 Apple 登入",
+    "pair_invite_title": "對方邀請你一起寫日常",
+    "pair_accept": "接受邀請"
+  },
+  "questionnaire": {
+    "title": "今日問卷",
+    "complete": "完成今日",
+    "completed_today": "今天已完成",
+    "wait_partner": "等對方收到",
+    "fixed": {
+      "happiness": "今日份幸福程度",
+      "energy": "精神狀態",
+      "stress": "壓力指數",
+      "miss_partner": "想對方的程度",
+      "us_overall": "我們整體狀態"
+    },
+    "mood": {
+      "title": "心情標籤",
+      "placeholder": "今天的心情..."
+    },
+    "secret_message": {
+      "label": "偷偷想跟你說",
+      "placeholder": "偷偷想跟你說...",
+      "delivery_mode": {
+        "immediate": "立即送達",
+        "tomorrow": "明天 00:00 送達",
+        "scheduled": "指定日期送達",
+        "private": "只我自己知道"
+      }
+    }
+  },
+  "sync": {
+    "score": "默契值",
+    "level": "默契等級",
+    "growth": "你們的默契又長大了 +{delta}"
+  },
+  "us": {
+    "dday": "在一起",
+    "days": "{n} 天",
+    "next_milestone": "下一個紀念日"
+  },
+  "couple": {
+    "promises": "我們的承諾",
+    "memory_book": "我們的回憶冊",
+    "four_grid": "今日四格",
+    "whisper": "悄悄話"
+  }
+}
