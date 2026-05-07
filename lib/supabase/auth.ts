@@ -21,6 +21,13 @@ export async function requireUser() {
   return user;
 }
 
+/** 在 (app) 子頁面用:沒 couple 轉首頁(會走 InviteHub) */
+export async function requireCouple(userId: string) {
+  const couple = await getActiveCouple(userId);
+  if (!couple || couple.status !== "active") redirect("/");
+  return couple;
+}
+
 /** 拿目前 user 的 couple(active/paused/recovery 都拿) */
 export async function getActiveCouple(userId: string): Promise<CoupleRow | null> {
   const supabase = await createSupabaseServerClient();
