@@ -755,8 +755,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: {
+        Args: {
+          p_relationship_type: string
+          p_together_since: string
+          p_token: string
+        }
+        Returns: Json
+      }
+      calculate_streak: { Args: { p_couple_id: string }; Returns: Json }
+      create_invitation: {
+        Args: { p_message?: string; p_message_style?: string }
+        Returns: Json
+      }
       is_couple_member: { Args: { cid: string }; Returns: boolean }
       is_partner_of: { Args: { other_uid: string }; Returns: boolean }
+      pause_couple: { Args: never; Returns: Json }
+      reconnect_couple: { Args: never; Returns: Json }
+      resume_couple: { Args: never; Returns: Json }
+      start_disconnect: { Args: never; Returns: Json }
     }
     Enums: {
       [_ in never]: never
