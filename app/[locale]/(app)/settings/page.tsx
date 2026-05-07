@@ -5,7 +5,7 @@ import { getActiveCouple } from "@/lib/supabase/auth";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { CoupleSettings } from "@/components/settings/CoupleSettings";
 import { DangerZone } from "@/components/settings/DangerZone";
-import { Card } from "@/components/ui/Card";
+import { PushToggle } from "@/components/settings/PushToggle";
 
 export default async function SettingsPage({
   params,
@@ -34,10 +34,7 @@ export default async function SettingsPage({
 
       {couple && <CoupleSettings couple={couple} />}
 
-      <Card className="text-sm text-zinc-500">
-        <span className="font-medium">{t("settings.notifications")}</span>
-        <p className="text-xs mt-1">推播設定 Phase 2 推出。</p>
-      </Card>
+      <PushToggle />
 
       <DangerZone hasCouple={!!couple} coupleStatus={couple?.status ?? null} />
     </div>
