@@ -12,5 +12,6 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  // 排除 api / auth(我們的 route handlers)、_next / _vercel(框架) 與 . 開頭的靜態檔
+  matcher: ["/((?!api|auth|_next|_vercel|.*\\..*).*)"],
 };
