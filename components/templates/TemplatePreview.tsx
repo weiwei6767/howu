@@ -22,11 +22,16 @@ interface Props {
   promises: PromiseRow[];
 }
 
+const MOOD_TYPES = new Set(["slider", "mood_tags"]);
+
 export function TemplatePreview({ emoji, name, description, questions, promises }: Props) {
+  const moodQuestions = questions.filter((q) => MOOD_TYPES.has(q.type));
+  const otherQuestions = questions.filter((q) => !MOOD_TYPES.has(q.type));
+
   return (
     <IPhoneFrame>
       <div className="flex flex-col gap-4">
-        {/* 標題 */}
+        {/* Header */}
         <header className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="text-2xl">{emoji}</span>
@@ -39,6 +44,33 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
           )}
         </header>
 
+        {questions.length === 0 && promises.length === 0 && (
+          <div className="rounded-xl bg-white shadow-sm p-6 text-center text-xs text-zinc-400">
+            還沒有題目跟承諾
+            <br />
+            從右邊建議挑題開始
+          </div>
+        )}
+
+        {/* 1) 今天的心情 */}
+        {moodQuestions.length > 0 && (
+          <Section title="今天的心情">
+            {moodQuestions.map((q) => (
+              <PreviewQuestion key={q.id} q={q} />
+            ))}
+          </Section>
+        )}
+
+        {/* 2) 問題 */}
+        {otherQuestions.length > 0 && (
+          <Section title="問題">
+            {otherQuestions.map((q) => (
+              <PreviewQuestion key={q.id} q={q} />
+            ))}
+          </Section>
+        )}
+
+        {/* 3) 承諾 */}
         {promises.length > 0 && (
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-[11px] flex flex-col gap-1">
             <span className="text-[10px] uppercase tracking-wider text-amber-700 font-medium">
@@ -49,19 +81,6 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
             ))}
           </div>
         )}
-
-        {/* 題目們 */}
-        <div className="flex flex-col gap-4">
-          {questions.length === 0 ? (
-            <div className="rounded-xl bg-white shadow-sm p-4 text-center text-xs text-zinc-400">
-              還沒有題目
-              <br />
-              從右邊建議挑一題開始
-            </div>
-          ) : (
-            questions.map((q) => <PreviewQuestion key={q.id} q={q} />)
-          )}
-        </div>
 
         {questions.length > 0 && (
           <button
@@ -74,6 +93,17 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
         )}
       </div>
     </IPhoneFrame>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">
+        {title}
+      </span>
+      {children}
+    </div>
   );
 }
 
@@ -159,7 +189,7 @@ function PreviewQuestion({ q }: { q: Question }) {
   if (q.type === "letter") {
     return (
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-zinc-700">{q.text}</span>
+        <span className="text-xs font-medium text-zinc-700">✍️ {q.text}</span>
         <div
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 min-h-24 text-[11px] text-zinc-400 leading-relaxed"
           style={{ fontFamily: "var(--font-handwritten)" }}
@@ -172,7 +202,6 @@ function PreviewQuestion({ q }: { q: Question }) {
     );
   }
 
-  // short_text
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-xs font-medium text-zinc-700">{q.text}</span>
