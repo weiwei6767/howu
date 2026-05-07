@@ -40,6 +40,10 @@ howu_企劃書.docx
 # vercel
 .vercel
 
+# supabase CLI temp
+supabase/.temp/
+supabase/.branches/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
