@@ -8,6 +8,7 @@ import {
   getPartnerTodayResponse,
   getRecentQuestionIds,
   getEligibleQuestions,
+  getOwnedPackIds,
   getStreak,
   type Couple,
 } from "@/lib/supabase/queries";
@@ -51,9 +52,12 @@ export async function TodayScreen({ user, couple }: Props) {
 
   // 還沒寫 → 載入今日題
   const recentIds = await getRecentQuestionIds(couple.id, 14);
+  const memberIds = [user.id, partnerId].filter(Boolean) as string[];
+  const ownedPackIds = await getOwnedPackIds(memberIds);
   const allQuestions = await getEligibleQuestions(
     couple.relationship_type ?? "same_city",
     isPremium,
+    ownedPackIds,
   );
   const pool: RotatingQuestion[] = allQuestions.map((q) => ({
     id: q.id,

@@ -59,12 +59,52 @@ export async function getRecentQuestionIds(coupleId: string, days: number): Prom
   return Array.from(ids);
 }
 
-export async function getEligibleQuestions(relationshipType: string, isPremium: boolean): Promise<Question[]> {
+export async function getEligibleQuestions(
+  relationshipType: string,
+  isPremiumPair: boolean,
+  ownedPackIds: string[] = [],
+): Promise<Question[]> {
   const supabase = await createSupabaseServerClient();
-  let q = supabase.from("questions").select("*").contains("for_relationship_types", [relationshipType]);
-  if (!isPremium) q = q.eq("is_premium", false);
-  const { data } = await q;
-  return ((data as Question[] | null) ?? []);
+
+  // 拉所有 active 題包,算出 user 可存取的 pack id
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: packsRaw } = await (supabase as any)
+    .from("question_packs")
+    .select("id, is_premium_included, price_twd")
+    .eq("is_active", true);
+  const packs = (packsRaw as Array<{
+    id: string;
+    is_premium_included: boolean | null;
+    price_twd: number | null;
+  }> | null) ?? [];
+  const accessiblePacks = new Set<string>(ownedPackIds);
+  for (const p of packs) {
+    if (p.is_premium_included && isPremiumPair) accessiblePacks.add(p.id);
+    if ((p.price_twd ?? 0) <= 0) accessiblePacks.add(p.id);
+  }
+
+  const { data } = await supabase
+    .from("questions")
+    .select("*")
+    .contains("for_relationship_types", [relationshipType]);
+  const all = (data as Array<Question & { pack_id: string | null }> | null) ?? [];
+
+  return all.filter((q) => {
+    if (q.pack_id) return accessiblePacks.has(q.pack_id);
+    return !q.is_premium || isPremiumPair;
+  });
+}
+
+export async function getOwnedPackIds(userIds: string[]): Promise<string[]> {
+  if (userIds.length === 0) return [];
+  const supabase = await createSupabaseServerClient();
+  // pack_purchases 還沒在 generated types,cast 繞過
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("pack_purchases")
+    .select("pack_id")
+    .in("user_id", userIds);
+  return ((data as Array<{ pack_id: string }> | null) ?? []).map((r) => r.pack_id);
 }
 
 export async function getSyncScore(coupleId: string): Promise<SyncScore | null> {
