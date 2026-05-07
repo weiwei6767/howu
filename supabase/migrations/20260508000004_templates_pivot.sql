@@ -265,6 +265,59 @@ create trigger couples_create_starter_templates
   after insert on public.couples
   for each row execute function public.create_starter_templates();
 
+-- ═══════════════════════════ Backfill:已存在的 active couples 補產起手模板
+do $backfill$
+declare
+  c record;
+  v_t1 uuid;
+  v_t2 uuid;
+  v_t3 uuid;
+begin
+  for c in
+    select id, partner_a_id from public.couples
+    where status = 'active'
+      and not exists (select 1 from public.templates where couple_id = couples.id)
+  loop
+    insert into public.templates (couple_id, name, emoji, description, created_by)
+    values (c.id, '每日心情(5 分鐘版)', '☀️', '快速版,寫起來不負擔', c.partner_a_id)
+    returning id into v_t1;
+    insert into public.template_questions (template_id, position, type, text, options) values
+      (v_t1, 0, 'slider', '今日幸福程度', null),
+      (v_t1, 1, 'slider', '今天累的程度', null),
+      (v_t1, 2, 'mood_tags', '今天的心情', null),
+      (v_t1, 3, 'short_text', '今天最想對對方說的一句話', null),
+      (v_t1, 4, 'guess_partner', '猜對方今天的幸福分數', null);
+    insert into public.template_promises (template_id, position, text) values
+      (v_t1, 0, '寫完今日問卷再睡'),
+      (v_t1, 1, '看到對方寫的會回應一句');
+
+    insert into public.templates (couple_id, name, emoji, description, created_by)
+    values (c.id, '深度日(週末用)', '🌿', '想停下來好好聊的時候用', c.partner_a_id)
+    returning id into v_t2;
+    insert into public.template_questions (template_id, position, type, text, options) values
+      (v_t2, 0, 'slider', '今天我們關係的感覺', null),
+      (v_t2, 1, 'short_text', '今天最讓我感謝對方的一件事', null),
+      (v_t2, 2, 'short_text', '今天最印象深刻的一個瞬間', null),
+      (v_t2, 3, 'multi_choice', '今天主要做了哪件事?',
+        '["休息充電","跟朋友見面","認真工作","跑外面","跟對方一起"]'::jsonb),
+      (v_t2, 4, 'guess_partner', '猜對方今天的累指數', null),
+      (v_t2, 5, 'short_text', '希望明天能跟對方一起做的事', null);
+    insert into public.template_promises (template_id, position, text) values
+      (v_t2, 0, '看完對方答案不立刻分析,先深呼吸');
+
+    insert into public.templates (couple_id, name, emoji, description, created_by)
+    values (c.id, '今天對方怎麼了', '👀', '純觀察題,訓練看見對方', c.partner_a_id)
+    returning id into v_t3;
+    insert into public.template_questions (template_id, position, type, text, options) values
+      (v_t3, 0, 'guess_partner', '猜對方今天的幸福程度', null),
+      (v_t3, 1, 'guess_partner', '猜對方今天的累指數', null),
+      (v_t3, 2, 'short_text', '今天看到對方做了什麼讓你心動?', null),
+      (v_t3, 3, 'multi_choice', '對方今天的氣場?',
+        '["陽光","冷靜","煩躁","若有所思","平淡"]'::jsonb),
+      (v_t3, 4, 'short_text', '今天對方的一句話讓你印象深?', null);
+  end loop;
+end $backfill$;
+
 -- ═══════════════════════════ 停用 sync_scores 自動更新
 -- (Pivot 後不再依賴 sync,但保留 schema)
 
