@@ -11,6 +11,8 @@ export interface JournalEntryFull {
   content: string | null;
   shared_with_partner: boolean | null;
   attached_response_id: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   photos: JournalPhoto[];
   signed_photo_urls: string[];
 }
@@ -21,6 +23,8 @@ interface RawEntry {
   content: string | null;
   shared_with_partner: boolean | null;
   attached_response_id: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   photos: unknown;
 }
 
@@ -33,25 +37,12 @@ function parsePhotos(raw: unknown): JournalPhoto[] {
     .map((p) => ({ path: (p as JournalPhoto).path, caption: (p as JournalPhoto).caption ?? null }));
 }
 
-export async function getMyJournalMonth(
-  userId: string,
-  year: number,
-  month: number,
-): Promise<JournalEntryFull[]> {
-  const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
-  const end = new Date(year, month, 0).toISOString().slice(0, 10);
-  const supabase = await createSupabaseServerClient();
+async function withSignedUrls(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase as any)
-    .from("journal_entries")
-    .select("id, date, content, shared_with_partner, attached_response_id, photos")
-    .eq("user_id", userId)
-    .gte("date", start)
-    .lte("date", end)
-    .order("date", { ascending: true });
-
-  const rows = (data as RawEntry[] | null) ?? [];
-  const result: JournalEntryFull[] = [];
+  supabase: any,
+  rows: RawEntry[],
+): Promise<JournalEntryFull[]> {
+  const out: JournalEntryFull[] = [];
   for (const r of rows) {
     const photos = parsePhotos(r.photos);
     const signed = await Promise.all(
@@ -62,49 +53,82 @@ export async function getMyJournalMonth(
         return s?.signedUrl ?? "";
       }),
     );
-    result.push({
+    out.push({
       id: r.id,
       date: r.date,
       content: r.content,
       shared_with_partner: r.shared_with_partner,
       attached_response_id: r.attached_response_id,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
       photos,
       signed_photo_urls: signed.filter((u) => u),
     });
   }
-  return result;
+  return out;
 }
 
-export async function getJournalEntry(
+/** 月曆 view 用:某月的「每天統計」(篇數 / 有照片 / 有分享) */
+export interface DayStat {
+  count: number;
+  hasPhotos: boolean;
+  hasShared: boolean;
+  totalChars: number;
+}
+
+export async function getJournalMonthSummary(
   userId: string,
-  date: string,
-): Promise<JournalEntryFull | null> {
+  year: number,
+  month: number,
+): Promise<Map<string, DayStat>> {
+  const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
+  const end = new Date(year, month, 0).toISOString().slice(0, 10);
   const supabase = await createSupabaseServerClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("journal_entries")
-    .select("id, date, content, shared_with_partner, attached_response_id, photos")
+    .select("date, content, photos, shared_with_partner")
+    .eq("user_id", userId)
+    .gte("date", start)
+    .lte("date", end);
+
+  const map = new Map<string, DayStat>();
+  for (const e of (data as Array<{
+    date: string;
+    content: string | null;
+    photos: unknown;
+    shared_with_partner: boolean | null;
+  }> | null) ?? []) {
+    const cur = map.get(e.date) ?? {
+      count: 0,
+      hasPhotos: false,
+      hasShared: false,
+      totalChars: 0,
+    };
+    cur.count++;
+    cur.totalChars += (e.content ?? "").length;
+    const ps = parsePhotos(e.photos);
+    if (ps.length > 0) cur.hasPhotos = true;
+    if (e.shared_with_partner) cur.hasShared = true;
+    map.set(e.date, cur);
+  }
+  return map;
+}
+
+/** 某天所有 entries(同一天可有多篇) */
+export async function getJournalEntriesOfDate(
+  userId: string,
+  date: string,
+): Promise<JournalEntryFull[]> {
+  const supabase = await createSupabaseServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("journal_entries")
+    .select(
+      "id, date, content, shared_with_partner, attached_response_id, photos, created_at, updated_at",
+    )
     .eq("user_id", userId)
     .eq("date", date)
-    .maybeSingle();
-  const r = data as RawEntry | null;
-  if (!r) return null;
-  const photos = parsePhotos(r.photos);
-  const signed = await Promise.all(
-    photos.map(async (p) => {
-      const { data: s } = await supabase.storage
-        .from("journal_photos")
-        .createSignedUrl(p.path, 60 * 60 * 6);
-      return s?.signedUrl ?? "";
-    }),
-  );
-  return {
-    id: r.id,
-    date: r.date,
-    content: r.content,
-    shared_with_partner: r.shared_with_partner,
-    attached_response_id: r.attached_response_id,
-    photos,
-    signed_photo_urls: signed.filter((u) => u),
-  };
+    .order("created_at", { ascending: true });
+  return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
 }
