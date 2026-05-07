@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
-import { createClient } from "@/lib/supabase/client";
+import { sendMagicLink } from "./actions";
 
 const schema = z.object({
   email: z.string().email(),
@@ -17,26 +17,27 @@ const schema = z.object({
 export function LoginForm() {
   const t = useTranslations();
   const [sent, setSent] = useState(false);
+  const [pending, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
     getValues,
   } = useForm<{ email: string }>({ resolver: zodResolver(schema) });
 
-  async function onSubmit({ email }: { email: string }) {
-    const supabase = createClient();
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${siteUrl}/auth/callback` },
+  function onSubmit({ email }: { email: string }) {
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("email", email);
+      const res = await sendMagicLink(fd);
+      if (res.error) {
+        const msg = res.error === "invalid_email" ? t("auth.email_invalid") : res.error;
+        toast(msg, { tone: "error" });
+        return;
+      }
+      setSent(true);
+      toast(t("auth.magic_sent"), { tone: "success" });
     });
-    if (error) {
-      toast(error.message, { tone: "error" });
-      return;
-    }
-    setSent(true);
-    toast(t("auth.magic_sent"), { tone: "success" });
   }
 
   function notReady() {
@@ -78,7 +79,7 @@ export function LoginForm() {
         />
         {errors.email && <p className="text-xs text-red-500">{t("auth.email_invalid")}</p>}
       </div>
-      <Button type="submit" loading={isSubmitting} fullWidth size="lg">
+      <Button type="submit" loading={pending} fullWidth size="lg">
         {t("auth.send_magic_link")}
       </Button>
 
