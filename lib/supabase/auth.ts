@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "./server";
+import type { Database } from "./types";
+
+type Tables = Database["public"]["Tables"];
+type CoupleRow = Tables["couples"]["Row"];
+type ProfileRow = Tables["profiles"]["Row"];
 
 /** Server-side: 拿 user 物件,沒登入時回 null */
 export async function getUser() {
@@ -16,8 +21,8 @@ export async function requireUser() {
   return user;
 }
 
-/** 拿目前 user 的 couple(active),沒配對回 null */
-export async function getActiveCouple(userId: string) {
+/** 拿目前 user 的 couple(active/paused/recovery 都拿) */
+export async function getActiveCouple(userId: string): Promise<CoupleRow | null> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("couples")
@@ -27,15 +32,18 @@ export async function getActiveCouple(userId: string) {
     .order("paired_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  return data ?? null;
+  return (data as CoupleRow | null) ?? null;
 }
 
 /** 拿 partner 的 profile(若已配對) */
-export async function getPartnerProfile(userId: string, couple: { partner_a_id: string | null; partner_b_id: string | null } | null) {
+export async function getPartnerProfile(
+  userId: string,
+  couple: Pick<CoupleRow, "partner_a_id" | "partner_b_id"> | null,
+): Promise<ProfileRow | null> {
   if (!couple) return null;
   const partnerId = couple.partner_a_id === userId ? couple.partner_b_id : couple.partner_a_id;
   if (!partnerId) return null;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("profiles").select("*").eq("id", partnerId).maybeSingle();
-  return data ?? null;
+  return (data as ProfileRow | null) ?? null;
 }

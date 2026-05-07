@@ -1,23 +1,30 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
+import { requireUser, getActiveCouple } from "@/lib/supabase/auth";
+import { InviteHub } from "@/components/invite/InviteHub";
+import { PausedScreen } from "@/components/screens/PausedScreen";
+import { RecoveryScreen } from "@/components/screens/RecoveryScreen";
+import { TodayScreen } from "@/components/today/TodayScreen";
 
-export default async function TodayPage({
+export default async function HomePage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations();
 
-  return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("questionnaire.title")}</h1>
-        <p className="text-sm text-zinc-500">{t("brand.tagline")}</p>
-      </header>
-      <section className="rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] p-6">
-        <p className="text-zinc-500 text-sm">問卷骨架待 Phase 1 接上。</p>
-      </section>
-    </div>
-  );
+  const user = await requireUser();
+  const couple = await getActiveCouple(user.id);
+
+  if (!couple) {
+    return <InviteHub />;
+  }
+  if (couple.status === "paused") {
+    return <PausedScreen />;
+  }
+  if (couple.status === "recovery") {
+    return <RecoveryScreen recoveryUntil={couple.recovery_until} />;
+  }
+
+  return <TodayScreen user={user} couple={couple} />;
 }

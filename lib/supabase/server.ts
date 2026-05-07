@@ -18,7 +18,7 @@ export async function createSupabaseServerClient() {
               cookieStore.set(name, value, options);
             }
           } catch {
-            // Server Components 不能 set cookie,middleware 會處理 session refresh
+            // Server Components 不能 set cookie
           }
         },
       },
