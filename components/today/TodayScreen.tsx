@@ -1,22 +1,20 @@
-import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import {
-  getProfile,
-  getTodayResponse,
-  getPartnerTodayResponse,
-  getRecentQuestionIds,
-  getEligibleQuestions,
-  getOwnedPackIds,
-  getStreak,
-  type Couple,
-} from "@/lib/supabase/queries";
 import { todayISO } from "@/lib/utils/date";
-import { selectTodayQuestions } from "@/lib/questions/selector";
-import type { RotatingQuestion } from "@/lib/questions/rotating";
+import {
+  getDailyPick,
+  getNextPickerId,
+  getCoupleTemplates,
+  getTemplate,
+} from "@/lib/today/picker";
+import { getProfile, getTodayResponse, getPartnerTodayResponse, getStreak } from "@/lib/supabase/queries";
+import { getPartnerProfile } from "@/lib/supabase/auth";
+import type { Couple } from "@/lib/supabase/queries";
+import { TemplatePicker } from "./TemplatePicker";
+import { TemplateQuestionnaire } from "./TemplateQuestionnaire";
 import { TodayCompleted } from "./TodayCompleted";
-import { TodayQuestionnaire } from "./TodayQuestionnaire";
 
 interface Props {
   user: User;
@@ -24,24 +22,65 @@ interface Props {
 }
 
 export async function TodayScreen({ user, couple }: Props) {
-  const t = await getTranslations();
   const date = todayISO();
   const partnerId =
     couple.partner_a_id === user.id ? couple.partner_b_id : couple.partner_a_id;
 
-  const [my, partner, profile, partnerProfile, streak] = await Promise.all([
+  const [pick, nextPickerRaw, profile, partnerProfile, my, partner, streak] = await Promise.all([
+    getDailyPick(couple.id, date),
+    getNextPickerId(couple.id),
+    getProfile(user.id),
+    getPartnerProfile(user.id, couple),
     getTodayResponse(couple.id, user.id, date),
     partnerId ? getPartnerTodayResponse(couple.id, partnerId, date) : Promise.resolve(null),
-    getProfile(user.id),
-    partnerId ? getProfile(partnerId) : Promise.resolve(null),
     getStreak(couple.id),
   ]);
 
-  const isPremium = !!(profile?.is_premium || partnerProfile?.is_premium);
+  if (!pick) {
+    const myTurn = nextPickerRaw === user.id;
+    if (myTurn) {
+      const tpls = await getCoupleTemplates(couple.id);
+      return (
+        <TemplatePicker
+          coupleId={couple.id}
+          templates={tpls}
+          streak={streak.current_streak}
+        />
+      );
+    }
+    return (
+      <div className="flex flex-col gap-5">
+        <header className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight">今天</h1>
+          <p className="text-sm text-zinc-500">兩人每天輪流選模板</p>
+        </header>
+        <Card className="text-center bg-[var(--color-rose-soft)]/30 py-8 flex flex-col gap-2">
+          <div className="text-4xl">⏳</div>
+          <p className="text-sm">
+            今天輪 {partnerProfile?.display_name ?? "對方"} 選 — 等他開模板,我們才開始寫
+          </p>
+        </Card>
+        <Link href="/templates" className="text-center text-xs text-[var(--color-rose)] underline">
+          管理 / 新建模板
+        </Link>
+      </div>
+    );
+  }
+
+  const template = await getTemplate(pick.template_id);
+  if (!template) {
+    return (
+      <div className="text-center text-sm text-zinc-500 py-12">
+        今天的模板可能被刪了。請對方到 /templates 重選。
+      </div>
+    );
+  }
 
   if (my) {
     return (
       <TodayCompleted
+        templateName={template.name}
+        templateEmoji={template.emoji ?? "📝"}
         my={my}
         partner={partner}
         partnerName={partnerProfile?.display_name ?? null}
@@ -50,59 +89,33 @@ export async function TodayScreen({ user, couple }: Props) {
     );
   }
 
-  // 還沒寫 → 載入今日題
-  const recentIds = await getRecentQuestionIds(couple.id, 14);
-  const memberIds = [user.id, partnerId].filter(Boolean) as string[];
-  const ownedPackIds = await getOwnedPackIds(memberIds);
-  const allQuestions = await getEligibleQuestions(
-    couple.relationship_type ?? "same_city",
-    isPremium,
-    ownedPackIds,
-  );
-  const pool: RotatingQuestion[] = allQuestions.map((q) => ({
-    id: q.id,
-    category: q.category as RotatingQuestion["category"],
-    type: q.type as RotatingQuestion["type"],
-    text_zh: q.text_zh,
-    text_en: q.text_en,
-    options_zh: (q.options_zh as string[] | null) ?? undefined,
-    options_en: (q.options_en as string[] | null) ?? undefined,
-    for_relationship_types: (q.for_relationship_types ?? []) as RotatingQuestion["for_relationship_types"],
-    is_premium: !!q.is_premium,
-    weight: q.weight ?? 1,
-  }));
-  const todayQuestions = selectTodayQuestions({
-    pool,
-    excludeIds: new Set(recentIds),
-    relationshipType: (couple.relationship_type ?? "same_city") as "cohabit" | "same_city" | "long_distance",
-    isPremiumCouple: isPremium,
-    coupleId: couple.id,
-    dateISO: date,
-  });
-
   return (
     <div className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("questionnaire.title")}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {template.emoji} {template.name}
+          </h1>
           {streak.current_streak > 0 && (
-            <Badge tone="rose">🔥 {t("us.streak_title", { n: streak.current_streak })}</Badge>
+            <Badge tone="rose">🔥 {streak.current_streak} 天</Badge>
           )}
         </div>
-        <p className="text-sm text-zinc-500">{t("questionnaire.subtitle")}</p>
+        <p className="text-sm text-zinc-500">
+          今天 {pick.picked_by === user.id ? "你" : partnerProfile?.display_name ?? "對方"} 選的
+        </p>
       </header>
-
-      {partner && !my && (
+      {partner && (
         <Card className="bg-[var(--color-rose-soft)]/30 py-3 px-4 shadow-none">
-          <p className="text-sm">{t("questionnaire.partner_done")}</p>
+          <p className="text-sm">{partnerProfile?.display_name ?? "對方"} 已寫完了</p>
         </Card>
       )}
-
-      <TodayQuestionnaire
+      <TemplateQuestionnaire
         coupleId={couple.id}
         userId={user.id}
         date={date}
-        questions={todayQuestions}
+        templateId={template.id}
+        questions={template.questions}
+        promises={template.promises}
         locale={profile?.locale ?? "zh-TW"}
       />
     </div>

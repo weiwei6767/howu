@@ -2,12 +2,10 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/supabase/auth";
 import { getProfile } from "@/lib/supabase/queries";
 import { getActiveCouple } from "@/lib/supabase/auth";
-import { isPremiumUser } from "@/lib/premium/check";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { CoupleSettings } from "@/components/settings/CoupleSettings";
 import { DangerZone } from "@/components/settings/DangerZone";
 import { PushToggle } from "@/components/settings/PushToggle";
-import { PlanCard } from "@/components/settings/PlanCard";
 import { QuickLinks } from "@/components/settings/QuickLinks";
 
 export default async function SettingsPage({
@@ -22,13 +20,10 @@ export default async function SettingsPage({
   const user = await requireUser();
   const profile = await getProfile(user.id);
   const couple = await getActiveCouple(user.id);
-  const isPremium = await isPremiumUser(user.id);
 
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
-
-      <PlanCard isPremium={isPremium} premiumExpiresAt={profile?.premium_expires_at ?? null} />
 
       <QuickLinks />
 
