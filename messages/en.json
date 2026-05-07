@@ -8,18 +8,26 @@
     "yesterday": "Yesterday",
     "save": "Save",
     "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
     "next": "Next",
     "back": "Back",
     "submit": "Submit",
+    "close": "Close",
     "loading": "Loading...",
     "error": "Something went wrong",
-    "retry": "Try again"
+    "retry": "Try again",
+    "done": "Done",
+    "skip": "Skip",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "nav": {
-    "home": "Today's Check-in",
+    "home": "Today",
     "us": "Us",
-    "journal": "My Journal",
-    "memories": "Memory Book",
+    "journal": "Journal",
+    "memories": "Memories",
     "store": "Store",
     "leaderboard": "Leaderboard",
     "settings": "Settings"
@@ -28,6 +36,15 @@
     "login": "Sign in",
     "signup": "Sign up",
     "logout": "Sign out",
+    "email": "Email",
+    "email_invalid": "Email looks off",
+    "send_magic_link": "Send sign-in link",
+    "magic_sent": "Sign-in link sent",
+    "magic_sent_title": "Got the email?",
+    "magic_sent_body": "We sent a sign-in link to {email}. Open it and tap the button.",
+    "magic_resend": "Use a different email",
+    "or": "or",
+    "coming_soon": "This sign-in option is coming soon",
     "with_line": "Continue with LINE",
     "with_google": "Continue with Google",
     "with_apple": "Continue with Apple",
@@ -36,9 +53,16 @@
   },
   "questionnaire": {
     "title": "Today's Check-in",
+    "subtitle": "Spend 3 minutes capturing today, together",
     "complete": "Finish today",
     "completed_today": "Done for today",
     "wait_partner": "Waiting for your partner",
+    "partner_done": "Your partner finished too",
+    "partner_pending": "Your partner hasn't yet — that's OK",
+    "section_fixed": "Daily status",
+    "section_rotating": "Couple questions",
+    "section_mood": "Mood tags",
+    "section_secret": "Whisper",
     "fixed": {
       "happiness": "Happiness today",
       "energy": "Energy",
@@ -47,34 +71,195 @@
       "us_overall": "How are we"
     },
     "mood": {
-      "title": "Mood tags",
-      "placeholder": "Today I feel..."
+      "title": "Pick what fits today",
+      "tags": {
+        "calm": "calm",
+        "happy": "happy",
+        "tired": "tired",
+        "anxious": "anxious",
+        "loved": "loved",
+        "proud": "proud",
+        "lonely": "lonely",
+        "grateful": "grateful",
+        "frustrated": "frustrated",
+        "excited": "excited",
+        "thoughtful": "thoughtful",
+        "peaceful": "peaceful"
+      }
     },
     "secret_message": {
       "label": "Whisper",
       "placeholder": "Something I want to whisper...",
+      "delivery_mode_label": "When should they see this?",
       "delivery_mode": {
         "immediate": "Send now",
         "tomorrow": "Tomorrow 00:00",
         "scheduled": "Pick a date",
         "private": "Just for me"
-      }
-    }
+      },
+      "scheduled_date": "Delivery date"
+    },
+    "rotating": {
+      "guess_partner_hint": "Guess your partner — closer = more sync",
+      "type_text_placeholder": "A short note..."
+    },
+    "submit_finish": "Finish today's check-in",
+    "submitted_title": "Done for today ✨",
+    "submitted_body": "Thanks for stopping for a moment to write today in."
   },
   "sync": {
     "score": "Sync",
     "level": "Sync level",
-    "growth": "Your sync just grew +{delta}"
+    "growth": "Your sync just grew +{delta}",
+    "tree_stage": {
+      "1": "Seed",
+      "2": "Sprout",
+      "3": "Seedling",
+      "4": "Sapling",
+      "5": "Young Tree",
+      "6": "Lush Tree",
+      "7": "Big Tree",
+      "8": "Ancient Tree"
+    },
+    "next_level_in": "{n} more to level up"
   },
   "us": {
     "dday": "Together for",
     "days": "{n} days",
-    "next_milestone": "Next milestone"
+    "next_milestone": "Next milestone",
+    "milestones_title": "Our milestones",
+    "add_milestone": "Add milestone",
+    "milestone_type": {
+      "anniversary": "Anniversary",
+      "first_meet": "First meet",
+      "first_trip": "First trip",
+      "birthday_a": "My birthday",
+      "birthday_b": "Their birthday",
+      "custom": "Custom"
+    },
+    "partner_status_title": "Today they",
+    "streak_title": "{n}-day streak",
+    "longest_streak": "Longest {n} days",
+    "no_partner_yet": "No partner yet"
   },
   "couple": {
     "promises": "Our Promises",
     "memory_book": "Our Memory Book",
     "four_grid": "Today in 4 Frames",
     "whisper": "Whisper"
+  },
+  "invite": {
+    "title": "Invite your partner",
+    "subtitle": "Send this link to them — once they accept you're paired",
+    "generate": "Generate invite link",
+    "copy_link": "Copy link",
+    "share_link": "Share link",
+    "regenerate": "Regenerate",
+    "expires_in": "Valid for {days} days",
+    "your_message": "Want to leave them a note?",
+    "message_placeholder": "(optional) something nice for them to see",
+    "message_style_label": "Tone",
+    "message_style": {
+      "cute": "Cute",
+      "simple": "Simple",
+      "custom": "Custom"
+    },
+    "accept_title": "{inviter} invited you to share an everyday",
+    "accept_body": "Spend 3 minutes a day on a check-in, build sync, keep memories.",
+    "accept_button": "Accept and pair",
+    "together_since_label": "When you started (D-Day)",
+    "relationship_type_label": "Current setup",
+    "relationship_type": {
+      "cohabit": "Living together",
+      "same_city": "Same city",
+      "long_distance": "Long distance"
+    },
+    "expired": "This invite is expired or already used",
+    "self_accept": "Can't accept your own invite"
+  },
+  "journal": {
+    "title": "My Journal",
+    "today": "Today's entry",
+    "compose_placeholder": "What happened today?",
+    "attach_response": "Attach today's check-in data",
+    "share_with_partner": "Share with partner",
+    "shared": "Shared",
+    "private_note": "Only you will see this",
+    "delete_confirm": "Delete this entry?",
+    "empty": "Nothing yet — start writing"
+  },
+  "memories": {
+    "title": "Memory Book",
+    "monthly": "{ym} recap",
+    "albums": "Shared photos",
+    "upload": "Upload photo",
+    "caption_placeholder": "Add a caption..."
+  },
+  "four_grid": {
+    "title": "Today in 4 Frames",
+    "pick_yours": "Which one feels like you today?",
+    "wait_partner": "Waiting for your partner to pick",
+    "match_title": "You picked the same +30",
+    "miss_title": "Different picks today — that's fine",
+    "themes": {
+      "mood": "Mood",
+      "food": "Food",
+      "animal": "Animal",
+      "color": "Color",
+      "scene": "Scene"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "display_name": "Display name",
+    "birthday": "Birthday",
+    "language": "Language",
+    "notifications": "Notifications",
+    "notifications_daily": "Daily check-in reminder",
+    "notifications_partner": "Partner finished",
+    "notifications_secret": "Whisper delivered",
+    "relationship": "Relationship",
+    "relationship_type": "Setup",
+    "danger_zone": "Danger zone",
+    "pause_relationship": "Pause syncing",
+    "disconnect": "Disconnect",
+    "delete_account": "Delete account",
+    "logout": "Sign out",
+    "save_success": "Saved"
+  },
+  "promises": {
+    "title": "Our Promises",
+    "subtitle": "Little agreements between you two",
+    "add": "Add promise",
+    "placeholder": "e.g. eat dinner together at least once a week",
+    "empty": "No promises yet"
+  },
+  "leaderboard": {
+    "title": "Sync Leaderboard",
+    "your_rank": "Your rank",
+    "top_percentile": "Top {n}%",
+    "anonymous": "Everyone is anonymous — only the level shows"
+  },
+  "pwa": {
+    "install_title": "Add howu to home screen",
+    "install_body": "One tap to open, push notifications work better too.",
+    "ios_steps": "Tap Share below in Safari → Add to Home Screen",
+    "android_steps": "Open Chrome menu → Add to Home Screen",
+    "later": "Maybe later",
+    "got_it": "Got it"
+  },
+  "disconnect": {
+    "title": "Pause or disconnect",
+    "pause_title": "Pause",
+    "pause_body": "Your records are kept. No new questions, no sync calculation. Either of you can resume.",
+    "pause_confirm": "Confirm pause",
+    "disconnect_title": "Disconnect",
+    "disconnect_body": "Starts a 30-day recovery period. Any of you can request reconnect; the other agrees to resume. After 30 days the disconnect is final and we'll generate a memory book PDF for you.",
+    "disconnect_confirm": "I understand, start 30-day recovery",
+    "recovery_title": "In recovery",
+    "recovery_body": "Final disconnect in {n} days. Either of you can request reconnect.",
+    "reconnect": "Request reconnect",
+    "reconnect_pending": "Waiting for them"
   }
 }

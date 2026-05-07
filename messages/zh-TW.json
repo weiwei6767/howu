@@ -8,12 +8,20 @@
     "yesterday": "昨天",
     "save": "儲存",
     "cancel": "取消",
+    "delete": "刪除",
+    "edit": "編輯",
     "next": "下一步",
     "back": "上一步",
     "submit": "送出",
+    "close": "關閉",
     "loading": "載入中...",
     "error": "發生錯誤",
-    "retry": "重試"
+    "retry": "重試",
+    "done": "完成",
+    "skip": "跳過",
+    "share": "分享",
+    "copy": "複製",
+    "copied": "已複製"
   },
   "nav": {
     "home": "今日問卷",
@@ -28,6 +36,15 @@
     "login": "登入",
     "signup": "註冊",
     "logout": "登出",
+    "email": "Email",
+    "email_invalid": "Email 格式不太對",
+    "send_magic_link": "寄登入連結到信箱",
+    "magic_sent": "登入連結已寄出",
+    "magic_sent_title": "信收到了嗎?",
+    "magic_sent_body": "我們把登入連結寄到 {email}。打開信、點裡面的按鈕,就能直接進來。",
+    "magic_resend": "改用其他 email",
+    "or": "或",
+    "coming_soon": "這個登入方式即將開放",
     "with_line": "用 LINE 登入",
     "with_google": "用 Google 登入",
     "with_apple": "用 Apple 登入",
@@ -36,9 +53,16 @@
   },
   "questionnaire": {
     "title": "今日問卷",
+    "subtitle": "兩個人花 3 分鐘,把今天寫進來",
     "complete": "完成今日",
     "completed_today": "今天已完成",
     "wait_partner": "等對方收到",
+    "partner_done": "對方今天也寫完了",
+    "partner_pending": "對方還沒寫,沒關係,慢慢來",
+    "section_fixed": "今日心情",
+    "section_rotating": "兩人題",
+    "section_mood": "心情標籤",
+    "section_secret": "偷偷想跟你說",
     "fixed": {
       "happiness": "今日份幸福程度",
       "energy": "精神狀態",
@@ -47,34 +71,195 @@
       "us_overall": "我們整體狀態"
     },
     "mood": {
-      "title": "心情標籤",
-      "placeholder": "今天的心情..."
+      "title": "心情標籤(可複選)",
+      "tags": {
+        "calm": "平靜",
+        "happy": "開心",
+        "tired": "累",
+        "anxious": "焦慮",
+        "loved": "被愛",
+        "proud": "驕傲",
+        "lonely": "寂寞",
+        "grateful": "感謝",
+        "frustrated": "煩躁",
+        "excited": "興奮",
+        "thoughtful": "思緒多",
+        "peaceful": "踏實"
+      }
     },
     "secret_message": {
       "label": "偷偷想跟你說",
       "placeholder": "偷偷想跟你說...",
+      "delivery_mode_label": "什麼時候讓對方看到?",
       "delivery_mode": {
         "immediate": "立即送達",
         "tomorrow": "明天 00:00 送達",
         "scheduled": "指定日期送達",
         "private": "只我自己知道"
-      }
-    }
+      },
+      "scheduled_date": "送達日期"
+    },
+    "rotating": {
+      "guess_partner_hint": "猜對方的分數,愈接近愈加默契",
+      "type_text_placeholder": "簡短寫一下..."
+    },
+    "submit_finish": "完成今日問卷",
+    "submitted_title": "今天寫完了 ✨",
+    "submitted_body": "謝謝你今天願意停下來,把今天寫進來。"
   },
   "sync": {
     "score": "默契值",
     "level": "默契等級",
-    "growth": "你們的默契又長大了 +{delta}"
+    "growth": "你們的默契又長大了 +{delta}",
+    "tree_stage": {
+      "1": "種子",
+      "2": "嫩芽",
+      "3": "小苗",
+      "4": "幼樹",
+      "5": "小樹",
+      "6": "繁茂樹",
+      "7": "大樹",
+      "8": "古樹"
+    },
+    "next_level_in": "再 {n} 點就升級"
   },
   "us": {
     "dday": "在一起",
     "days": "{n} 天",
-    "next_milestone": "下一個紀念日"
+    "next_milestone": "下一個紀念日",
+    "milestones_title": "我們的紀念日",
+    "add_milestone": "新增紀念日",
+    "milestone_type": {
+      "anniversary": "週年",
+      "first_meet": "初次見面",
+      "first_trip": "第一次旅行",
+      "birthday_a": "我的生日",
+      "birthday_b": "對方生日",
+      "custom": "自訂"
+    },
+    "partner_status_title": "對方今天",
+    "streak_title": "連續 {n} 天",
+    "longest_streak": "最長 {n} 天",
+    "no_partner_yet": "還沒邀請另一半"
   },
   "couple": {
     "promises": "我們的承諾",
     "memory_book": "我們的回憶冊",
     "four_grid": "今日四格",
     "whisper": "悄悄話"
+  },
+  "invite": {
+    "title": "邀請你的另一半",
+    "subtitle": "傳這個連結給對方,他點開接受就能配對",
+    "generate": "產生邀請連結",
+    "copy_link": "複製連結",
+    "share_link": "分享連結",
+    "regenerate": "重新產生",
+    "expires_in": "{days} 天內有效",
+    "your_message": "想留個訊息給對方?",
+    "message_placeholder": "(可選)寫點什麼讓對方收到時暖一下",
+    "message_style_label": "訊息語氣",
+    "message_style": {
+      "cute": "可愛",
+      "simple": "簡單",
+      "custom": "自訂"
+    },
+    "accept_title": "{inviter} 邀請你一起寫日常",
+    "accept_body": "兩個人花 3 分鐘寫今日問卷,慢慢累積你們的默契值與回憶。",
+    "accept_button": "接受並配對",
+    "together_since_label": "你們在一起的日期(D-Day)",
+    "relationship_type_label": "現在的相處狀態",
+    "relationship_type": {
+      "cohabit": "同住",
+      "same_city": "同城",
+      "long_distance": "遠距"
+    },
+    "expired": "這個邀請已經過期或被使用了",
+    "self_accept": "不能用自己的邀請連結"
+  },
+  "journal": {
+    "title": "我的日記",
+    "today": "今天的日記",
+    "compose_placeholder": "今天發生了什麼?",
+    "attach_response": "附上今天問卷數據",
+    "share_with_partner": "分享給對方看",
+    "shared": "已分享",
+    "private_note": "這篇只有自己會看到",
+    "delete_confirm": "刪除這篇日記?",
+    "empty": "還沒有日記,開始寫吧"
+  },
+  "memories": {
+    "title": "我們的回憶冊",
+    "monthly": "{ym} 月回顧",
+    "albums": "共同相簿",
+    "upload": "上傳照片",
+    "caption_placeholder": "留個說明..."
+  },
+  "four_grid": {
+    "title": "今日四格",
+    "pick_yours": "今天的你比較像?",
+    "wait_partner": "等對方也選好",
+    "match_title": "你們選了同一格 +30",
+    "miss_title": "今天選了不同格,沒關係",
+    "themes": {
+      "mood": "心情",
+      "food": "食物",
+      "animal": "動物",
+      "color": "顏色",
+      "scene": "場景"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "profile": "個人資料",
+    "display_name": "顯示名稱",
+    "birthday": "生日",
+    "language": "語言",
+    "notifications": "推播提醒",
+    "notifications_daily": "每日問卷提醒",
+    "notifications_partner": "對方完成提醒",
+    "notifications_secret": "悄悄話送達提醒",
+    "relationship": "關係",
+    "relationship_type": "相處類型",
+    "danger_zone": "敏感操作",
+    "pause_relationship": "暫停同步",
+    "disconnect": "解除綁定",
+    "delete_account": "刪除帳號",
+    "logout": "登出",
+    "save_success": "已儲存"
+  },
+  "promises": {
+    "title": "我們的承諾",
+    "subtitle": "你們之間的小約定",
+    "add": "新增承諾",
+    "placeholder": "比如:每週至少一次好好吃飯",
+    "empty": "還沒有任何承諾"
+  },
+  "leaderboard": {
+    "title": "默契排行榜",
+    "your_rank": "你們的排名",
+    "top_percentile": "前 {n}%",
+    "anonymous": "都是匿名的,大家只看到等級"
+  },
+  "pwa": {
+    "install_title": "把 howu 加到主畫面",
+    "install_body": "之後一鍵打開,推播也比較穩。",
+    "ios_steps": "在 Safari 點下方分享 → 加入主畫面",
+    "android_steps": "在 Chrome 選單點「加入主畫面」",
+    "later": "晚點再說",
+    "got_it": "好"
+  },
+  "disconnect": {
+    "title": "暫停或解除綁定",
+    "pause_title": "暫停",
+    "pause_body": "你們的紀錄會保留,期間不出題、不算默契。任一方都能恢復。",
+    "pause_confirm": "確認暫停",
+    "disconnect_title": "解除綁定",
+    "disconnect_body": "進入 30 天恢復期。期間任一方按下重連,對方同意就能恢復。30 天到期會正式解除,我們會自動產一份回憶冊 PDF 留給你們。",
+    "disconnect_confirm": "我了解,進入 30 天恢復期",
+    "recovery_title": "恢復期中",
+    "recovery_body": "{n} 天後會正式解除。任何一方按重連,對方同意就能恢復。",
+    "reconnect": "申請重連",
+    "reconnect_pending": "等對方同意"
   }
 }

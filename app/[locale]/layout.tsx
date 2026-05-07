@@ -4,6 +4,8 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Noto_Sans_TC, Inter, Caveat } from "next/font/google";
 import { routing } from "@/i18n/routing";
+import { Toaster } from "@/components/ui/Toaster";
+import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import "../globals.css";
 
 const notoTC = Noto_Sans_TC({
@@ -75,7 +77,10 @@ export default async function LocaleLayout({
       className={`${notoTC.variable} ${inter.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
+          <SupabaseProvider>{children}</SupabaseProvider>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

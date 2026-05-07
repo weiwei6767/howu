@@ -1,4 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { LoginForm } from "./LoginForm";
+import { getUser } from "@/lib/supabase/auth";
 
 export default async function LoginPage({
   params,
@@ -9,21 +12,16 @@ export default async function LoginPage({
   setRequestLocale(locale);
   const t = await getTranslations();
 
+  const user = await getUser();
+  if (user) redirect("/");
+
   return (
-    <div className="flex flex-col gap-6 text-center">
-      <h1 className="text-3xl font-semibold">howu</h1>
-      <p className="text-sm text-zinc-500">{t("brand.tagline")}</p>
-      <div className="flex flex-col gap-3">
-        <button className="h-12 rounded-[var(--radius-cta)] bg-[var(--color-rose)] text-white font-medium">
-          {t("auth.with_line")}
-        </button>
-        <button className="h-12 rounded-[var(--radius-cta)] border border-zinc-200 font-medium">
-          {t("auth.with_google")}
-        </button>
-        <button className="h-12 rounded-[var(--radius-cta)] border border-zinc-200 font-medium">
-          {t("auth.with_apple")}
-        </button>
-      </div>
+    <div className="flex flex-col gap-7">
+      <header className="text-center flex flex-col gap-1">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-rose)]">howu</h1>
+        <p className="text-sm text-zinc-500">{t("brand.tagline")}</p>
+      </header>
+      <LoginForm />
     </div>
   );
 }

@@ -43,3 +43,5 @@ howu_企劃書.docx
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
