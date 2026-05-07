@@ -8,6 +8,7 @@ import { CoupleSettings } from "@/components/settings/CoupleSettings";
 import { DangerZone } from "@/components/settings/DangerZone";
 import { PushToggle } from "@/components/settings/PushToggle";
 import { PlanCard } from "@/components/settings/PlanCard";
+import { QuickLinks } from "@/components/settings/QuickLinks";
 
 export default async function SettingsPage({
   params,
@@ -28,6 +29,8 @@ export default async function SettingsPage({
       <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
 
       <PlanCard isPremium={isPremium} premiumExpiresAt={profile?.premium_expires_at ?? null} />
+
+      <QuickLinks />
 
       <ProfileForm
         profile={{
