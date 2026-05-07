@@ -2,7 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/utils/date";
-import { getActiveCouple } from "@/lib/supabase/auth";
+import { getActiveCouple, getPartnerProfile } from "@/lib/supabase/auth";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalList } from "@/components/journal/JournalList";
 
@@ -25,6 +25,7 @@ export default async function JournalPage({
 
   const user = await requireUser();
   const couple = await getActiveCouple(user.id);
+  const partnerProfile = await getPartnerProfile(user.id, couple);
 
   const supabase = await createSupabaseServerClient();
 
@@ -63,6 +64,7 @@ export default async function JournalPage({
       <h1 className="text-2xl font-semibold">{t("journal.title")}</h1>
       <JournalEditor
         userId={user.id}
+        partnerName={partnerProfile?.display_name ?? null}
         todayResponseId={todayResponseId}
         initial={{
           id: todayEntry?.id ?? null,

@@ -12,17 +12,19 @@ import { todayISO } from "@/lib/utils/date";
 
 interface Props {
   userId: string;
+  partnerName: string | null;
   todayResponseId: string | null;
   initial: { id: string | null; content: string; share: boolean; attach: boolean };
 }
 
-export function JournalEditor({ userId, todayResponseId, initial }: Props) {
+export function JournalEditor({ userId, partnerName, todayResponseId, initial }: Props) {
   const t = useTranslations();
   const router = useRouter();
   const [content, setContent] = useState(initial.content);
   const [share, setShare] = useState(initial.share);
   const [attach, setAttach] = useState(initial.attach);
   const [saving, setSaving] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   async function save() {
     if (!content.trim()) return;
@@ -51,9 +53,39 @@ export function JournalEditor({ userId, todayResponseId, initial }: Props) {
     }
   }
 
+  async function aiPrompt() {
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/journal-template", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ partner_name: partnerName ?? "對方" }),
+      });
+      const json = await res.json();
+      if (json.template) {
+        const newContent = content.trim() ? `${content.trim()}\n\n${json.template}` : json.template;
+        setContent(newContent);
+      }
+    } catch (e) {
+      toast((e as Error).message, { tone: "error" });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   return (
     <Card className="flex flex-col gap-3">
-      <h2 className="text-base font-semibold">{t("journal.today")}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold">{t("journal.today")}</h2>
+        <button
+          type="button"
+          onClick={aiPrompt}
+          disabled={aiLoading}
+          className="text-xs text-[var(--color-rose)] underline disabled:opacity-50"
+        >
+          {aiLoading ? "AI 起頭中..." : "✨ AI 幫我起頭"}
+        </button>
+      </div>
       <Textarea
         rows={6}
         placeholder={t("journal.compose_placeholder")}
