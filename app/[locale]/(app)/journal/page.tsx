@@ -3,16 +3,10 @@ import { requireUser } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/utils/date";
 import { getActiveCouple, getPartnerProfile } from "@/lib/supabase/auth";
+import { getMyJournalMonth, getJournalEntry } from "@/lib/journal/queries";
 import { JournalEditor } from "@/components/journal/JournalEditor";
-import { JournalList } from "@/components/journal/JournalList";
-
-interface Entry {
-  id: string;
-  date: string;
-  content: string | null;
-  shared_with_partner: boolean | null;
-  attached_response_id: string | null;
-}
+import { JournalCalendar } from "@/components/journal/JournalCalendar";
+import { Card } from "@/components/ui/Card";
 
 export default async function JournalPage({
   params,
@@ -28,15 +22,15 @@ export default async function JournalPage({
   const partnerProfile = await getPartnerProfile(user.id, couple);
 
   const supabase = await createSupabaseServerClient();
-
   const date = todayISO();
-  const [{ data: entriesRaw }, { data: todayResp }, { data: todayEntryRaw }] = await Promise.all([
-    supabase
-      .from("journal_entries")
-      .select("id, date, content, shared_with_partner, attached_response_id")
-      .eq("user_id", user.id)
-      .order("date", { ascending: false })
-      .limit(100),
+
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = now.getMonth() + 1;
+
+  const [todayEntry, monthEntries, todayResp] = await Promise.all([
+    getJournalEntry(user.id, date),
+    getMyJournalMonth(user.id, yyyy, mm),
     couple
       ? supabase
           .from("daily_responses")
@@ -46,22 +40,14 @@ export default async function JournalPage({
           .eq("date", date)
           .maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase
-      .from("journal_entries")
-      .select("id, content, shared_with_partner, attached_response_id")
-      .eq("user_id", user.id)
-      .eq("date", date)
-      .maybeSingle(),
   ]);
-  const entries = (entriesRaw as Entry[] | null) ?? [];
-  const todayEntry = todayEntryRaw as
-    | { id: string; content: string | null; shared_with_partner: boolean | null; attached_response_id: string | null }
-    | null;
-  const todayResponseId = (todayResp as { id: string } | null)?.id ?? null;
+
+  const todayResponseId = (todayResp.data as { id: string } | null)?.id ?? null;
 
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-semibold">{t("journal.title")}</h1>
+
       <JournalEditor
         userId={user.id}
         partnerName={partnerProfile?.display_name ?? null}
@@ -71,9 +57,29 @@ export default async function JournalPage({
           content: todayEntry?.content ?? "",
           share: !!todayEntry?.shared_with_partner,
           attach: !!todayEntry?.attached_response_id,
+          photos:
+            todayEntry?.photos.map((p, i) => ({
+              path: p.path,
+              signedUrl: todayEntry.signed_photo_urls[i] ?? "",
+            })) ?? [],
         }}
       />
-      <JournalList entries={entries.filter((e) => e.date !== date)} />
+
+      <section className="flex flex-col gap-3">
+        <header className="flex items-center justify-between">
+          <h2 className="text-base font-semibold">
+            {yyyy} 年 {mm} 月
+          </h2>
+          <span className="text-xs text-zinc-400">點任一天打開那天</span>
+        </header>
+        <JournalCalendar year={yyyy} month={mm} entries={monthEntries} />
+      </section>
+
+      {monthEntries.length === 0 && (
+        <Card className="text-center text-sm text-zinc-400 py-6">
+          {t("journal.empty")}
+        </Card>
+      )}
     </div>
   );
 }
