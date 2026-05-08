@@ -207,18 +207,33 @@ export default async function MemoriesPage({
         )}
       </section>
 
-      <Link
-        href="/memories/book"
-        className="flex items-center justify-between py-4 border-y border-[var(--color-paper-line)] hover:text-[var(--color-ink-mid)] transition-colors"
-      >
-        <div>
-          <p className="font-serif text-lg">我們的回憶冊</p>
-          <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-            列印 / 存 PDF 留念
-          </p>
-        </div>
-        <span className="text-[var(--color-ink-soft)]">→</span>
-      </Link>
+      <div className="flex flex-col border-y border-[var(--color-paper-line)]">
+        <Link
+          href="/memories/history"
+          className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors border-b border-[var(--color-paper-line)]"
+        >
+          <div>
+            <p className="font-serif text-lg">過去的問卷</p>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+              翻看你們以前一起寫過的
+            </p>
+          </div>
+          <span className="text-[var(--color-ink-soft)]">→</span>
+        </Link>
+
+        <Link
+          href="/memories/book"
+          className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors"
+        >
+          <div>
+            <p className="font-serif text-lg">我們的回憶冊</p>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+              列印 / 存 PDF 留念
+            </p>
+          </div>
+          <span className="text-[var(--color-ink-soft)]">→</span>
+        </Link>
+      </div>
 
       <PhotoUpload coupleId={couple.id} />
 
