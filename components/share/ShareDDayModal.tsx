@@ -41,23 +41,9 @@ export function ShareDDayModal({
   backgroundUrl,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [working, setWorking] = useState<"none" | "share" | "download">("none");
+  const [downloading, setDownloading] = useState(false);
   const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
   const [bgLoading, setBgLoading] = useState(false);
-  const [canShareFiles, setCanShareFiles] = useState(false);
-
-  // 偵測 Web Share API with files 支援(iOS 16+ Safari、Android Chrome)
-  useEffect(() => {
-    if (typeof navigator === "undefined") return;
-    try {
-      const dummyFile = new File([""], "x.png", { type: "image/png" });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ok = (navigator as any).canShare?.({ files: [dummyFile] }) ?? false;
-      setCanShareFiles(ok);
-    } catch {
-      setCanShareFiles(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (!open || !backgroundUrl) {
@@ -87,6 +73,8 @@ export function ShareDDayModal({
       ? `${window.location.origin}/share/dday/${coupleId}`
       : `https://howu.online/share/dday/${coupleId}`;
 
+  const shareText = `${partnerAName} & ${partnerBName} · ${days} 天 ✨`;
+
   async function waitForImagesLoaded(root: HTMLElement) {
     const imgs = Array.from(root.querySelectorAll("img"));
     await Promise.all(
@@ -112,67 +100,47 @@ export function ShareDDayModal({
     );
   }
 
-  async function renderToBlob(): Promise<Blob> {
-    if (!cardRef.current) throw new Error("no card");
-    if (backgroundUrl && !bgDataUrl) throw new Error("背景還在載");
-    await waitForImagesLoaded(cardRef.current);
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
-    const dataUrl = await domToPng(cardRef.current, { scale: 3 });
-    const res = await fetch(dataUrl);
-    return res.blob();
-  }
-
-  async function shareWithFile() {
-    setWorking("share");
-    try {
-      const blob = await renderToBlob();
-      const file = new File([blob], `howu-${days}-days.png`, { type: "image/png" });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nav = navigator as any;
-      if (nav.canShare?.({ files: [file] })) {
-        await nav.share({
-          files: [file],
-          title: "howu",
-          text: `${partnerAName} & ${partnerBName} · ${days} 天 ✨`,
-        });
-        toast("已開啟分享面板", { tone: "success" });
-      } else {
-        // fallback to download
-        await downloadInternal(blob);
-      }
-    } catch (e) {
-      // 用戶取消 share 不算錯
-      const msg = (e as Error).message;
-      if (!msg.includes("AbortError") && !msg.includes("cancel")) {
-        toast(`分享失敗:${msg}`, { tone: "error" });
-      }
-    } finally {
-      setWorking("none");
+  async function handleDownload() {
+    if (!cardRef.current) return;
+    if (backgroundUrl && !bgDataUrl) {
+      toast("背景還在載,稍等一下", { tone: "info" });
+      return;
     }
-  }
-
-  async function downloadInternal(blob: Blob) {
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = `howu-${days}-days.png`;
-    link.href = blobUrl;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-    toast("已下載", { tone: "success" });
-  }
-
-  async function downloadOnly() {
-    setWorking("download");
+    setDownloading(true);
     try {
-      const blob = await renderToBlob();
-      await downloadInternal(blob);
+      await waitForImagesLoaded(cardRef.current);
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      const dataUrl = await domToPng(cardRef.current, { scale: 3 });
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = `howu-${days}-days.png`;
+      link.href = blobUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      toast("已下載", { tone: "success" });
     } catch (e) {
       toast(`下載失敗:${(e as Error).message}`, { tone: "error" });
     } finally {
-      setWorking("none");
+      setDownloading(false);
     }
+  }
+
+  function shareToThreads() {
+    const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
+    window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank");
+  }
+
+  function shareToLine() {
+    const url = encodeURIComponent(shareUrl);
+    const text = encodeURIComponent(shareText);
+    window.open(
+      `https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`,
+      "_blank",
+    );
   }
 
   async function copyLink() {
@@ -232,59 +200,29 @@ export function ShareDDayModal({
               </p>
 
               <div className="flex flex-col gap-2">
-                {canShareFiles ? (
-                  <>
-                    <Button
-                      onClick={shareWithFile}
-                      loading={working === "share"}
-                      disabled={bgLoading}
-                      fullWidth
-                      size="lg"
-                    >
-                      📤 分享圖片(到 IG / Threads / LINE / 相簿)
-                    </Button>
-                    <p className="text-[11px] text-zinc-400 text-center -mt-1">
-                      點開系統分享面板,可以一鍵丟到任何 app
-                    </p>
-                    <Button
-                      onClick={downloadOnly}
-                      loading={working === "download"}
-                      disabled={bgLoading}
-                      variant="secondary"
-                      fullWidth
-                    >
-                      📥 只下載
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      onClick={downloadOnly}
-                      loading={working === "download"}
-                      disabled={bgLoading}
-                      fullWidth
-                      size="lg"
-                    >
-                      📥 下載圖片
-                    </Button>
-                    <p className="text-[11px] text-zinc-400 text-center -mt-1">
-                      下載後從相簿 / 下載項目找到再分享
-                    </p>
-                  </>
-                )}
+                <Button
+                  onClick={handleDownload}
+                  loading={downloading}
+                  disabled={bgLoading}
+                  fullWidth
+                  size="lg"
+                >
+                  📥 下載 PNG
+                </Button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button onClick={shareToThreads} variant="secondary" fullWidth>
+                    🧵 Threads
+                  </Button>
+                  <Button onClick={shareToLine} variant="secondary" fullWidth>
+                    💬 LINE
+                  </Button>
+                </div>
 
                 <Button onClick={copyLink} variant="soft" fullWidth>
                   🔗 複製連結
                 </Button>
               </div>
-
-              {!canShareFiles && (
-                <p className="text-[11px] text-zinc-400 text-center mt-4 leading-relaxed">
-                  iPhone 用 Safari、Android 用 Chrome 開,
-                  <br />
-                  分享按鈕會多一個「直接送到 IG / LINE」的選項
-                </p>
-              )}
             </div>
           </motion.div>
         </motion.div>
