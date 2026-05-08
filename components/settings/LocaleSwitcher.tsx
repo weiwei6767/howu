@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,6 +11,7 @@ const LOCALES = [
 ] as const;
 
 export function LocaleSwitcher() {
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const current = useLocale();
@@ -19,7 +20,6 @@ export function LocaleSwitcher() {
   function switchTo(target: string) {
     if (target === current) return;
     startTransition(async () => {
-      // 同時更新 DB 偏好,讓下次登入也保留(失敗也不擋切換)
       try {
         const supabase = createClient();
         const { data: u } = await supabase.auth.getUser();
@@ -29,9 +29,7 @@ export function LocaleSwitcher() {
             .update({ locale: target })
             .eq("id", u.user.id);
         }
-      } catch {
-        // 忽略,UI 切換為主
-      }
+      } catch {}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(pathname as any, { locale: target as "zh-TW" | "en" });
       router.refresh();
@@ -40,7 +38,9 @@ export function LocaleSwitcher() {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs text-[var(--color-ink-mid)]">語言 / Language</span>
+      <span className="text-xs text-[var(--color-ink-mid)]">
+        {t("settings.language_label")}
+      </span>
       <div className="flex gap-2">
         {LOCALES.map((l) => {
           const active = current === l.code;

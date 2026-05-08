@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { DailyResponse } from "@/lib/supabase/queries";
 
 interface AnswerEntry {
@@ -28,26 +29,36 @@ export function TodayCompleted({
   myName,
   streak,
 }: Props) {
+  const t = useTranslations();
   const myAnswers = (my.rotating_answers as unknown as AnswerEntry[]) ?? [];
   const partnerAnswers = ((partner?.rotating_answers as unknown as AnswerEntry[] | null) ?? null);
 
   const partnerById = new Map<string, AnswerEntry>();
   for (const a of partnerAnswers ?? []) partnerById.set(a.question_id, a);
 
+  const partnerLabel = partnerName ?? t("today_completed.partner_label");
+  const myLabel = myName ?? t("today_completed.partner_label");
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1 pt-4">
         <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-[0.18em]">
-          今天寫完了
+          {t("today_screen.completed_title")}
         </p>
         <h1 className="font-serif text-3xl flex items-center gap-2">
           {templateEmoji && <span>{templateEmoji}</span>}
           <span>{templateName}</span>
         </h1>
         <div className="flex items-center gap-3 text-xs text-[var(--color-ink-mid)] mt-1">
-          {streak.current_streak > 0 && <span>連續 {streak.current_streak} 天</span>}
-          <span>·</span>
-          <span>{partner ? "兩人都寫完了" : `等 ${partnerName ?? "對方"} 寫`}</span>
+          {streak.current_streak > 0 && (
+            <span>{t("today_screen.streak_short", { n: streak.current_streak })}</span>
+          )}
+          {streak.current_streak > 0 && <span>·</span>}
+          <span>
+            {partner
+              ? t("today_screen.both_done")
+              : t("today_screen.wait_partner_named", { name: partnerLabel })}
+          </span>
         </div>
       </header>
 
@@ -63,8 +74,9 @@ export function TodayCompleted({
               myValue={mine.value}
               partnerValue={theirs?.value}
               partnerWritten={!!partner}
-              myName={myName ?? "我"}
-              partnerName={partnerName ?? "對方"}
+              myName={myLabel}
+              partnerName={partnerLabel}
+              t={t}
             />
           );
         })}
@@ -72,6 +84,8 @@ export function TodayCompleted({
     </div>
   );
 }
+
+type T = ReturnType<typeof useTranslations>;
 
 function AnswerRow({
   index,
@@ -82,6 +96,7 @@ function AnswerRow({
   partnerWritten,
   myName,
   partnerName,
+  t,
 }: {
   index: number;
   question: string;
@@ -91,6 +106,7 @@ function AnswerRow({
   partnerWritten: boolean;
   myName: string;
   partnerName: string;
+  t: T;
 }) {
   return (
     <section className="flex flex-col gap-3 pb-5 border-b border-[var(--color-paper-line)] last:border-b-0">
@@ -99,7 +115,11 @@ function AnswerRow({
           {String(index).padStart(2, "0")}
         </span>
         <h3 className="text-[15px] leading-snug flex-1 text-[var(--color-ink)]">
-          {question || <span className="text-[var(--color-ink-soft)]">(無題目)</span>}
+          {question || (
+            <span className="text-[var(--color-ink-soft)]">
+              {t("today_screen.no_question")}
+            </span>
+          )}
         </h3>
       </header>
 
@@ -110,6 +130,7 @@ function AnswerRow({
           partnerWritten={partnerWritten}
           myName={myName}
           partnerName={partnerName}
+          t={t}
         />
       ) : type === "multi_choice" || type === "mood_tags" ? (
         <ChoiceCompare
@@ -118,6 +139,7 @@ function AnswerRow({
           partnerWritten={partnerWritten}
           myName={myName}
           partnerName={partnerName}
+          t={t}
         />
       ) : type === "letter" ? (
         <LetterCompare
@@ -126,6 +148,7 @@ function AnswerRow({
           partnerWritten={partnerWritten}
           myName={myName}
           partnerName={partnerName}
+          t={t}
         />
       ) : (
         <TextCompare
@@ -134,6 +157,7 @@ function AnswerRow({
           partnerWritten={partnerWritten}
           myName={myName}
           partnerName={partnerName}
+          t={t}
         />
       )}
     </section>
@@ -146,25 +170,27 @@ function SliderCompare({
   partnerWritten,
   myName,
   partnerName,
+  t,
 }: {
   mine: unknown;
   theirs: unknown;
   partnerWritten: boolean;
   myName: string;
   partnerName: string;
+  t: T;
 }) {
   const m = typeof mine === "number" ? mine : null;
-  const t = typeof theirs === "number" ? theirs : null;
+  const tt = typeof theirs === "number" ? theirs : null;
 
   return (
     <div className="grid grid-cols-2 gap-6">
-      <SideValue label={myName} value={m} />
-      {partnerWritten ? <SideValue label={partnerName} value={t} /> : <PartnerWaiting />}
+      <SideValue label={myName} value={m} t={t} />
+      {partnerWritten ? <SideValue label={partnerName} value={tt} t={t} /> : <PartnerWaiting t={t} />}
     </div>
   );
 }
 
-function SideValue({ label, value }: { label: string; value: number | null }) {
+function SideValue({ label, value, t }: { label: string; value: number | null; t: T }) {
   const pct = value !== null ? ((value - 1) / 9) * 100 : 0;
   return (
     <div className="flex flex-col gap-2">
@@ -175,7 +201,9 @@ function SideValue({ label, value }: { label: string; value: number | null }) {
         <span className="font-serif text-3xl tabular-nums text-[var(--color-ink)]">
           {value ?? "—"}
         </span>
-        <span className="text-xs text-[var(--color-ink-soft)]">/ 10</span>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          {t("today_completed.out_of_ten")}
+        </span>
       </div>
       <div className="w-full h-px bg-[var(--color-paper-line)]">
         <div
@@ -193,25 +221,27 @@ function ChoiceCompare({
   partnerWritten,
   myName,
   partnerName,
+  t,
 }: {
   mine: unknown;
   theirs: unknown;
   partnerWritten: boolean;
   myName: string;
   partnerName: string;
+  t: T;
 }) {
   const m = Array.isArray(mine) ? (mine as string[]) : [];
-  const t = Array.isArray(theirs) ? (theirs as string[]) : [];
+  const tt = Array.isArray(theirs) ? (theirs as string[]) : [];
   const setM = new Set(m);
-  const setT = new Set(t);
+  const setT = new Set(tt);
 
   return (
     <div className="grid grid-cols-2 gap-6">
-      <SidePills label={myName} items={m} highlight={(x) => setT.has(x)} />
+      <SidePills label={myName} items={m} highlight={(x) => setT.has(x)} t={t} />
       {partnerWritten ? (
-        <SidePills label={partnerName} items={t} highlight={(x) => setM.has(x)} />
+        <SidePills label={partnerName} items={tt} highlight={(x) => setM.has(x)} t={t} />
       ) : (
-        <PartnerWaiting />
+        <PartnerWaiting t={t} />
       )}
     </div>
   );
@@ -221,10 +251,12 @@ function SidePills({
   label,
   items,
   highlight,
+  t,
 }: {
   label: string;
   items: string[];
   highlight: (s: string) => boolean;
+  t: T;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -232,7 +264,9 @@ function SidePills({
         {label}
       </span>
       {items.length === 0 ? (
-        <span className="text-xs text-[var(--color-ink-soft)]">沒選</span>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          {t("today_completed.no_pick")}
+        </span>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {items.map((x) => (
@@ -243,7 +277,6 @@ function SidePills({
                   ? "bg-[var(--color-ink)] text-white"
                   : "border border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
               }`}
-              title={highlight(x) ? "兩個都選了這個" : ""}
             >
               {x}
             </span>
@@ -260,24 +293,26 @@ function TextCompare({
   partnerWritten,
   myName,
   partnerName,
+  t,
 }: {
   mine: unknown;
   theirs: unknown;
   partnerWritten: boolean;
   myName: string;
   partnerName: string;
+  t: T;
 }) {
   const m = typeof mine === "string" ? mine : "";
-  const t = typeof theirs === "string" ? theirs : "";
+  const tt = typeof theirs === "string" ? theirs : "";
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      <SideQuote label={myName} text={m} />
-      {partnerWritten ? <SideQuote label={partnerName} text={t} /> : <PartnerWaiting />}
+      <SideQuote label={myName} text={m} t={t} />
+      {partnerWritten ? <SideQuote label={partnerName} text={tt} t={t} /> : <PartnerWaiting t={t} />}
     </div>
   );
 }
 
-function SideQuote({ label, text }: { label: string; text: string }) {
+function SideQuote({ label, text, t }: { label: string; text: string; t: T }) {
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[11px] text-[var(--color-ink-soft)] uppercase tracking-wider">
@@ -287,7 +322,9 @@ function SideQuote({ label, text }: { label: string; text: string }) {
         {text.trim() ? (
           text
         ) : (
-          <span className="text-[var(--color-ink-soft)] not-italic font-sans text-sm">沒寫</span>
+          <span className="text-[var(--color-ink-soft)] not-italic font-sans text-sm">
+            {t("today_completed.no_text")}
+          </span>
         )}
       </p>
     </div>
@@ -300,30 +337,32 @@ function LetterCompare({
   partnerWritten,
   myName,
   partnerName,
+  t,
 }: {
   mine: unknown;
   theirs: unknown;
   partnerWritten: boolean;
   myName: string;
   partnerName: string;
+  t: T;
 }) {
   const m = typeof mine === "string" ? mine : "";
-  const t = typeof theirs === "string" ? theirs : "";
+  const tt = typeof theirs === "string" ? theirs : "";
   return (
     <div className="flex flex-col gap-4">
-      <LetterCard label={`${myName} 寫的`} text={m} />
+      <LetterCard label={t("today_completed.letter_by", { name: myName })} text={m} t={t} />
       {partnerWritten ? (
-        <LetterCard label={`${partnerName} 寫的`} text={t} />
+        <LetterCard label={t("today_completed.letter_by", { name: partnerName })} text={tt} t={t} />
       ) : (
         <div className="border-l-2 border-[var(--color-paper-line)] pl-4 py-2 text-xs text-[var(--color-ink-soft)]">
-          等 {partnerName} 寫完才看得到
+          {t("today_completed.letter_wait", { name: partnerName })}
         </div>
       )}
     </div>
   );
 }
 
-function LetterCard({ label, text }: { label: string; text: string }) {
+function LetterCard({ label, text, t }: { label: string; text: string; t: T }) {
   const empty = !text.trim();
   return (
     <div className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
@@ -331,7 +370,9 @@ function LetterCard({ label, text }: { label: string; text: string }) {
         {label}
       </span>
       {empty ? (
-        <p className="text-sm text-[var(--color-ink-soft)]">沒寫</p>
+        <p className="text-sm text-[var(--color-ink-soft)]">
+          {t("today_completed.no_text")}
+        </p>
       ) : (
         <p
           className="text-base leading-relaxed whitespace-pre-wrap text-[var(--color-ink)]"
@@ -344,13 +385,15 @@ function LetterCard({ label, text }: { label: string; text: string }) {
   );
 }
 
-function PartnerWaiting() {
+function PartnerWaiting({ t }: { t: T }) {
   return (
     <div className="flex flex-col gap-2">
       <span className="text-[11px] text-[var(--color-ink-soft)] uppercase tracking-wider">
-        對方
+        {t("today_completed.partner_label")}
       </span>
-      <span className="text-sm text-[var(--color-ink-soft)]">— 等對方寫完</span>
+      <span className="text-sm text-[var(--color-ink-soft)]">
+        — {t("today_completed.wait_partner")}
+      </span>
     </div>
   );
 }

@@ -1,29 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser, requireCouple, getPartnerProfile } from "@/lib/supabase/auth";
 import { getProfile } from "@/lib/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TodayCompleted } from "@/components/today/TodayCompleted";
 import type { DailyResponse } from "@/lib/supabase/queries";
 
-interface ResponseRow {
-  id: string;
-  couple_id: string;
-  responder_id: string;
-  date: string;
-  template_id: string | null;
-  happiness: number | null;
-  energy: number | null;
-  stress: number | null;
-  us_overall: number | null;
-  rotating_answers: unknown;
-  mood_tags: string[] | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
+type ResponseRow = DailyResponse;
 
 function isValidDate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -36,20 +20,20 @@ export default async function HistoryDatePage({
 }) {
   const { locale, date } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations();
   if (!isValidDate(date)) notFound();
 
   const user = await requireUser();
   const couple = await requireCouple(user.id);
   const supabase = await createSupabaseServerClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: respRaw } = await (supabase as any)
+  const { data: respRaw, error: respErr } = await supabase
     .from("daily_responses")
-    .select(
-      "id, couple_id, responder_id, date, template_id, happiness, energy, stress, us_overall, rotating_answers, mood_tags, created_at, updated_at",
-    )
+    .select("*")
     .eq("couple_id", couple.id)
     .eq("date", date);
+
+  if (respErr) console.error("[history detail] query error:", respErr.message);
 
   const responses = (respRaw as ResponseRow[] | null) ?? [];
   const my = responses.find((r) => r.responder_id === user.id) ?? null;
@@ -67,17 +51,17 @@ export default async function HistoryDatePage({
           href="/memories/history"
           className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
         >
-          ← 過去的問卷
+          ← {t("memories.history_title")}
         </Link>
         <p className="text-sm text-[var(--color-ink-soft)] py-12 text-center">
-          這天沒有問卷紀錄。
+          {t("memories.history_no_record_for_day")}
         </p>
       </div>
     );
   }
 
-  // 拿模板名稱
-  const tplId = my?.template_id ?? partnerResp?.template_id ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tplId = ((my as any)?.template_id ?? (partnerResp as any)?.template_id ?? null) as string | null;
   let templateName = "—";
   let templateEmoji = "";
   if (tplId) {
@@ -95,10 +79,11 @@ export default async function HistoryDatePage({
 
   const d = new Date(`${date}T00:00:00`);
   const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const wd = String(d.getDay());
 
-  // 沒寫的那邊用空 stub
   const myFor = (my as unknown as DailyResponse) ?? null;
   const partnerFor = (partnerResp as unknown as DailyResponse | null) ?? null;
+  const partnerName = partnerProfile?.display_name ?? null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,7 +99,7 @@ export default async function HistoryDatePage({
           templateEmoji={templateEmoji}
           my={myFor}
           partner={partnerFor}
-          partnerName={partnerProfile?.display_name ?? null}
+          partnerName={partnerName}
           myName={me?.display_name ?? null}
           streak={{ current_streak: 0, longest_streak: 0 }}
         />
@@ -124,10 +109,13 @@ export default async function HistoryDatePage({
             {date}
           </p>
           <h1 className="font-serif text-2xl">
-            {d.getMonth() + 1} 月 {d.getDate()} 日 · 星期{WEEK[d.getDay()]}
+            {t("common.month_day", { m: d.getMonth() + 1, d: d.getDate() })} ·{" "}
+            {t(`weekday.${wd}` as "weekday.0")}
           </h1>
           <p className="text-sm text-[var(--color-ink-mid)]">
-            這天你沒寫,只有 {partnerProfile?.display_name ?? "對方"} 寫了。
+            {t("memories.history_only_partner", {
+              name: partnerName ?? t("today_completed.partner_label"),
+            })}
           </p>
           <div className="border-l-2 border-[var(--color-accent)] pl-4 py-1 mt-3">
             <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
@@ -139,7 +127,7 @@ export default async function HistoryDatePage({
                   (a, i) => (
                     <li key={i} className="text-sm">
                       <p className="text-[var(--color-ink-mid)]">
-                        {a.text ?? "(無題目)"}
+                        {a.text ?? t("today_screen.no_question")}
                       </p>
                       <p className="mt-0.5 text-[var(--color-ink)]">
                         {Array.isArray(a.value)

@@ -60,7 +60,7 @@ export function PhotoUpload({ coupleId }: Props) {
 
   return (
     <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
-      <h2 className="text-sm text-[var(--color-ink-mid)]">上傳一張新照片</h2>
+      <h2 className="text-sm text-[var(--color-ink-mid)]">{t("memories.upload_new")}</h2>
       <input
         ref={inputRef}
         type="file"

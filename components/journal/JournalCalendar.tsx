@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { DayStat } from "@/lib/journal/queries";
 
 interface Props {
@@ -7,7 +8,8 @@ interface Props {
   stats: Map<string, DayStat>;
 }
 
-export function JournalCalendar({ year, month, stats }: Props) {
+export async function JournalCalendar({ year, month, stats }: Props) {
+  const t = await getTranslations();
   const firstDay = new Date(year, month - 1, 1);
   const daysInMonth = new Date(year, month, 0).getDate();
   const startWeekday = firstDay.getDay();
@@ -20,11 +22,12 @@ export function JournalCalendar({ year, month, stats }: Props) {
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  const wdLabels = [0, 1, 2, 3, 4, 5, 6].map((i) => t(`weekday.${i}` as "weekday.0"));
 
   return (
     <div className="surface p-3 sm:p-4">
       <div className="grid grid-cols-7 gap-1 mb-2 text-[10px] sm:text-xs text-[var(--color-ink-soft)] text-center">
-        {["日", "一", "二", "三", "四", "五", "六"].map((d) => (
+        {wdLabels.map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
@@ -42,9 +45,7 @@ export function JournalCalendar({ year, month, stats }: Props) {
               <Link
                 href={`/journal/${c.date}`}
                 className={`relative w-full h-full rounded-md text-xs sm:text-sm flex items-start justify-start p-1.5 transition-colors ${
-                  isToday
-                    ? "ring-1 ring-[var(--color-ink)]"
-                    : ""
+                  isToday ? "ring-1 ring-[var(--color-ink)]" : ""
                 }`}
                 style={{
                   background: hasContent
@@ -69,13 +70,16 @@ export function JournalCalendar({ year, month, stats }: Props) {
       </div>
       <div className="flex items-center gap-4 text-[10px] text-[var(--color-ink-soft)] mt-3 flex-wrap">
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-ink)]/15" />少寫
+          <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-ink)]/15" />
+          {t("journal.calendar_legend_less")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-ink)]/40" />多寫
+          <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-ink)]/40" />
+          {t("journal.calendar_legend_more")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-1 h-1 rounded-full bg-[var(--color-accent)]" />有照片
+          <span className="w-1 h-1 rounded-full bg-[var(--color-accent)]" />
+          {t("journal.calendar_legend_photos")}
         </span>
       </div>
     </div>

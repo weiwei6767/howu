@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export function DayView({ userId, date, entries: initialEntries }: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const [entries, setEntries] = useState<EntryRow[]>(initialEntries);
   const [composing, setComposing] = useState(false);
@@ -39,7 +41,7 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
   }
 
   async function deleteEntry(id: string) {
-    if (!confirm("刪掉這篇?")) return;
+    if (!confirm(t("journal.delete_entry_confirm"))) return;
     const supabase = createClient();
     const target = entries.find((e) => e.id === id);
     if (target && target.photos.length > 0) {
@@ -65,13 +67,13 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
         />
       ) : (
         <Button onClick={() => setComposing(true)} fullWidth>
-          在這天寫一篇
+          {t("journal.write_one_in_day")}
         </Button>
       )}
 
       {entries.length === 0 && !composing && (
         <p className="text-center text-sm text-[var(--color-ink-soft)] py-8">
-          這天還沒寫
+          {t("journal.day_no_entry")}
         </p>
       )}
 
@@ -102,6 +104,7 @@ function NewEntryEditor({
   onCancel: () => void;
   onSaved: (entry: EntryRow) => void;
 }) {
+  const t = useTranslations();
   const [content, setContent] = useState("");
   const [share, setShare] = useState(false);
   const [photos, setPhotos] = useState<PhotoEntry[]>([]);
@@ -173,7 +176,7 @@ function NewEntryEditor({
 
   async function save() {
     if (!content.trim() && photos.length === 0) {
-      toast("空的內容存什麼", { tone: "error" });
+      toast(t("journal.empty_save_error"), { tone: "error" });
       return;
     }
     setSaving(true);
@@ -210,7 +213,7 @@ function NewEntryEditor({
 
   async function cancel() {
     if (entryId && (content.trim() || photos.length > 0)) {
-      if (!confirm("放棄這篇?照片也會刪掉。")) return;
+      if (!confirm(t("journal.abandon_entry_confirm"))) return;
     }
     if (entryId) {
       const supabase = createClient();
@@ -227,7 +230,7 @@ function NewEntryEditor({
       <Textarea
         rows={6}
         autoFocus
-        placeholder="今天想記下什麼"
+        placeholder={t("journal.compose_what")}
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
@@ -264,19 +267,19 @@ function NewEntryEditor({
           disabled={uploading}
           className="text-sm text-[var(--color-ink-mid)] underline underline-offset-2 hover:text-[var(--color-ink)] disabled:opacity-50"
         >
-          {uploading ? "上傳中" : "加照片"}
+          {uploading ? t("journal.compose_uploading") : t("journal.compose_add_photo")}
         </button>
         <label className="flex items-center gap-2 text-xs text-[var(--color-ink-mid)]">
           <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} />
-          分享給對方
+          {t("journal.compose_share_partner")}
         </label>
       </div>
       <div className="flex gap-2">
         <Button variant="ghost" onClick={cancel} fullWidth>
-          取消
+          {t("common.cancel")}
         </Button>
         <Button onClick={save} loading={saving} fullWidth>
-          儲存
+          {t("common.save")}
         </Button>
       </div>
     </div>
@@ -294,6 +297,7 @@ function EntryCard({
   onChanged: (e: EntryRow) => void;
   onDeleted: () => void;
 }) {
+  const t = useTranslations();
   const [editing, setEditing] = useState(false);
   const [content, setContent] = useState(entry.content ?? "");
   const [share, setShare] = useState(!!entry.shared_with_partner);
@@ -364,7 +368,7 @@ function EntryCard({
   }
 
   const time = entry.created_at
-    ? new Date(entry.created_at).toLocaleTimeString("zh-TW", {
+    ? new Date(entry.created_at).toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -408,19 +412,19 @@ function EntryCard({
             disabled={uploading}
             className="text-sm text-[var(--color-ink-mid)] underline underline-offset-2 hover:text-[var(--color-ink)] disabled:opacity-50"
           >
-            {uploading ? "上傳中" : "加照片"}
+            {uploading ? t("journal.compose_uploading") : t("journal.compose_add_photo")}
           </button>
           <label className="flex items-center gap-2 text-xs text-[var(--color-ink-mid)]">
             <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} />
-            分享給對方
+            {t("journal.compose_share_partner")}
           </label>
         </div>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => setEditing(false)} fullWidth>
-            取消
+            {t("common.cancel")}
           </Button>
           <Button onClick={save} loading={saving} fullWidth>
-            儲存
+            {t("common.save")}
           </Button>
         </div>
       </div>
@@ -433,19 +437,19 @@ function EntryCard({
         <span>{time && time}</span>
         <div className="flex items-center gap-3">
           {entry.shared_with_partner && (
-            <span className="text-[var(--color-accent-deep)]">已分享</span>
+            <span className="text-[var(--color-accent-deep)]">{t("journal.shared")}</span>
           )}
           <button
             onClick={() => setEditing(true)}
             className="hover:text-[var(--color-ink)] underline underline-offset-2"
           >
-            編輯
+            {t("common.edit")}
           </button>
           <button
             onClick={onDeleted}
             className="hover:text-[var(--color-danger)] underline underline-offset-2"
           >
-            刪除
+            {t("common.delete")}
           </button>
         </div>
       </header>
@@ -474,7 +478,7 @@ function EntryCard({
       )}
       <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-[var(--color-ink)]">
         {entry.content || (
-          <span className="text-[var(--color-ink-soft)]">這篇只有照片</span>
+          <span className="text-[var(--color-ink-soft)]">{t("journal.only_photos")}</span>
         )}
       </p>
     </article>

@@ -65,6 +65,20 @@ export function MilestoneList({ coupleId, milestones }: Props) {
     router.refresh();
   }
 
+  function daysFromNow(dateStr: string, isRecurring: boolean): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(dateStr);
+    if (isRecurring) {
+      target.setFullYear(today.getFullYear());
+      if (target.getTime() < today.getTime()) target.setFullYear(today.getFullYear() + 1);
+    }
+    const days = differenceInCalendarDays(target, today);
+    if (days === 0) return t("us.milestone_today");
+    if (days < 0) return t("us.milestone_n_days_ago", { n: Math.abs(days) });
+    return t("us.milestone_n_days_after", { n: days });
+  }
+
   return (
     <section className="flex flex-col gap-3">
       <header className="flex items-center justify-between">
@@ -134,7 +148,7 @@ export function MilestoneList({ coupleId, milestones }: Props) {
         }
       >
         <div className="flex flex-col gap-3">
-          <Input placeholder="例:第一次旅行" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input placeholder={t("us.milestone_placeholder")} value={title} onChange={(e) => setTitle(e.target.value)} />
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           <div className="flex flex-wrap gap-2">
             {TYPES.map((tt) => (
@@ -158,24 +172,10 @@ export function MilestoneList({ coupleId, milestones }: Props) {
               checked={recurring}
               onChange={(e) => setRecurring(e.target.checked)}
             />
-            <span>每年提醒(週年/生日)</span>
+            <span>{t("us.milestone_year_reminder")}</span>
           </label>
         </div>
       </Modal>
     </section>
   );
-}
-
-function daysFromNow(dateStr: string, recurring: boolean): string {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  if (recurring) {
-    target.setFullYear(today.getFullYear());
-    if (target.getTime() < today.getTime()) target.setFullYear(today.getFullYear() + 1);
-  }
-  const days = differenceInCalendarDays(target, today);
-  if (days === 0) return "今天";
-  if (days < 0) return `${Math.abs(days)} 天前`;
-  return `${days} 天後`;
 }

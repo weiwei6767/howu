@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/supabase/auth";
 import { getJournalEntriesOfDate } from "@/lib/journal/queries";
@@ -16,6 +16,7 @@ export default async function JournalDatePage({
 }) {
   const { locale, date } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations();
   if (!isValidDate(date)) notFound();
 
   const user = await requireUser();
@@ -32,7 +33,7 @@ export default async function JournalDatePage({
 
   const d = new Date(date);
   const yearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+  const wd = String(d.getDay());
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,14 +45,17 @@ export default async function JournalDatePage({
       </Link>
       <header className="flex flex-col gap-1">
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
-          {d.getFullYear()}.{String(d.getMonth() + 1).padStart(2, "0")}.{String(d.getDate()).padStart(2, "0")}
+          {d.getFullYear()}.{String(d.getMonth() + 1).padStart(2, "0")}.
+          {String(d.getDate()).padStart(2, "0")}
         </p>
         <h1 className="font-serif text-3xl">
-          {d.getMonth() + 1} 月 {d.getDate()} 日
+          {t("common.month_day", { m: d.getMonth() + 1, d: d.getDate() })}
         </h1>
         <p className="text-sm text-[var(--color-ink-mid)]">
-          星期{weekdays[d.getDay()]} ·{" "}
-          {items.length === 0 ? "這天還沒寫" : `已寫 ${items.length} 篇`}
+          {t(`weekday.${wd}` as "weekday.0")} ·{" "}
+          {items.length === 0
+            ? t("journal.day_no_entry")
+            : t("journal.today_n_entries", { n: items.length })}
         </p>
       </header>
       <DayView userId={user.id} date={date} entries={items} />

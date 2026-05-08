@@ -31,7 +31,7 @@ export function PushToggle() {
       setSubscribed(true);
       toast(t("settings.save_success"), { tone: "success" });
     } else {
-      toast(`推播失敗:${r.reason ?? "unknown"}`, { tone: "error" });
+      toast(`${r.reason ?? "unknown"}`, { tone: "error" });
     }
   }
 
@@ -49,7 +49,7 @@ export function PushToggle() {
           {t("settings.notifications")}
         </span>
         <span className="text-xs text-[var(--color-ink-soft)]">
-          這台裝置 / 瀏覽器不支援 Web Push。
+          {t("settings.push_unsupported")}
         </span>
       </section>
     );
@@ -60,7 +60,7 @@ export function PushToggle() {
       <div className="flex flex-col gap-0.5">
         <span className="text-sm">{t("settings.notifications_daily")}</span>
         <span className="text-xs text-[var(--color-ink-soft)]">
-          每天 20:00 提醒今日問卷
+          {t("settings.push_daily_subtext")}
         </span>
       </div>
       {subscribed ? (
@@ -69,7 +69,7 @@ export function PushToggle() {
         </Button>
       ) : (
         <Button onClick={turnOn} loading={loading} size="sm">
-          開啟
+          {t("settings.turn_on")}
         </Button>
       )}
     </section>

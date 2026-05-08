@@ -29,9 +29,9 @@ export default async function LoginPage({
       </header>
       {errorMsg && (
         <div className="rounded-[var(--radius-card)] border border-[var(--color-danger)]/30 bg-red-50 px-4 py-3 text-sm text-[var(--color-danger)]">
-          <p className="font-medium">登入失敗</p>
+          <p className="font-medium">{t("auth.login_failed")}</p>
           <p className="text-xs mt-1 break-all">{errorMsg}</p>
-          <p className="text-xs mt-2">連結可能過期或已使用過,請重新寄送一次登入連結。</p>
+          <p className="text-xs mt-2">{t("auth.login_link_expired")}</p>
         </div>
       )}
       <LoginForm />

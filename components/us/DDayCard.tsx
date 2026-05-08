@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ddayCount } from "@/lib/utils/date";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +23,7 @@ export function DDayCard({
   myName,
   backgroundUrl,
 }: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -56,7 +58,7 @@ export function DDayCard({
       if (updErr) throw new Error(updErr.message);
 
       setOptimisticUrl(signed?.signedUrl ?? null);
-      toast("背景已換", { tone: "success" });
+      toast(t("dday.bg_changed"), { tone: "success" });
       router.refresh();
     } catch (e) {
       toast((e as Error).message, { tone: "error" });
@@ -85,7 +87,7 @@ export function DDayCard({
               bg ? "text-white/85" : "text-[var(--color-ink-soft)]"
             }`}
           >
-            In Love For
+            {t("dday.in_love_for")}
           </p>
           <div
             className={`font-serif text-7xl tabular-nums leading-none ${
@@ -100,7 +102,7 @@ export function DDayCard({
               bg ? "text-white/85" : "text-[var(--color-ink-soft)]"
             }`}
           >
-            Days
+            {t("dday.days")}
           </p>
           {(myName || partnerName) && (
             <p
@@ -108,7 +110,8 @@ export function DDayCard({
                 bg ? "text-white" : "text-[var(--color-ink)]"
               }`}
             >
-              {myName ?? "你"} & {partnerName ?? "對方"}
+              {myName ?? t("today_completed.partner_label")} &{" "}
+              {partnerName ?? t("today_completed.partner_label")}
             </p>
           )}
           <p
@@ -116,7 +119,7 @@ export function DDayCard({
               bg ? "text-white/70" : "text-[var(--color-ink-soft)]"
             }`}
           >
-            自 {togetherSince}
+            {t("dday.since", { date: togetherSince })}
           </p>
 
           <div className="flex gap-2 mt-6">
@@ -140,7 +143,7 @@ export function DDayCard({
                   : "bg-white text-[var(--color-ink)] border border-[var(--color-paper-line)] hover:border-[var(--color-ink-mid)]"
               }`}
             >
-              {uploading ? "上傳中" : bg ? "換背景" : "加背景"}
+              {uploading ? t("dday.uploading") : bg ? t("dday.change_bg") : t("dday.add_bg")}
             </button>
             <button
               type="button"
@@ -151,7 +154,7 @@ export function DDayCard({
                   : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink-mid)]"
               }`}
             >
-              分享
+              {t("dday.share")}
             </button>
           </div>
         </div>
@@ -163,8 +166,8 @@ export function DDayCard({
         coupleId={coupleId}
         days={days}
         togetherSince={togetherSince}
-        partnerAName={myName ?? "你"}
-        partnerBName={partnerName ?? "對方"}
+        partnerAName={myName ?? t("today_completed.partner_label")}
+        partnerBName={partnerName ?? t("today_completed.partner_label")}
         backgroundUrl={bg}
       />
     </>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
+import { getTranslations } from "next-intl/server";
 import { todayISO } from "@/lib/utils/date";
 import {
   getDailyPick,
@@ -19,14 +20,8 @@ interface Props {
   couple: Couple;
 }
 
-const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
-
-function formatTodayLabel(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`);
-  return `${d.getMonth() + 1} 月 ${d.getDate()} 日 · 星期${WEEK[d.getDay()]}`;
-}
-
 export async function TodayScreen({ user, couple }: Props) {
+  const t = await getTranslations();
   const date = todayISO();
   const partnerId =
     couple.partner_a_id === user.id ? couple.partner_b_id : couple.partner_a_id;
@@ -44,19 +39,23 @@ export async function TodayScreen({ user, couple }: Props) {
   const meName = profile?.display_name ?? null;
   const partnerName = partnerProfile?.display_name ?? null;
 
+  const d = new Date(`${date}T00:00:00`);
+  const wd = String(d.getDay());
+  const dateLabel = `${d.getMonth() + 1} / ${d.getDate()} · ${t(`weekday.${wd}` as "weekday.0")}`;
+
   const Header = (
     <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
       <div className="flex flex-col">
         <span className="text-[11px] text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
-          {formatTodayLabel(date)}
+          {dateLabel}
         </span>
         <span className="text-sm text-[var(--color-ink)] mt-0.5">
-          {meName ?? "你"} & {partnerName ?? "對方"}
+          {meName ?? t("today_completed.partner_label")} & {partnerName ?? t("today_completed.partner_label")}
         </span>
       </div>
       {streak.current_streak > 0 && (
         <span className="text-xs text-[var(--color-ink-mid)] tabular-nums">
-          連續 {streak.current_streak} 天
+          {t("today_screen.streak_short", { n: streak.current_streak })}
         </span>
       )}
     </div>
@@ -81,17 +80,20 @@ export async function TodayScreen({ user, couple }: Props) {
       <div className="flex flex-col gap-5">
         {Header}
         <div className="surface py-12 px-6 flex flex-col items-center gap-3 text-center mt-2">
-          <p className="font-serif text-2xl">今天輪 {partnerName ?? "對方"} 選</p>
+          <p className="font-serif text-2xl">
+            {t("today_screen.partner_turn_today", {
+              name: partnerName ?? t("today_completed.partner_label"),
+            })}
+          </p>
           <p className="text-xs text-[var(--color-ink-mid)] max-w-xs leading-relaxed">
-            等他開好模板,你才能開始寫。
-            可以提醒一下他。
+            {t("today_screen.wait_partner_pick_body")}
           </p>
         </div>
         <Link
           href="/templates"
           className="text-center text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition"
         >
-          管理模板
+          {t("today_screen.manage_templates")}
         </Link>
       </div>
     );
@@ -101,7 +103,7 @@ export async function TodayScreen({ user, couple }: Props) {
   if (!template) {
     return (
       <div className="text-center text-sm text-[var(--color-ink-mid)] py-12">
-        今天的模板可能被刪了。請對方到「模板」重選。
+        {t("today_screen.template_missing")}
       </div>
     );
   }
@@ -128,7 +130,11 @@ export async function TodayScreen({ user, couple }: Props) {
       {Header}
       <header className="flex flex-col gap-1 mt-2">
         <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-[0.18em]">
-          {pick.picked_by === user.id ? "你選的題本" : `${partnerName ?? "對方"} 選的題本`}
+          {pick.picked_by === user.id
+            ? t("today_screen.your_template")
+            : t("today_screen.their_template", {
+                name: partnerName ?? t("today_completed.partner_label"),
+              })}
         </p>
         <h1 className="font-serif text-3xl flex items-center gap-2">
           {template.emoji && <span>{template.emoji}</span>}
@@ -137,7 +143,9 @@ export async function TodayScreen({ user, couple }: Props) {
       </header>
       {partner && (
         <p className="text-xs text-[var(--color-ink-mid)] -mt-2">
-          {partnerName ?? "對方"} 已寫完了 · 換你
+          {t("today_screen.partner_done_your_turn", {
+            name: partnerName ?? t("today_completed.partner_label"),
+          })}
         </p>
       )}
       <TemplateQuestionnaire

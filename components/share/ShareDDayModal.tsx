@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { domToPng } from "modern-screenshot";
 import { Button } from "@/components/ui/Button";
@@ -40,6 +41,7 @@ export function ShareDDayModal({
   partnerBName,
   backgroundUrl,
 }: Props) {
+  const t = useTranslations();
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
@@ -103,7 +105,7 @@ export function ShareDDayModal({
   async function handleDownload() {
     if (!cardRef.current) return;
     if (backgroundUrl && !bgDataUrl) {
-      toast("背景還在載,稍等一下", { tone: "info" });
+      toast(t("share_dday.bg_loading"), { tone: "info" });
       return;
     }
     setDownloading(true);
@@ -121,9 +123,9 @@ export function ShareDDayModal({
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-      toast("已下載", { tone: "success" });
+      toast(t("share_dday.downloaded"), { tone: "success" });
     } catch (e) {
-      toast(`下載失敗:${(e as Error).message}`, { tone: "error" });
+      toast(t("share_dday.download_failed", { msg: (e as Error).message }), { tone: "error" });
     } finally {
       setDownloading(false);
     }
@@ -146,7 +148,7 @@ export function ShareDDayModal({
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast("連結已複製", { tone: "success" });
+      toast(t("common.copied"), { tone: "success" });
     } catch {
       toast(shareUrl, { tone: "info", duration: 6000 });
     }
@@ -174,7 +176,7 @@ export function ShareDDayModal({
             className="w-full sm:max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
           >
             <header className="px-6 pt-5 pb-3 flex items-center justify-between">
-              <h2 className="text-base font-semibold">分享你們的天數</h2>
+              <h2 className="text-base font-semibold">{t("share_dday.title")}</h2>
               <button
                 onClick={onClose}
                 className="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-500"
@@ -196,7 +198,7 @@ export function ShareDDayModal({
                 />
               </div>
               <p className="text-xs text-zinc-500 text-center mb-4">
-                {bgLoading ? "背景載入中..." : "這就是分享出去長的樣子"}
+                {bgLoading ? t("share_dday.bg_loading") : t("share_dday.preview_label")}
               </p>
 
               <div className="flex flex-col gap-2">
@@ -207,7 +209,7 @@ export function ShareDDayModal({
                   fullWidth
                   size="lg"
                 >
-                  📥 下載 PNG
+                  📥 {t("share_dday.download_png")}
                 </Button>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -220,7 +222,7 @@ export function ShareDDayModal({
                 </div>
 
                 <Button onClick={copyLink} variant="soft" fullWidth>
-                  🔗 複製連結
+                  🔗 {t("invite.copy_link")}
                 </Button>
               </div>
             </div>

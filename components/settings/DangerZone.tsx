@@ -22,7 +22,7 @@ export function DangerZone({}: Props) {
   }
 
   function deleteAccount() {
-    toast("請寄信到 contact@howu.online 我們會在 72h 內處理", { tone: "info", duration: 6000 });
+    toast(t("settings.delete_account_email_help"), { tone: "info", duration: 6000 });
   }
 
   return (

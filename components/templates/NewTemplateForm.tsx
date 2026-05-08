@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function NewTemplateForm({ coupleId, userId }: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -23,7 +25,7 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
 
   async function create() {
     if (!name.trim()) {
-      toast("先給模板取個名字", { tone: "error" });
+      toast(t("templates.name_required"), { tone: "error" });
       return;
     }
     setLoading(true);
@@ -53,7 +55,7 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
   return (
     <section className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-[var(--color-ink-mid)]">圖示</label>
+        <label className="text-xs text-[var(--color-ink-mid)]">{t("templates.icon")}</label>
         <div className="flex flex-wrap gap-2">
           {EMOJIS.map((e) => (
             <button
@@ -72,28 +74,28 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-[var(--color-ink-mid)]">名稱</label>
+        <label className="text-xs text-[var(--color-ink-mid)]">{t("templates.name")}</label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="例:每日心情快速版"
+          placeholder={t("templates.name_placeholder")}
           maxLength={40}
         />
       </div>
       <div className="flex flex-col gap-1.5">
         <label className="text-xs text-[var(--color-ink-mid)]">
-          描述(選填)
+          {t("templates.description")}
         </label>
         <Textarea
           rows={2}
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
-          placeholder="什麼時候用這份?寫起來大概多久?"
+          placeholder={t("templates.description_placeholder")}
           maxLength={120}
         />
       </div>
       <Button onClick={create} loading={loading} className="self-start">
-        建立並加題
+        {t("templates.create_and_add")}
       </Button>
     </section>
   );

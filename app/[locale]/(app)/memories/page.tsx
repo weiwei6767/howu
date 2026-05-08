@@ -81,12 +81,12 @@ export default async function MemoriesPage({
       .select("id, name, emoji")
       .in("id", topTemplateIds);
     const tplMap = new Map<string, TemplateRow>(
-      ((tplsRaw as TemplateRow[] | null) ?? []).map((t) => [t.id, t]),
+      ((tplsRaw as TemplateRow[] | null) ?? []).map((tpl) => [tpl.id, tpl]),
     );
     topTemplates = topTemplateIds
       .map((id) => {
-        const t = tplMap.get(id);
-        return t ? { ...t, count: templateCount.get(id) ?? 0 } : null;
+        const tpl = tplMap.get(id);
+        return tpl ? { ...tpl, count: templateCount.get(id) ?? 0 } : null;
       })
       .filter((x): x is TemplateRow & { count: number } => !!x);
   }
@@ -120,11 +120,13 @@ export default async function MemoriesPage({
   );
   const next = upcoming[0];
 
+  const ymLabel = `${yyyy}-${String(mm).padStart(2, "0")}`;
+
   return (
     <div className="flex flex-col gap-8">
       <header>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
-          Memories
+          {t("memories.section_title")}
         </p>
         <h1 className="font-serif text-3xl mt-1">{t("memories.title")}</h1>
       </header>
@@ -133,34 +135,34 @@ export default async function MemoriesPage({
         <section className="border-b border-[var(--color-paper-line)] pb-6">
           <header className="flex items-baseline justify-between mb-4">
             <h2 className="text-sm text-[var(--color-ink-mid)]">
-              {t("memories.monthly", { ym: `${yyyy}-${String(mm).padStart(2, "0")}` })}
+              {t("memories.monthly", { ym: ymLabel })}
             </h2>
             <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-              {totalEntries} 份
+              {t("memories.history_total", { days: daysBothDone, entries: totalEntries })}
             </span>
           </header>
           <div className="grid grid-cols-2 gap-4">
-            <Stat label="一起寫了" value={daysBothDone} unit="天" />
-            <Stat label="總共" value={totalEntries} unit="份" />
+            <Stat label={t("memories.stat_wrote_together")} value={daysBothDone} unit={t("memories.unit_days")} />
+            <Stat label={t("memories.stat_total")} value={totalEntries} unit={t("memories.unit_entries")} />
           </div>
 
           {topTemplates.length > 0 && (
             <div className="mt-6">
               <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-wider mb-2">
-                這個月最常選
+                {t("memories.month_top_templates")}
               </p>
               <ul className="flex flex-col">
-                {topTemplates.map((t) => (
+                {topTemplates.map((tpl) => (
                   <li
-                    key={t.id}
+                    key={tpl.id}
                     className="flex items-center gap-3 py-2 border-b border-[var(--color-paper-line)] last:border-b-0"
                   >
                     <span className="w-6 text-center" aria-hidden>
-                      {t.emoji ?? ""}
+                      {tpl.emoji ?? ""}
                     </span>
-                    <span className="flex-1 text-sm">{t.name}</span>
+                    <span className="flex-1 text-sm">{tpl.name}</span>
                     <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-                      × {t.count}
+                      × {tpl.count}
                     </span>
                   </li>
                 ))}
@@ -170,31 +172,30 @@ export default async function MemoriesPage({
         </section>
       ) : (
         <p className="text-sm text-[var(--color-ink-soft)]">
-          這個月還沒累積夠多紀錄,寫滿一週後就會出現月度回顧。
+          {t("memories.month_no_entries_yet")}
         </p>
       )}
 
-      {/* 特殊日子 — 用淡邊欄取代漸層卡 */}
       <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
         <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
-          幻燈片
+          {t("memories.slideshow_label")}
         </p>
         <p className="text-sm mt-1 leading-relaxed text-[var(--color-ink-mid)]">
-          到了情人節 · 520 · 七夕 · 紀念日 · 生日,你們上傳的照片會做成拍立得翻頁回憶幻燈片。
+          {t("memories.slideshow_intro")}
         </p>
         {next ? (
           <div className="flex items-baseline justify-between mt-3">
             <p className="text-sm">
               <span className="text-[var(--color-ink)]">{next.name}</span>
               <span className="text-xs text-[var(--color-ink-soft)] ml-2">
-                還有 {Math.max(0, daysUntil(next.date))} 天
+                {t("memories.slideshow_days_until", { n: Math.max(0, daysUntil(next.date)) })}
               </span>
             </p>
             <Link
               href={`/memories/slideshow?occasion=${next.id}`}
               className="text-xs underline underline-offset-2 hover:text-[var(--color-ink-mid)]"
             >
-              預覽
+              {t("common.preview")}
             </Link>
           </div>
         ) : (
@@ -202,7 +203,7 @@ export default async function MemoriesPage({
             href="/memories/slideshow"
             className="text-xs underline underline-offset-2 mt-3 inline-block"
           >
-            現在就看 →
+            {t("memories.see_now")}
           </Link>
         )}
       </section>
@@ -213,9 +214,9 @@ export default async function MemoriesPage({
           className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors border-b border-[var(--color-paper-line)]"
         >
           <div>
-            <p className="font-serif text-lg">過去的問卷</p>
+            <p className="font-serif text-lg">{t("memories.history_title")}</p>
             <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-              翻看你們以前一起寫過的
+              {t("memories.history_subtitle")}
             </p>
           </div>
           <span className="text-[var(--color-ink-soft)]">→</span>
@@ -226,9 +227,9 @@ export default async function MemoriesPage({
           className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors"
         >
           <div>
-            <p className="font-serif text-lg">我們的回憶冊</p>
+            <p className="font-serif text-lg">{t("memories.title")}</p>
             <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-              列印 / 存 PDF 留念
+              {t("memories.memory_book_sub")}
             </p>
           </div>
           <span className="text-[var(--color-ink-soft)]">→</span>

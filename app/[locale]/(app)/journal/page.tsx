@@ -36,25 +36,29 @@ export default async function JournalPage({
 
       <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm">今天</span>
+          <span className="text-sm">{t("common.today")}</span>
           <span className="text-xs text-[var(--color-ink-soft)]">
-            {todayEntries.length === 0 ? "還沒寫" : `已寫 ${todayEntries.length} 篇`}
+            {todayEntries.length === 0
+              ? t("journal.today_unwritten")
+              : t("journal.today_n_entries", { n: todayEntries.length })}
           </span>
         </div>
         <Link
           href={`/journal/${today}`}
           className="text-sm bg-[var(--color-ink)] text-white px-4 py-2 rounded-[var(--radius-button)] hover:bg-[var(--color-ink-mid)] transition"
         >
-          {todayEntries.length === 0 ? "寫今天" : "查看"}
+          {todayEntries.length === 0 ? t("journal.write_today") : t("journal.see_today")}
         </Link>
       </div>
 
       <section className="flex flex-col gap-3">
         <header className="flex items-baseline justify-between">
           <h2 className="font-serif text-xl">
-            {yyyy} 年 {mm} 月
+            {t("common.year_month", { y: yyyy, m: mm })}
           </h2>
-          <span className="text-xs text-[var(--color-ink-soft)]">點任一天打開</span>
+          <span className="text-xs text-[var(--color-ink-soft)]">
+            {t("journal.click_any_day")}
+          </span>
         </header>
         <JournalCalendar year={yyyy} month={mm} stats={stats} />
       </section>

@@ -55,14 +55,17 @@ export default async function UsPage({
         <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
-              連續一起寫
+              {t("us.streak_continuous")}
             </p>
             <p className="font-serif text-3xl tabular-nums mt-1">
-              {streak.current_streak} <span className="text-base text-[var(--color-ink-mid)]">天</span>
+              {streak.current_streak}{" "}
+              <span className="text-base text-[var(--color-ink-mid)]">
+                {t("memories.unit_days")}
+              </span>
             </p>
           </div>
           <p className="text-xs text-[var(--color-ink-soft)]">
-            最長 {streak.longest_streak} 天
+            {t("us.longest_streak", { n: streak.longest_streak })}
           </p>
         </div>
       )}
@@ -83,9 +86,9 @@ export default async function UsPage({
         className="flex items-center justify-between py-4 border-t border-[var(--color-paper-line)] text-[var(--color-ink)] hover:text-[var(--color-ink-mid)] transition-colors"
       >
         <div>
-          <p className="text-sm">問卷模板</p>
+          <p className="text-sm">{t("us.templates_link")}</p>
           <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-            建立 / 管理你們自己的每日問卷
+            {t("us.templates_link_sub")}
           </p>
         </div>
         <span className="text-[var(--color-ink-soft)]">→</span>

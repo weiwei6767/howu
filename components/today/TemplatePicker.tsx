@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function TemplatePicker({ coupleId, templates, streak }: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
         p_template_id: selected,
       });
       if (error) throw new Error(error.message);
-      toast("選好了", { tone: "success" });
+      toast(t("settings.save_success"), { tone: "success" });
       router.refresh();
     } catch (e) {
       toast((e as Error).message, { tone: "error" });
@@ -43,62 +45,62 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
     <div className="flex flex-col gap-6 mt-2">
       <header className="flex flex-col gap-1">
         <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-[0.18em]">
-          Today
+          {t("common.today")}
         </p>
-        <h1 className="font-serif text-3xl">今天輪你選</h1>
+        <h1 className="font-serif text-3xl">{t("today_screen.your_turn_today")}</h1>
         {streak > 0 && (
           <p className="text-xs text-[var(--color-ink-mid)] mt-1">
-            已連續寫了 <span className="text-[var(--color-ink)] font-medium">{streak}</span> 天
+            {t("today_screen.streak_count", { n: streak })}
           </p>
         )}
       </header>
 
       {templates.length === 0 ? (
         <div className="surface p-8 text-center flex flex-col gap-3">
-          <p className="text-sm text-[var(--color-ink-mid)]">
-            還沒有自己的模板。
-            <br />
-            建一份你們專屬的問題吧。
+          <p className="text-sm text-[var(--color-ink-mid)] whitespace-pre-line">
+            {t("templates.no_templates_create_one")}
           </p>
           <Link href="/templates/new" className="self-center mt-2">
-            <Button>建立第一份模板</Button>
+            <Button>{t("templates.create_first")}</Button>
           </Link>
         </div>
       ) : (
         <>
           <ul className="flex flex-col">
-            {templates.map((t) => {
-              const isSelected = selected === t.id;
-              const disabled = t.question_count === 0;
+            {templates.map((tpl) => {
+              const isSelected = selected === tpl.id;
+              const disabled = tpl.question_count === 0;
               return (
                 <li
-                  key={t.id}
+                  key={tpl.id}
                   className="border-b border-[var(--color-paper-line)] last:border-b-0"
                 >
                   <button
                     type="button"
-                    onClick={() => !disabled && setSelected(t.id)}
+                    onClick={() => !disabled && setSelected(tpl.id)}
                     disabled={disabled}
                     className={`w-full text-left flex items-center gap-4 py-4 transition-colors ${
                       disabled ? "opacity-40" : ""
                     }`}
                   >
                     <span className="text-2xl shrink-0 w-10 text-center" aria-hidden>
-                      {t.emoji ?? ""}
+                      {tpl.emoji ?? ""}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div
                         className={`text-base ${isSelected ? "text-[var(--color-ink)] font-medium" : "text-[var(--color-ink)]"}`}
                       >
-                        {t.name}
+                        {tpl.name}
                       </div>
-                      {t.description && (
+                      {tpl.description && (
                         <p className="text-xs text-[var(--color-ink-mid)] mt-0.5 line-clamp-1">
-                          {t.description}
+                          {tpl.description}
                         </p>
                       )}
                       <p className="text-[11px] text-[var(--color-ink-soft)] mt-1">
-                        {t.question_count > 0 ? `${t.question_count} 題` : "尚無題目"}
+                        {tpl.question_count > 0
+                          ? t("templates.n_questions", { n: tpl.question_count })
+                          : t("templates.no_questions")}
                       </p>
                     </div>
                     <span
@@ -123,14 +125,14 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
             fullWidth
             size="lg"
           >
-            {selected ? "就用這份" : "選一份才能開始"}
+            {selected ? t("templates.use_this") : t("templates.select_to_start")}
           </Button>
 
           <Link
             href="/templates"
             className="text-center text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition"
           >
-            管理模板
+            {t("today_screen.manage_templates")}
           </Link>
         </>
       )}

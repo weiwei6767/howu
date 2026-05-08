@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -16,8 +16,6 @@ interface TemplateRow {
   emoji: string | null;
 }
 
-const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
-
 export default async function HistoryPage({
   params,
 }: {
@@ -25,6 +23,7 @@ export default async function HistoryPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations();
   const user = await requireUser();
   const couple = await requireCouple(user.id);
   const supabase = await createSupabaseServerClient();
@@ -38,7 +37,6 @@ export default async function HistoryPage({
     .limit(365);
   const responses = (respRaw as ResponseRow[] | null) ?? [];
 
-  // 依日期分組
   type DayInfo = {
     date: string;
     responders: Set<string>;
@@ -59,7 +57,6 @@ export default async function HistoryPage({
     byDate.set(r.date, info);
   }
 
-  // 拿模板資訊
   const allTplIds = Array.from(new Set(responses.map((r) => r.template_id).filter((x): x is string => !!x)));
   const tplMap = new Map<string, TemplateRow>();
   if (allTplIds.length > 0) {
@@ -68,10 +65,9 @@ export default async function HistoryPage({
       .from("templates")
       .select("id, name, emoji")
       .in("id", allTplIds);
-    for (const t of (tplsRaw as TemplateRow[] | null) ?? []) tplMap.set(t.id, t);
+    for (const tpl of (tplsRaw as TemplateRow[] | null) ?? []) tplMap.set(tpl.id, tpl);
   }
 
-  // 月份分組
   const days = Array.from(byDate.values()).sort((a, b) => (a.date < b.date ? 1 : -1));
   const byMonth = new Map<string, DayInfo[]>();
   for (const d of days) {
@@ -88,21 +84,21 @@ export default async function HistoryPage({
         href="/memories"
         className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
       >
-        ← 回憶
+        ← {t("memories.section_title")}
       </Link>
       <header>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
           History
         </p>
-        <h1 className="font-serif text-3xl mt-1">過去的問卷</h1>
+        <h1 className="font-serif text-3xl mt-1">{t("memories.history_title")}</h1>
         <p className="text-sm text-[var(--color-ink-mid)] mt-2">
-          總共 {days.length} 天 · {responses.length} 份
+          {t("memories.history_total", { days: days.length, entries: responses.length })}
         </p>
       </header>
 
       {months.length === 0 ? (
         <p className="text-sm text-[var(--color-ink-soft)] py-12 text-center">
-          還沒有歷史問卷。寫一陣子之後這裡就會有東西看。
+          {t("memories.history_empty")}
         </p>
       ) : (
         <div className="flex flex-col gap-8">
@@ -112,17 +108,17 @@ export default async function HistoryPage({
               <section key={ym} className="flex flex-col gap-3">
                 <header className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-2">
                   <h2 className="font-serif text-xl">
-                    {yy} 年 {Number(mm)} 月
+                    {t("common.year_month", { y: yy, m: Number(mm) })}
                   </h2>
                   <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-                    {list.length} 天
+                    {t("memories.history_n_days", { n: list.length })}
                   </span>
                 </header>
                 <ul className="flex flex-col">
                   {list.map((d) => {
                     const date = new Date(`${d.date}T00:00:00`);
                     const day = date.getDate();
-                    const wd = WEEK[date.getDay()];
+                    const wd = String(date.getDay());
                     const tplNames = Array.from(d.templateIds)
                       .map((id) => tplMap.get(id))
                       .filter((x): x is TemplateRow => !!x);
@@ -142,11 +138,16 @@ export default async function HistoryPage({
                           <div className="flex-1 min-w-0">
                             <div className="text-[13px] text-[var(--color-ink)] truncate">
                               {tplNames.length > 0
-                                ? tplNames.map((t) => `${t.emoji ?? ""} ${t.name}`.trim()).join(" · ")
-                                : "(無模板紀錄)"}
+                                ? tplNames
+                                    .map((tpl) => `${tpl.emoji ?? ""} ${tpl.name}`.trim())
+                                    .join(" · ")
+                                : t("memories.history_no_template_record")}
                             </div>
                             <div className="text-[11px] text-[var(--color-ink-soft)] mt-0.5">
-                              週{wd} · {both ? "兩人都寫" : "只一人寫"}
+                              {t(`weekday.${wd}` as "weekday.0")} ·{" "}
+                              {both
+                                ? t("memories.history_both_wrote")
+                                : t("memories.history_one_wrote")}
                             </div>
                           </div>
                           <span className="text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink)]">

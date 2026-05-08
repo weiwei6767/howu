@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Slider } from "@/components/ui/Slider";
 import { Textarea } from "@/components/ui/Input";
@@ -43,6 +44,7 @@ export function TemplateQuestionnaire({
   questions,
   promises,
 }: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +77,7 @@ export function TemplateQuestionnaire({
         toast(error.message, { tone: "error" });
         return;
       }
-      toast("今天寫完了", { tone: "success" });
+      toast(t("questionnaire.submitted_title"), { tone: "success" });
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -93,7 +95,7 @@ export function TemplateQuestionnaire({
       {promises.length > 0 && (
         <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
           <h3 className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
-            這份問卷的承諾
+            {t("questionnaire.section_promises")}
           </h3>
           <ul className="flex flex-col gap-1 mt-1.5">
             {promises.map((p) => (
@@ -118,7 +120,7 @@ export function TemplateQuestionnaire({
       </div>
 
       <Button type="submit" loading={submitting} fullWidth size="lg">
-        完成今日問卷
+        {t("questionnaire.submit_finish")}
       </Button>
     </form>
   );
@@ -135,6 +137,7 @@ function QuestionField({
   value: AnswerValue;
   onChange: (v: AnswerValue) => void;
 }) {
+  const t = useTranslations();
   const head = (
     <header className="flex items-baseline gap-3 mb-3">
       <span className="font-serif text-sm text-[var(--color-ink-soft)] tabular-nums">
@@ -156,7 +159,7 @@ function QuestionField({
         />
         {question.type === "guess_partner" && (
           <p className="text-xs text-[var(--color-ink-soft)] mt-2">
-            猜對方 — 之後可以看你猜得多準
+            {t("today_completed.guess_partner_hint")}
           </p>
         )}
       </section>
@@ -215,7 +218,7 @@ function QuestionField({
           rows={10}
           value={text}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="親愛的⋯⋯&#10;&#10;想到什麼寫什麼,沒字數限制。"
+          placeholder={t("questionnaire.letter_placeholder")}
           className="text-base leading-relaxed"
           style={{ fontFamily: "var(--font-handwritten)", fontSize: "1.1rem" }}
         />
@@ -232,7 +235,7 @@ function QuestionField({
         rows={2}
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="簡短寫一下"
+        placeholder={t("questionnaire.short_text_placeholder")}
       />
     </section>
   );

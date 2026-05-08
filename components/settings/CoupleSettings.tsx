@@ -56,7 +56,7 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
       </h2>
 
       <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-3">
-        <span className="text-sm text-[var(--color-ink-mid)]">狀態</span>
+        <span className="text-sm text-[var(--color-ink-mid)]">{t("settings.couple_status")}</span>
         <span className="text-sm">{couple.status ?? "—"}</span>
       </div>
       <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-3">
