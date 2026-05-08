@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 import { callRpc } from "@/lib/supabase/db";
@@ -52,23 +50,29 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-base font-semibold">{t("settings.relationship")}</span>
-        <Badge tone={couple.status === "active" ? "rose" : "neutral"}>
-          {couple.status ?? "—"}
-        </Badge>
+    <section className="flex flex-col gap-3">
+      <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em]">
+        {t("settings.relationship")}
+      </h2>
+
+      <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-3">
+        <span className="text-sm text-[var(--color-ink-mid)]">狀態</span>
+        <span className="text-sm">{couple.status ?? "—"}</span>
       </div>
-      <p className="text-sm text-zinc-500">
-        {t("settings.relationship_type")}:{" "}
-        {t(`invite.relationship_type.${couple.relationship_type ?? "same_city"}` as const)}
-      </p>
+      <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-3">
+        <span className="text-sm text-[var(--color-ink-mid)]">
+          {t("settings.relationship_type")}
+        </span>
+        <span className="text-sm">
+          {t(`invite.relationship_type.${couple.relationship_type ?? "same_city"}` as const)}
+        </span>
+      </div>
 
       <div className="flex gap-2 pt-2">
-        <Button variant="secondary" onClick={() => setPauseOpen(true)} fullWidth>
+        <Button variant="secondary" onClick={() => setPauseOpen(true)} fullWidth size="sm">
           {t("settings.pause_relationship")}
         </Button>
-        <Button variant="danger" onClick={() => setDiscOpen(true)} fullWidth>
+        <Button variant="danger" onClick={() => setDiscOpen(true)} fullWidth size="sm">
           {t("settings.disconnect")}
         </Button>
       </div>
@@ -108,6 +112,6 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
       >
         <p className="text-sm leading-relaxed">{t("disconnect.disconnect_body")}</p>
       </Modal>
-    </Card>
+    </section>
   );
 }

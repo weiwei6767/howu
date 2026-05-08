@@ -18,10 +18,9 @@ export function PhotoGrid({ photos }: Props) {
           href={p.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="aspect-square relative rounded-md overflow-hidden bg-zinc-100"
+          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] hover:opacity-90 transition"
           title={p.caption ?? ""}
         >
-          {/* 已是 signedUrl, 直接 next/image */}
           <Image
             src={p.url}
             alt={p.caption ?? ""}

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
@@ -37,15 +36,17 @@ export function RecoveryScreen({ recoveryUntil }: Props) {
   }
 
   return (
-    <Card className="text-center flex flex-col gap-4 py-10">
-      <div className="text-4xl" aria-hidden>🌱</div>
-      <h2 className="text-lg font-semibold">{t("disconnect.recovery_title")}</h2>
-      <p className="text-sm text-zinc-500 leading-relaxed">
+    <section className="text-center flex flex-col gap-4 py-12 max-w-sm mx-auto">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+        Recovery
+      </p>
+      <h2 className="font-serif text-3xl">{t("disconnect.recovery_title")}</h2>
+      <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
         {t("disconnect.recovery_body", { n: daysLeft })}
       </p>
-      <Button onClick={reconnect} loading={loading} fullWidth>
+      <Button onClick={reconnect} loading={loading} className="self-center mt-2">
         {t("disconnect.reconnect")}
       </Button>
-    </Card>
+    </section>
   );
 }

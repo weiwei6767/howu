@@ -62,13 +62,20 @@ export default async function EditTemplatePage({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/templates" className="text-sm text-zinc-500">← 模板</Link>
+      <Link
+        href="/templates"
+        className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
+      >
+        ← 模板
+      </Link>
       <header className="flex items-center gap-3">
-        <span className="text-3xl">{tpl.emoji ?? "📝"}</span>
+        {tpl.emoji && <span className="text-2xl" aria-hidden>{tpl.emoji}</span>}
         <div>
-          <h1 className="text-xl font-semibold">{tpl.name}</h1>
+          <h1 className="font-serif text-2xl">{tpl.name}</h1>
           {tpl.description && (
-            <p className="text-sm text-zinc-500 mt-0.5">{tpl.description}</p>
+            <p className="text-sm text-[var(--color-ink-mid)] mt-0.5">
+              {tpl.description}
+            </p>
           )}
         </div>
       </header>
@@ -76,7 +83,7 @@ export default async function EditTemplatePage({
       <TemplateEditor
         templateId={tpl.id}
         templateName={tpl.name}
-        templateEmoji={tpl.emoji ?? "📝"}
+        templateEmoji={tpl.emoji ?? ""}
         templateDescription={tpl.description ?? ""}
         initialQuestions={(qRaw as Question[] | null) ?? []}
         initialPromises={(pRaw as PromiseRow[] | null) ?? []}

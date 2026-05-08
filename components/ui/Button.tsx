@@ -15,20 +15,21 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "bg-[var(--color-rose)] text-white shadow-[0_4px_12px_-4px_rgba(194,24,91,0.5)] hover:shadow-[0_8px_20px_-4px_rgba(194,24,91,0.5)] active:scale-[0.97]",
+    "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink-mid)]",
   secondary:
-    "border border-zinc-200 bg-white text-zinc-900 hover:border-[var(--color-rose)]/40 hover:bg-zinc-50 active:scale-[0.97]",
+    "bg-white text-[var(--color-ink)] border border-[var(--color-paper-line)] hover:border-[var(--color-ink-mid)]",
   soft:
-    "bg-[var(--color-rose-soft)] text-[var(--color-rose)] hover:bg-[var(--color-rose-soft)]/80 active:scale-[0.97]",
-  ghost: "text-zinc-700 hover:bg-zinc-100 active:scale-[0.97]",
+    "bg-[var(--color-paper-dim)] text-[var(--color-ink)] hover:bg-[var(--color-paper-line)]",
+  ghost:
+    "text-[var(--color-ink-mid)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-dim)]",
   danger:
-    "bg-[var(--color-danger)] text-white hover:opacity-90 active:scale-[0.97]",
+    "bg-[var(--color-danger)] text-white hover:opacity-90",
 };
 
 const SIZE: Record<Size, string> = {
-  sm: "h-9 px-3 text-sm rounded-[var(--radius-button)]",
-  md: "h-12 px-5 text-base rounded-[var(--radius-button)]",
-  lg: "h-14 px-6 text-base font-semibold rounded-[var(--radius-cta)]",
+  sm: "h-8 px-3 text-sm",
+  md: "h-11 px-5 text-[15px]",
+  lg: "h-12 px-6 text-base",
 };
 
 export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
@@ -41,12 +42,12 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
       disabled={disabled || loading}
       onClick={(e) => {
         if (typeof window !== "undefined" && "vibrate" in navigator) {
-          try { navigator.vibrate(8); } catch {}
+          try { navigator.vibrate(6); } catch {}
         }
         onClick?.(e);
       }}
       className={cn(
-        "inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-rose)]/40",
+        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-button)] font-medium transition-colors disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ink)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-paper)]",
         VARIANT[variant],
         SIZE[size],
         fullWidth && "w-full",

@@ -33,7 +33,6 @@ export function LoginForm() {
       const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin)
         .replace(/^[﻿ ]+/, "")
         .trim();
-      // 把 next 串進 callback URL,登入完轉去原本要去的頁面
       const callbackUrl = `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`;
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
@@ -57,14 +56,13 @@ export function LoginForm() {
   if (sent) {
     return (
       <div className="text-center flex flex-col gap-3">
-        <div className="text-4xl" aria-hidden>📬</div>
-        <h2 className="text-xl font-semibold">{t("auth.magic_sent_title")}</h2>
-        <p className="text-sm text-zinc-500 leading-relaxed">
+        <h2 className="font-serif text-2xl">{t("auth.magic_sent_title")}</h2>
+        <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
           {t("auth.magic_sent_body", { email: getValues("email") })}
         </p>
         <button
           type="button"
-          className="mt-2 text-sm text-[var(--color-rose)] underline"
+          className="mt-2 text-sm underline underline-offset-2 hover:text-[var(--color-ink-mid)]"
           onClick={() => setSent(false)}
         >
           {t("auth.magic_resend")}
@@ -75,8 +73,8 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium" htmlFor="email">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]" htmlFor="email">
           {t("auth.email")}
         </label>
         <Input
@@ -87,26 +85,26 @@ export function LoginForm() {
           aria-invalid={!!errors.email}
           {...register("email")}
         />
-        {errors.email && <p className="text-xs text-red-500">{t("auth.email_invalid")}</p>}
+        {errors.email && <p className="text-xs text-[var(--color-danger)]">{t("auth.email_invalid")}</p>}
       </div>
       <Button type="submit" loading={isSubmitting} fullWidth size="lg">
         {t("auth.send_magic_link")}
       </Button>
 
-      <div className="flex items-center gap-3 text-xs text-zinc-400">
-        <span className="h-px flex-1 bg-zinc-200" />
+      <div className="flex items-center gap-3 text-xs text-[var(--color-ink-soft)]">
+        <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
         {t("auth.or")}
-        <span className="h-px flex-1 bg-zinc-200" />
+        <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Button type="button" variant="secondary" fullWidth size="lg" onClick={notReady}>
+        <Button type="button" variant="secondary" fullWidth onClick={notReady}>
           {t("auth.with_line")}
         </Button>
-        <Button type="button" variant="secondary" fullWidth size="lg" onClick={notReady}>
+        <Button type="button" variant="secondary" fullWidth onClick={notReady}>
           {t("auth.with_google")}
         </Button>
-        <Button type="button" variant="secondary" fullWidth size="lg" onClick={notReady}>
+        <Button type="button" variant="secondary" fullWidth onClick={notReady}>
           {t("auth.with_apple")}
         </Button>
       </div>

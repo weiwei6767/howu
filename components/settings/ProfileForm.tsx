@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
@@ -42,35 +41,37 @@ export function ProfileForm({ profile }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold">{t("settings.profile")}</h2>
+    <section className="flex flex-col gap-4">
+      <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em]">
+        {t("settings.profile")}
+      </h2>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-sm" htmlFor="display_name">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]" htmlFor="display_name">
           {t("settings.display_name")}
         </label>
         <Input id="display_name" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-sm" htmlFor="birthday">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]" htmlFor="birthday">
           {t("settings.birthday")}
         </label>
         <Input id="birthday" type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-sm">{t("settings.language")}</span>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs text-[var(--color-ink-mid)]">{t("settings.language")}</span>
         <div className="flex gap-2">
           {["zh-TW", "en"].map((l) => (
             <button
               key={l}
               type="button"
               onClick={() => setLocale(l)}
-              className={`flex-1 py-2 text-sm rounded-[var(--radius-button)] border ${
+              className={`flex-1 py-2 text-sm rounded-[var(--radius-button)] border transition-colors ${
                 locale === l
-                  ? "border-[var(--color-rose)] bg-[var(--color-rose-soft)]/40 text-[var(--color-rose)]"
-                  : "border-zinc-200 text-zinc-600"
+                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                  : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
               }`}
             >
               {l === "zh-TW" ? "繁體中文" : "English"}
@@ -79,9 +80,9 @@ export function ProfileForm({ profile }: Props) {
         </div>
       </div>
 
-      <Button onClick={save} loading={saving}>
+      <Button onClick={save} loading={saving} className="self-start">
         {t("common.save")}
       </Button>
-    </Card>
+    </section>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Noto_Sans_TC, Inter, Caveat } from "next/font/google";
+import { Noto_Sans_TC, Noto_Serif_TC, Inter, Caveat } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/Toaster";
 import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
@@ -12,6 +12,13 @@ const notoTC = Noto_Sans_TC({
   variable: "--font-noto-tc",
   subsets: ["latin"],
   weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const notoSerifTC = Noto_Serif_TC({
+  variable: "--font-noto-serif-tc",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -29,10 +36,10 @@ const caveat = Caveat({
 
 export const metadata: Metadata = {
   title: {
-    default: "howu — 兩個人的日記",
+    default: "howu",
     template: "%s · howu",
   },
-  description: "以每日問卷為核心的情侶關係 PWA",
+  description: "兩個人的日記",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -43,8 +50,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fff8f8" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
+    { media: "(prefers-color-scheme: light)", color: "#fbf9f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#15110f" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -74,7 +81,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${notoTC.variable} ${inter.variable} ${caveat.variable} h-full antialiased`}
+      className={`${notoTC.variable} ${notoSerifTC.variable} ${inter.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>

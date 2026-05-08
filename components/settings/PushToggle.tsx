@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { isPushSupported, subscribePush, unsubscribePush } from "@/lib/push/client";
@@ -45,18 +44,24 @@ export function PushToggle() {
 
   if (!supported) {
     return (
-      <Card>
-        <p className="text-sm text-zinc-500">{t("settings.notifications")}</p>
-        <p className="text-xs text-zinc-400 mt-1">這台裝置 / 瀏覽器不支援 Web Push。</p>
-      </Card>
+      <section className="flex flex-col gap-1">
+        <span className="text-sm text-[var(--color-ink-mid)]">
+          {t("settings.notifications")}
+        </span>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          這台裝置 / 瀏覽器不支援 Web Push。
+        </span>
+      </section>
     );
   }
 
   return (
-    <Card className="flex items-center justify-between gap-3">
-      <div className="flex flex-col">
-        <span className="text-sm font-medium">{t("settings.notifications_daily")}</span>
-        <span className="text-xs text-zinc-400">每天 20:00 提醒今日問卷</span>
+    <section className="flex items-center justify-between gap-3 border-b border-[var(--color-paper-line)] pb-4">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-sm">{t("settings.notifications_daily")}</span>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          每天 20:00 提醒今日問卷
+        </span>
       </div>
       {subscribed ? (
         <Button variant="secondary" onClick={turnOff} loading={loading} size="sm">
@@ -67,6 +72,6 @@ export function PushToggle() {
           開啟
         </Button>
       )}
-    </Card>
+    </section>
   );
 }

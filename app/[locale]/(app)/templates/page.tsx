@@ -2,9 +2,7 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 
 interface TemplateRow {
   id: string;
@@ -36,7 +34,6 @@ export default async function TemplatesPage({
     .order("created_at", { ascending: false });
   const tpls = (tplRaw as TemplateRow[] | null) ?? [];
 
-  // 算每份模板的題目數
   const templateIds = tpls.map((t) => t.id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: qRaw } = templateIds.length
@@ -51,36 +48,55 @@ export default async function TemplatesPage({
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">問卷模板</h1>
+    <div className="flex flex-col gap-6">
+      <header className="flex items-end justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+            Templates
+          </p>
+          <h1 className="font-serif text-3xl mt-1">問卷模板</h1>
+        </div>
         <Link href="/templates/new">
-          <Button size="sm">+ 新模板</Button>
+          <Button size="sm">新增</Button>
         </Link>
       </header>
 
-      <Card className="text-sm text-zinc-600 leading-relaxed">
+      <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
         建你們自己的每日問卷。可以做好幾份,輪流填。每份可以有自己的承諾。
-      </Card>
+      </p>
 
       {tpls.length === 0 ? (
-        <Card className="text-center text-sm text-zinc-400 py-8">
-          還沒有模板,點右上「+ 新模板」開始
-        </Card>
+        <div className="surface text-center text-sm text-[var(--color-ink-soft)] py-12">
+          還沒有模板。點右上「新增」開始。
+        </div>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col">
           {tpls.map((t) => (
-            <li key={t.id}>
+            <li
+              key={t.id}
+              className="border-b border-[var(--color-paper-line)] last:border-b-0"
+            >
               <Link
                 href={`/templates/${t.id}`}
-                className="rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] p-4 flex items-center gap-3 hover:shadow-md transition"
+                className="flex items-center gap-4 py-4 group"
               >
-                <span className="text-2xl">{t.emoji ?? "📝"}</span>
+                <span className="text-xl w-8 text-center" aria-hidden>
+                  {t.emoji ?? ""}
+                </span>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm">{t.name}</div>
-                  <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{t.description}</p>
+                  <div className="text-[15px] text-[var(--color-ink)] group-hover:text-[var(--color-ink-mid)] transition-colors">
+                    {t.name}
+                  </div>
+                  {t.description && (
+                    <p className="text-xs text-[var(--color-ink-mid)] mt-0.5 line-clamp-1">
+                      {t.description}
+                    </p>
+                  )}
                 </div>
-                <Badge tone="neutral">{counts.get(t.id) ?? 0} 題</Badge>
+                <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
+                  {counts.get(t.id) ?? 0} 題
+                </span>
+                <span className="text-[var(--color-ink-soft)]">→</span>
               </Link>
             </li>
           ))}

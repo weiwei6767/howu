@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
@@ -52,19 +51,19 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm">圖示</label>
+    <section className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]">圖示</label>
         <div className="flex flex-wrap gap-2">
           {EMOJIS.map((e) => (
             <button
               key={e}
               type="button"
               onClick={() => setEmoji(e)}
-              className={`w-10 h-10 rounded-full text-xl flex items-center justify-center border ${
+              className={`w-10 h-10 rounded-md text-xl flex items-center justify-center border transition-colors ${
                 emoji === e
-                  ? "border-[var(--color-rose)] bg-[var(--color-rose-soft)]/30"
-                  : "border-zinc-200"
+                  ? "border-[var(--color-ink)] bg-[var(--color-paper-dim)]"
+                  : "border-[var(--color-paper-line)]"
               }`}
             >
               {e}
@@ -72,8 +71,8 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm">名稱</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]">名稱</label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -81,8 +80,10 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
           maxLength={40}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm">描述(選填)</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]">
+          描述(選填)
+        </label>
         <Textarea
           rows={2}
           value={desc}
@@ -91,7 +92,9 @@ export function NewTemplateForm({ coupleId, userId }: Props) {
           maxLength={120}
         />
       </div>
-      <Button onClick={create} loading={loading}>建立並加題</Button>
-    </Card>
+      <Button onClick={create} loading={loading} className="self-start">
+        建立並加題
+      </Button>
+    </section>
   );
 }

@@ -22,18 +22,16 @@ export default async function LoginPage({
   const errorMsg = errorRaw ? decodeURIComponent(errorRaw) : null;
 
   return (
-    <div className="flex flex-col gap-7">
-      <header className="text-center flex flex-col gap-1">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-rose)]">howu</h1>
-        <p className="text-sm text-zinc-500">{t("brand.tagline")}</p>
+    <div className="flex flex-col gap-8">
+      <header className="text-center flex flex-col gap-2 pt-4">
+        <h1 className="font-serif text-5xl tracking-tight">howu</h1>
+        <p className="text-sm text-[var(--color-ink-mid)]">{t("brand.tagline")}</p>
       </header>
       {errorMsg && (
-        <div className="rounded-[var(--radius-card)] bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-danger)]/30 bg-red-50 px-4 py-3 text-sm text-[var(--color-danger)]">
           <p className="font-medium">登入失敗</p>
           <p className="text-xs mt-1 break-all">{errorMsg}</p>
-          <p className="text-xs mt-2 text-red-600">
-            連結可能過期或已使用過,請重新寄送一次登入連結。
-          </p>
+          <p className="text-xs mt-2">連結可能過期或已使用過,請重新寄送一次登入連結。</p>
         </div>
       )}
       <LoginForm />

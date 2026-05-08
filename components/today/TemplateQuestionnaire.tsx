@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Slider } from "@/components/ui/Slider";
 import { Textarea } from "@/components/ui/Input";
@@ -63,7 +62,6 @@ export function TemplateQuestionnaire({
       }));
 
       const supabase = createClient();
-      // template_id 是新欄位,types.ts 還沒含,cast 整體繞過
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase as any).from("daily_responses").insert({
         couple_id: coupleId,
@@ -77,7 +75,7 @@ export function TemplateQuestionnaire({
         toast(error.message, { tone: "error" });
         return;
       }
-      toast("今天寫完了 ✨", { tone: "success" });
+      toast("今天寫完了", { tone: "success" });
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -90,29 +88,34 @@ export function TemplateQuestionnaire({
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-7"
     >
       {promises.length > 0 && (
-        <Card className="bg-amber-50 border border-amber-200">
-          <h3 className="text-sm font-semibold mb-2">這份問卷的承諾</h3>
-          <ul className="flex flex-col gap-1">
+        <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
+          <h3 className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+            這份問卷的承諾
+          </h3>
+          <ul className="flex flex-col gap-1 mt-1.5">
             {promises.map((p) => (
-              <li key={p.id} className="text-sm">🤝 {p.text}</li>
+              <li key={p.id} className="text-sm leading-relaxed">
+                {p.text}
+              </li>
             ))}
           </ul>
-        </Card>
+        </section>
       )}
 
-      <Card className="flex flex-col gap-6">
-        {questions.map((q) => (
+      <div className="flex flex-col gap-8">
+        {questions.map((q, i) => (
           <QuestionField
             key={q.id}
+            index={i + 1}
             question={q}
             value={answers[q.id]}
             onChange={(v) => setAnswer(q.id, v)}
           />
         ))}
-      </Card>
+      </div>
 
       <Button type="submit" loading={submitting} fullWidth size="lg">
         完成今日問卷
@@ -122,42 +125,49 @@ export function TemplateQuestionnaire({
 }
 
 function QuestionField({
+  index,
   question,
   value,
   onChange,
 }: {
+  index: number;
   question: Question;
   value: AnswerValue;
   onChange: (v: AnswerValue) => void;
 }) {
-  if (question.type === "slider") {
+  const head = (
+    <header className="flex items-baseline gap-3 mb-3">
+      <span className="font-serif text-sm text-[var(--color-ink-soft)] tabular-nums">
+        {String(index).padStart(2, "0")}
+      </span>
+      <h3 className="text-[15px] leading-snug flex-1 text-[var(--color-ink)]">
+        {question.text}
+      </h3>
+    </header>
+  );
+
+  if (question.type === "slider" || question.type === "guess_partner") {
     return (
-      <Slider
-        label={question.text}
-        value={typeof value === "number" ? value : 5}
-        onChange={(v) => onChange(v)}
-      />
-    );
-  }
-  if (question.type === "guess_partner") {
-    return (
-      <div className="flex flex-col gap-1">
+      <section>
+        {head}
         <Slider
-          label={question.text}
           value={typeof value === "number" ? value : 5}
-          gradient={{ from: "#ffffff", to: "#FFB300" }}
           onChange={(v) => onChange(v)}
         />
-        <p className="text-xs text-zinc-400">猜對方 — 之後可以看你猜得多準</p>
-      </div>
+        {question.type === "guess_partner" && (
+          <p className="text-xs text-[var(--color-ink-soft)] mt-2">
+            猜對方 — 之後可以看你猜得多準
+          </p>
+        )}
+      </section>
     );
   }
   if (question.type === "multi_choice") {
     const options = question.options ?? [];
     const selected = Array.isArray(value) ? value : [];
     return (
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">{question.text}</span>
+      <section>
+        {head}
         <div className="flex flex-wrap gap-2">
           {options.map((opt, i) => {
             const active = selected.includes(opt);
@@ -171,10 +181,10 @@ function QuestionField({
                     : [...selected, opt];
                   onChange(next);
                 }}
-                className={`px-3 py-1.5 rounded-full text-sm border transition ${
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                   active
-                    ? "bg-[var(--color-rose)] border-[var(--color-rose)] text-white"
-                    : "border-zinc-200 text-zinc-700"
+                    ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
+                    : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
                 }`}
               >
                 {opt}
@@ -182,47 +192,48 @@ function QuestionField({
             );
           })}
         </div>
-      </div>
+      </section>
     );
   }
   if (question.type === "mood_tags") {
     return (
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">{question.text}</span>
+      <section>
+        {head}
         <MoodTags
           values={Array.isArray(value) ? value : []}
           onChange={(v) => onChange(v)}
         />
-      </div>
+      </section>
     );
   }
   if (question.type === "letter") {
     const text = typeof value === "string" ? value : "";
     return (
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">✍️ {question.text}</label>
+      <section>
+        {head}
         <Textarea
           rows={10}
           value={text}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={"親愛的...\n\n想到什麼寫什麼,沒字數限制,我們幫你存下來。"}
+          placeholder="親愛的⋯⋯&#10;&#10;想到什麼寫什麼,沒字數限制。"
           className="text-base leading-relaxed"
-          style={{ fontFamily: "var(--font-handwritten)" }}
+          style={{ fontFamily: "var(--font-handwritten)", fontSize: "1.1rem" }}
         />
-        <p className="text-xs text-zinc-400 text-right">{text.length} 字</p>
-      </div>
+        <p className="text-xs text-[var(--color-ink-soft)] text-right mt-1 tabular-nums">
+          {text.length}
+        </p>
+      </section>
     );
   }
-  // short_text
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium">{question.text}</label>
+    <section>
+      {head}
       <Textarea
         rows={2}
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="簡短寫一下..."
+        placeholder="簡短寫一下"
       />
-    </div>
+    </section>
   );
 }

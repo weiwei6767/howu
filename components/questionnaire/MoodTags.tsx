@@ -32,10 +32,10 @@ export function MoodTags({ values, onChange }: Props) {
             onClick={() =>
               onChange(active ? values.filter((v) => v !== key) : [...values, key])
             }
-            className={`px-3 py-1.5 rounded-full text-sm border transition ${
+            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
               active
-                ? "bg-[var(--color-rose-soft)] border-[var(--color-rose)] text-[var(--color-rose)]"
-                : "border-zinc-200 text-zinc-700"
+                ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
+                : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
             }`}
           >
             {key}

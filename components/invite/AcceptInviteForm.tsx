@@ -52,21 +52,26 @@ export function AcceptInviteForm({ token, inviterName, inviterMessage }: Props) 
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="text-center flex flex-col gap-1">
-        <div className="text-4xl" aria-hidden>💞</div>
-        <h1 className="text-xl font-semibold">{t("invite.accept_title", { inviter: inviterName })}</h1>
-        <p className="text-sm text-zinc-500 leading-relaxed">{t("invite.accept_body")}</p>
+    <div className="flex flex-col gap-7">
+      <header className="text-center flex flex-col gap-2">
+        <h1 className="font-serif text-3xl">
+          {t("invite.accept_title", { inviter: inviterName })}
+        </h1>
+        <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
+          {t("invite.accept_body")}
+        </p>
       </header>
 
       {inviterMessage && (
-        <blockquote className="rounded-[var(--radius-card)] bg-[var(--color-rose-soft)]/30 px-4 py-3 italic text-sm leading-relaxed">
+        <blockquote className="border-l-2 border-[var(--color-accent)] pl-4 italic text-sm leading-relaxed text-[var(--color-ink)]">
           {inviterMessage}
         </blockquote>
       )}
 
-      <div className="flex flex-col gap-3">
-        <label className="text-sm font-medium">{t("invite.together_since_label")}</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-[var(--color-ink-mid)]">
+          {t("invite.together_since_label")}
+        </label>
         <Input
           type="date"
           value={together}
@@ -76,17 +81,19 @@ export function AcceptInviteForm({ token, inviterName, inviterMessage }: Props) 
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">{t("invite.relationship_type_label")}</label>
+        <label className="text-xs text-[var(--color-ink-mid)]">
+          {t("invite.relationship_type_label")}
+        </label>
         <div className="flex flex-col gap-2">
           {TYPES.map((tt) => (
             <button
               key={tt}
               type="button"
               onClick={() => setType(tt)}
-              className={`text-left px-4 py-3 rounded-[var(--radius-button)] border ${
+              className={`text-left px-4 py-3 rounded-[var(--radius-button)] border transition-colors ${
                 type === tt
-                  ? "border-[var(--color-rose)] bg-[var(--color-rose-soft)]/40"
-                  : "border-zinc-200"
+                  ? "border-[var(--color-ink)] bg-[var(--color-paper-dim)]"
+                  : "border-[var(--color-paper-line)]"
               }`}
             >
               <span className="text-sm">{t(`invite.relationship_type.${tt}`)}</span>

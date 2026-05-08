@@ -4,7 +4,7 @@ import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } fro
 import { cn } from "@/lib/utils/cn";
 
 const baseClass =
-  "w-full rounded-[var(--radius-button)] border border-zinc-200 bg-white px-4 py-3 text-base placeholder:text-zinc-400 focus:border-[var(--color-rose)] focus:outline-none focus:ring-2 focus:ring-[var(--color-rose)]/20 disabled:opacity-60 dark:bg-zinc-900 dark:border-zinc-700";
+  "w-full rounded-[var(--radius-button)] border border-[var(--color-paper-line)] bg-white px-3.5 py-2.5 text-[15px] text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)] focus:border-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)]/10 disabled:opacity-60 dark:bg-[#1d1916] dark:border-[#2c2722]";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className, ...rest }, ref) {

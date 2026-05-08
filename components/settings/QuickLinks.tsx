@@ -1,28 +1,27 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
 
 const LINKS = [
-  { href: "/orders", label: "我的訂單", emoji: "📦" },
-  { href: "/creator", label: "創作者後台", emoji: "✨" },
-  { href: "/friends", label: "朋友榜", emoji: "💞" },
-  { href: "/leaderboard", label: "默契排行榜", emoji: "🏆" },
-  { href: "/store", label: "商城", emoji: "🛍️" },
-  { href: "/premium", label: "Premium", emoji: "⭐" },
+  { href: "/orders", label: "訂單" },
+  { href: "/creator", label: "創作者後台" },
+  { href: "/friends", label: "朋友" },
+  { href: "/leaderboard", label: "排行" },
+  { href: "/store", label: "商城" },
+  { href: "/premium", label: "Premium" },
 ] as const;
 
 export function QuickLinks() {
   return (
-    <Card className="grid grid-cols-2 gap-1 p-2">
+    <ul className="grid grid-cols-3 gap-px bg-[var(--color-paper-line)] border border-[var(--color-paper-line)] rounded-[var(--radius-card)] overflow-hidden">
       {LINKS.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-zinc-50 text-sm"
-        >
-          <span className="text-lg">{l.emoji}</span>
-          <span>{l.label}</span>
-        </Link>
+        <li key={l.href}>
+          <Link
+            href={l.href}
+            className="flex items-center justify-center px-3 py-3 text-sm bg-white hover:bg-[var(--color-paper-dim)] transition-colors text-[var(--color-ink)]"
+          >
+            {l.label}
+          </Link>
+        </li>
       ))}
-    </Card>
+    </ul>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
@@ -84,33 +83,39 @@ export function InviteHub() {
     : 30;
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1 text-center pt-6">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("invite.title")}</h1>
-        <p className="text-sm text-zinc-500">{t("invite.subtitle")}</p>
+    <div className="flex flex-col gap-7 pt-4">
+      <header className="flex flex-col gap-2 text-center">
+        <h1 className="font-serif text-3xl">{t("invite.title")}</h1>
+        <p className="text-sm text-[var(--color-ink-mid)]">{t("invite.subtitle")}</p>
       </header>
 
-      <Card className="flex flex-col gap-4">
-        <label className="text-sm font-medium">{t("invite.your_message")}</label>
-        <Textarea
-          rows={3}
-          placeholder={t("invite.message_placeholder")}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-[var(--color-ink-mid)]">
+            {t("invite.your_message")}
+          </label>
+          <Textarea
+            rows={3}
+            placeholder={t("invite.message_placeholder")}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-zinc-500">{t("invite.message_style_label")}</span>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-[var(--color-ink-mid)]">
+            {t("invite.message_style_label")}
+          </span>
           <div className="flex gap-2">
             {(["cute", "simple", "custom"] as const).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setStyle(s)}
-                className={`flex-1 py-2 text-sm rounded-[var(--radius-button)] border ${
+                className={`flex-1 py-2 text-sm rounded-[var(--radius-button)] border transition-colors ${
                   style === s
-                    ? "border-[var(--color-rose)] text-[var(--color-rose)] bg-[var(--color-rose-soft)]/40"
-                    : "border-zinc-200 text-zinc-600"
+                    ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                    : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
                 }`}
               >
                 {t(`invite.message_style.${s}`)}
@@ -126,7 +131,9 @@ export function InviteHub() {
         ) : (
           <div className="flex flex-col gap-3">
             <Input readOnly value={link} onFocus={(e) => e.currentTarget.select()} />
-            <p className="text-xs text-zinc-400">{t("invite.expires_in", { days: expiresInDays })}</p>
+            <p className="text-xs text-[var(--color-ink-soft)]">
+              {t("invite.expires_in", { days: expiresInDays })}
+            </p>
             <div className="flex gap-2">
               <Button onClick={share} fullWidth>
                 {t("invite.share_link")}
@@ -137,14 +144,14 @@ export function InviteHub() {
             </div>
             <button
               onClick={generate}
-              className="text-xs text-zinc-400 underline self-end"
+              className="text-xs text-[var(--color-ink-soft)] underline underline-offset-2 self-end hover:text-[var(--color-ink)]"
               disabled={loading}
             >
               {t("invite.regenerate")}
             </button>
           </div>
         )}
-      </Card>
+      </section>
     </div>
   );
 }

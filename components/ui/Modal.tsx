@@ -32,29 +32,29 @@ export function Modal({ open, onClose, title, children, className, footer }: Pro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/35 p-0 sm:p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            exit={{ y: 30, opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              "w-full sm:max-w-md bg-white dark:bg-zinc-900 rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[90vh]",
+              "w-full sm:max-w-md bg-white dark:bg-[#1d1916] rounded-t-2xl sm:rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] flex flex-col max-h-[90vh] border border-[var(--color-paper-line)] dark:border-[#2c2722]",
               className,
             )}
           >
             {title && (
-              <header className="px-6 pt-5 pb-3 border-b border-zinc-100 dark:border-zinc-800">
-                <h2 className="text-lg font-semibold">{title}</h2>
+              <header className="px-5 pt-5 pb-3">
+                <h2 className="font-serif text-xl">{title}</h2>
               </header>
             )}
-            <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
+            <div className="px-5 py-4 overflow-y-auto flex-1">{children}</div>
             {footer && (
-              <footer className="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-2 justify-end">
+              <footer className="px-5 py-4 border-t border-[var(--color-paper-line)] flex gap-2 justify-end">
                 {footer}
               </footer>
             )}

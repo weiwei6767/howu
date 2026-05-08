@@ -8,8 +8,6 @@ import {
   getStreak,
 } from "@/lib/supabase/queries";
 import { todayISO } from "@/lib/utils/date";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { DDayCard } from "@/components/us/DDayCard";
 import { MilestoneList } from "@/components/us/MilestoneList";
 import { PartnerToday } from "@/components/us/PartnerToday";
@@ -35,15 +33,16 @@ export default async function UsPage({
     getStreak(couple.id),
   ]);
 
-  // 走 same-origin proxy 避免 cross-origin canvas taint(下載 PNG 黑底問題)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bgPath = (couple as any).background_photo_path as string | null | undefined;
   const backgroundUrl = bgPath
     ? `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(bgPath)}`
     : null;
 
+  const relType = couple.relationship_type ?? "same_city";
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-7">
       <DDayCard
         coupleId={couple.id}
         togetherSince={couple.together_since}
@@ -53,40 +52,43 @@ export default async function UsPage({
       />
 
       {streak.current_streak > 0 && (
-        <Card className="flex items-center justify-between bg-gradient-to-br from-rose-50 to-amber-50 border border-amber-200">
+        <div className="flex items-baseline justify-between border-b border-[var(--color-paper-line)] pb-4">
           <div>
-            <div className="text-sm text-zinc-500">連續一起寫</div>
-            <div className="text-3xl font-semibold tabular-nums text-[var(--color-rose)]">
-              🔥 {streak.current_streak} 天
-            </div>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+              連續一起寫
+            </p>
+            <p className="font-serif text-3xl tabular-nums mt-1">
+              {streak.current_streak} <span className="text-base text-[var(--color-ink-mid)]">天</span>
+            </p>
           </div>
-          <div className="text-right text-xs text-zinc-500">
+          <p className="text-xs text-[var(--color-ink-soft)]">
             最長 {streak.longest_streak} 天
-          </div>
-        </Card>
+          </p>
+        </div>
       )}
 
       <PartnerToday partnerName={partnerProfile?.display_name ?? null} partner={partnerToday} />
 
-      <Card className="flex items-center gap-3">
-        <span className="text-sm font-medium flex-1">{t("invite.relationship_type_label")}</span>
-        <Badge tone="rose">
-          {t(`invite.relationship_type.${couple.relationship_type ?? "same_city"}` as const)}
-        </Badge>
-      </Card>
+      <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
+        <span className="text-sm text-[var(--color-ink-mid)]">{t("invite.relationship_type_label")}</span>
+        <span className="text-sm">
+          {t(`invite.relationship_type.${relType}` as const)}
+        </span>
+      </div>
 
       <MilestoneList coupleId={couple.id} milestones={milestones} />
 
       <Link
         href="/templates"
-        className="rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] p-4 flex items-center gap-3 hover:shadow-md"
+        className="flex items-center justify-between py-4 border-t border-[var(--color-paper-line)] text-[var(--color-ink)] hover:text-[var(--color-ink-mid)] transition-colors"
       >
-        <span className="text-2xl">📝</span>
-        <div className="flex-1">
-          <div className="text-sm font-semibold">問卷模板</div>
-          <div className="text-xs text-zinc-500">建立 / 管理你們自己的每日問卷</div>
+        <div>
+          <p className="text-sm">問卷模板</p>
+          <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+            建立 / 管理你們自己的每日問卷
+          </p>
         </div>
-        <span className="text-zinc-400">→</span>
+        <span className="text-[var(--color-ink-soft)]">→</span>
       </Link>
     </div>
   );

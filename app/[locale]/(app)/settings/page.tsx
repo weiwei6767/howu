@@ -22,8 +22,13 @@ export default async function SettingsPage({
   const couple = await getActiveCouple(user.id);
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
+    <div className="flex flex-col gap-8">
+      <header>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+          Account
+        </p>
+        <h1 className="font-serif text-3xl mt-1">{t("settings.title")}</h1>
+      </header>
 
       <QuickLinks />
 

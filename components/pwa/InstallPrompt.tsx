@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 
 const STORAGE_KEY = "howu_install_dismissed_at";
-const DISMISS_TTL = 14 * 86400000; // 14 天
+const DISMISS_TTL = 14 * 86400000;
 
 export function InstallPrompt() {
   const t = useTranslations();
@@ -18,10 +18,8 @@ export function InstallPrompt() {
     const last = localStorage.getItem(STORAGE_KEY);
     if (last && Date.now() - Number(last) < DISMISS_TTL) return;
 
-    // 已是 standalone 不再提示
     const standalone =
       window.matchMedia?.("(display-mode: standalone)").matches ||
-      // iOS Safari
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window.navigator as any).standalone;
     if (standalone) return;
@@ -46,12 +44,14 @@ export function InstallPrompt() {
           initial={{ y: 60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 60, opacity: 0 }}
-          className="fixed inset-x-3 bottom-24 z-40 rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl p-4 max-w-md mx-auto border border-zinc-200/80"
+          className="fixed inset-x-3 bottom-24 z-40 rounded-[var(--radius-card)] bg-white dark:bg-[#1d1916] shadow-[var(--shadow-modal)] p-4 max-w-md mx-auto border border-[var(--color-paper-line)]"
         >
           <div className="flex flex-col gap-2">
-            <div className="text-sm font-semibold">{t("pwa.install_title")}</div>
-            <p className="text-xs text-zinc-500 leading-relaxed">{t("pwa.install_body")}</p>
-            <p className="text-xs text-zinc-400">
+            <div className="text-sm">{t("pwa.install_title")}</div>
+            <p className="text-xs text-[var(--color-ink-mid)] leading-relaxed">
+              {t("pwa.install_body")}
+            </p>
+            <p className="text-xs text-[var(--color-ink-soft)]">
               {platform === "ios" ? t("pwa.ios_steps") : t("pwa.android_steps")}
             </p>
             <div className="flex gap-2 pt-1">

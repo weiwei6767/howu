@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { toast } from "@/lib/store/toast";
@@ -41,7 +40,7 @@ export function PhotoUpload({ coupleId }: Props) {
       const { error: insErr } = await supabase.from("shared_photos").insert({
         couple_id: coupleId,
         uploader_id: (await supabase.auth.getUser()).data.user?.id ?? "",
-        url: path, // 我們存 path,呈現時 createSignedUrl
+        url: path,
         caption: caption || null,
         taken_at: new Date().toISOString().slice(0, 10),
       });
@@ -60,22 +59,23 @@ export function PhotoUpload({ coupleId }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
+      <h2 className="text-sm text-[var(--color-ink-mid)]">上傳一張新照片</h2>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        className="text-sm"
+        className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-[var(--radius-button)] file:border file:border-[var(--color-paper-line)] file:bg-white file:text-[var(--color-ink)] file:cursor-pointer"
       />
       <Input
         placeholder={t("memories.caption_placeholder")}
         value={caption}
         onChange={(e) => setCaption(e.target.value)}
       />
-      <Button onClick={upload} disabled={!file} loading={uploading}>
+      <Button onClick={upload} disabled={!file} loading={uploading} className="self-start">
         {t("memories.upload")}
       </Button>
-    </Card>
+    </section>
   );
 }

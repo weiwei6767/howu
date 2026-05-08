@@ -4,8 +4,6 @@ import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getMilestones } from "@/lib/supabase/queries";
 import { nextSpecialDays, daysUntil } from "@/lib/special-days";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { PhotoUpload } from "@/components/memories/PhotoUpload";
 import { PhotoGrid } from "@/components/memories/PhotoGrid";
 
@@ -47,7 +45,6 @@ export default async function MemoriesPage({
   const monthStart = new Date(yyyy, mm - 1, 1).toISOString().slice(0, 10);
   const monthEnd = new Date(yyyy, mm, 0).toISOString().slice(0, 10);
 
-  // 拉這個月所有問卷
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: respRaw } = await (supabase as any)
     .from("daily_responses")
@@ -57,7 +54,6 @@ export default async function MemoriesPage({
     .lte("date", monthEnd);
   const responses = (respRaw as ResponseRow[] | null) ?? [];
 
-  // 算雙方都完成的天數
   const dayResponders = new Map<string, Set<string>>();
   for (const r of responses) {
     const set = dayResponders.get(r.date) ?? new Set();
@@ -67,7 +63,6 @@ export default async function MemoriesPage({
   const daysBothDone = Array.from(dayResponders.values()).filter((s) => s.size === 2).length;
   const totalEntries = responses.length;
 
-  // 算最常選的模板(用 template_id 計數)
   const templateCount = new Map<string, number>();
   for (const r of responses) {
     if (!r.template_id) continue;
@@ -78,7 +73,6 @@ export default async function MemoriesPage({
     .slice(0, 3)
     .map(([id]) => id);
 
-  // 拉模板資訊
   let topTemplates: Array<TemplateRow & { count: number }> = [];
   if (topTemplateIds.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,98 +108,6 @@ export default async function MemoriesPage({
   }));
 
   const milestones = await getMilestones(couple.id);
-
-  return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-semibold">{t("memories.title")}</h1>
-
-      {totalEntries > 0 ? (
-        <Card className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-base font-semibold">
-              {t("memories.monthly", { ym: `${yyyy}-${String(mm).padStart(2, "0")}` })}
-            </span>
-            <Badge tone="rose">{totalEntries} 份</Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-center">
-            <Stat label="一起寫了" value={`${daysBothDone} 天`} />
-            <Stat label="總共寫了" value={`${totalEntries} 份`} />
-          </div>
-          {topTemplates.length > 0 && (
-            <div>
-              <span className="text-xs text-zinc-500">這個月最常選的模板:</span>
-              <div className="flex flex-col gap-1.5 mt-1.5">
-                {topTemplates.map((t) => (
-                  <div
-                    key={t.id}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <span>{t.emoji ?? "📝"}</span>
-                    <span className="flex-1">{t.name}</span>
-                    <Badge tone="neutral">× {t.count}</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card>
-      ) : (
-        <Card className="text-sm text-zinc-500">
-          這個月還沒累積夠多紀錄,寫滿一週後就會出現月度回顧。
-        </Card>
-      )}
-
-      {/* 為什麼要上傳照片 + 下次特殊日子 */}
-      <SpecialDaysCallout coupleId={couple.id} milestones={milestones} />
-
-      <Link
-        href="/memories/book"
-        className="rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] px-4 py-3 flex items-center gap-3"
-      >
-        <span className="text-2xl">📖</span>
-        <div className="flex-1">
-          <div className="text-sm font-semibold">我們的回憶冊</div>
-          <div className="text-xs text-zinc-500">列印 / 存 PDF 留念</div>
-        </div>
-        <span className="text-zinc-400">→</span>
-      </Link>
-
-      <PhotoUpload coupleId={couple.id} />
-
-      <section className="flex flex-col gap-2">
-        <h2 className="text-base font-semibold">{t("memories.albums")}</h2>
-        {signed.length === 0 ? (
-          <Card className="text-center text-sm text-zinc-400 py-6">{t("journal.empty")}</Card>
-        ) : (
-          <PhotoGrid photos={signed.filter((s) => s.url)} />
-        )}
-      </section>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[var(--radius-card)] bg-zinc-50 py-3">
-      <div className="text-xs text-zinc-500">{label}</div>
-      <div className="text-xl font-semibold tabular-nums mt-0.5">{value}</div>
-    </div>
-  );
-}
-
-function SpecialDaysCallout({
-  coupleId: _coupleId,
-  milestones,
-}: {
-  coupleId: string;
-  milestones: Array<{
-    id: string;
-    title: string;
-    date: string;
-    recurring: boolean | null;
-    type: string | null;
-  }>;
-}) {
   const upcoming = nextSpecialDays(
     milestones.map((m) => ({
       id: m.id,
@@ -214,50 +116,138 @@ function SpecialDaysCallout({
       recurring: m.recurring,
       type: m.type,
     })),
-    3,
+    1,
   );
   const next = upcoming[0];
+
   return (
-    <Card className="bg-gradient-to-br from-rose-50 via-amber-50 to-violet-50 border border-rose-100 flex flex-col gap-3">
-      <div className="flex items-start gap-3">
-        <span className="text-3xl">🎞️</span>
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold">為什麼要上傳照片?</h3>
-          <p className="text-xs text-zinc-600 mt-1 leading-relaxed">
-            到了情人節 · 520 · 七夕 · 紀念日 · 生日 那天,
-            howu 會把你們上傳的照片做成
-            <span className="font-medium text-[var(--color-rose)]"> 拍立得翻頁回憶幻燈片</span>
-            ,有背景音樂、有手寫日期。
-          </p>
-        </div>
-      </div>
-      {next && (
-        <div className="flex items-center justify-between bg-white/70 rounded-md px-3 py-2">
-          <div>
-            <p className="text-[11px] text-zinc-500">下次特殊日</p>
-            <p className="text-sm font-medium">
-              {next.emoji} {next.name}
-              <span className="text-xs text-zinc-500 ml-2">
+    <div className="flex flex-col gap-8">
+      <header>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+          Memories
+        </p>
+        <h1 className="font-serif text-3xl mt-1">{t("memories.title")}</h1>
+      </header>
+
+      {totalEntries > 0 ? (
+        <section className="border-b border-[var(--color-paper-line)] pb-6">
+          <header className="flex items-baseline justify-between mb-4">
+            <h2 className="text-sm text-[var(--color-ink-mid)]">
+              {t("memories.monthly", { ym: `${yyyy}-${String(mm).padStart(2, "0")}` })}
+            </h2>
+            <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
+              {totalEntries} 份
+            </span>
+          </header>
+          <div className="grid grid-cols-2 gap-4">
+            <Stat label="一起寫了" value={daysBothDone} unit="天" />
+            <Stat label="總共" value={totalEntries} unit="份" />
+          </div>
+
+          {topTemplates.length > 0 && (
+            <div className="mt-6">
+              <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-wider mb-2">
+                這個月最常選
+              </p>
+              <ul className="flex flex-col">
+                {topTemplates.map((t) => (
+                  <li
+                    key={t.id}
+                    className="flex items-center gap-3 py-2 border-b border-[var(--color-paper-line)] last:border-b-0"
+                  >
+                    <span className="w-6 text-center" aria-hidden>
+                      {t.emoji ?? ""}
+                    </span>
+                    <span className="flex-1 text-sm">{t.name}</span>
+                    <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
+                      × {t.count}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      ) : (
+        <p className="text-sm text-[var(--color-ink-soft)]">
+          這個月還沒累積夠多紀錄,寫滿一週後就會出現月度回顧。
+        </p>
+      )}
+
+      {/* 特殊日子 — 用淡邊欄取代漸層卡 */}
+      <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
+        <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+          幻燈片
+        </p>
+        <p className="text-sm mt-1 leading-relaxed text-[var(--color-ink-mid)]">
+          到了情人節 · 520 · 七夕 · 紀念日 · 生日,你們上傳的照片會做成拍立得翻頁回憶幻燈片。
+        </p>
+        {next ? (
+          <div className="flex items-baseline justify-between mt-3">
+            <p className="text-sm">
+              <span className="text-[var(--color-ink)]">{next.name}</span>
+              <span className="text-xs text-[var(--color-ink-soft)] ml-2">
                 還有 {Math.max(0, daysUntil(next.date))} 天
               </span>
             </p>
+            <Link
+              href={`/memories/slideshow?occasion=${next.id}`}
+              className="text-xs underline underline-offset-2 hover:text-[var(--color-ink-mid)]"
+            >
+              預覽
+            </Link>
           </div>
+        ) : (
           <Link
-            href={`/memories/slideshow?occasion=${next.id}`}
-            className="text-xs px-3 py-1.5 rounded-full bg-[var(--color-rose)] text-white font-medium"
+            href="/memories/slideshow"
+            className="text-xs underline underline-offset-2 mt-3 inline-block"
           >
-            預覽 →
+            現在就看 →
           </Link>
+        )}
+      </section>
+
+      <Link
+        href="/memories/book"
+        className="flex items-center justify-between py-4 border-y border-[var(--color-paper-line)] hover:text-[var(--color-ink-mid)] transition-colors"
+      >
+        <div>
+          <p className="font-serif text-lg">我們的回憶冊</p>
+          <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+            列印 / 存 PDF 留念
+          </p>
         </div>
-      )}
-      {!next && (
-        <Link
-          href="/memories/slideshow"
-          className="text-xs px-3 py-1.5 rounded-full bg-[var(--color-rose)] text-white font-medium self-start"
-        >
-          現在就看 →
-        </Link>
-      )}
-    </Card>
+        <span className="text-[var(--color-ink-soft)]">→</span>
+      </Link>
+
+      <PhotoUpload coupleId={couple.id} />
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm text-[var(--color-ink-mid)]">
+          {t("memories.albums")}
+        </h2>
+        {signed.length === 0 ? (
+          <p className="text-sm text-[var(--color-ink-soft)] py-6">
+            {t("journal.empty")}
+          </p>
+        ) : (
+          <PhotoGrid photos={signed.filter((s) => s.url)} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function Stat({ label, value, unit }: { label: string; value: number; unit: string }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+        {label}
+      </span>
+      <div className="font-serif text-3xl tabular-nums mt-1">
+        {value}
+        <span className="text-base text-[var(--color-ink-mid)] ml-1">{unit}</span>
+      </div>
+    </div>
   );
 }

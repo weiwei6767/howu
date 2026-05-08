@@ -1,6 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import type { DailyResponse } from "@/lib/supabase/queries";
 
 interface Props {
@@ -11,46 +9,50 @@ interface Props {
 export async function PartnerToday({ partnerName, partner }: Props) {
   const t = await getTranslations();
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">
+    <section className="border-b border-[var(--color-paper-line)] pb-5">
+      <header className="flex items-center justify-between mb-3">
+        <h2 className="text-sm text-[var(--color-ink-mid)]">
           {partnerName ?? "對方"} · {t("common.today")}
         </h2>
-        {partner ? (
-          <Badge tone="rose">{t("questionnaire.partner_done")}</Badge>
-        ) : (
-          <Badge tone="neutral">{t("questionnaire.wait_partner")}</Badge>
-        )}
-      </div>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          {partner ? t("questionnaire.partner_done") : t("questionnaire.wait_partner")}
+        </span>
+      </header>
+
       {partner ? (
-        <div className="grid grid-cols-2 gap-3">
-          <Cell label={t("questionnaire.fixed.happiness")} value={partner.happiness} accent="#FFB300" />
-          <Cell label={t("questionnaire.fixed.energy")} value={partner.energy} accent="#4CAF50" />
-          <Cell label={t("questionnaire.fixed.stress")} value={partner.stress} accent="#E53935" />
-          <Cell label={t("questionnaire.fixed.us_overall")} value={partner.us_overall} accent="#C2185B" />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+          <Cell label={t("questionnaire.fixed.happiness")} value={partner.happiness} />
+          <Cell label={t("questionnaire.fixed.energy")} value={partner.energy} />
+          <Cell label={t("questionnaire.fixed.stress")} value={partner.stress} />
+          <Cell label={t("questionnaire.fixed.us_overall")} value={partner.us_overall} />
         </div>
       ) : (
-        <p className="text-sm text-zinc-400">{t("questionnaire.partner_pending")}</p>
+        <p className="text-sm text-[var(--color-ink-soft)]">
+          {t("questionnaire.partner_pending")}
+        </p>
       )}
+
       {partner?.mood_tags && partner.mood_tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-1">
+        <div className="flex flex-wrap gap-1.5 pt-3">
           {partner.mood_tags.map((tg: string) => (
-            <Badge key={tg} tone="rose">
-              {/* tags 直接顯示 raw key,翻譯由 caller 端處理會更乾淨;此處先放 fallback */}
-              #{tg}
-            </Badge>
+            <span
+              key={tg}
+              className="text-xs px-2 py-0.5 rounded-full border border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
+            >
+              {tg}
+            </span>
           ))}
         </div>
       )}
-    </Card>
+    </section>
   );
 }
 
-function Cell({ label, value, accent }: { label: string; value: number | null; accent: string }) {
+function Cell({ label, value }: { label: string; value: number | null }) {
   return (
-    <div className="flex items-center justify-between rounded-[var(--radius-card)] bg-zinc-50 px-3 py-2">
-      <span className="text-xs text-zinc-500">{label}</span>
-      <span className="tabular-nums font-semibold" style={{ color: accent }}>
+    <div className="flex items-baseline justify-between">
+      <span className="text-xs text-[var(--color-ink-soft)]">{label}</span>
+      <span className="font-serif text-lg tabular-nums text-[var(--color-ink)]">
         {value ?? "—"}
       </span>
     </div>

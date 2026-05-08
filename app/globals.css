@@ -1,38 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── 主品牌色:玫瑰粉 → 奶油 → 暖琥珀 漸層 ─── */
-  --color-rose: #c2185b;
-  --color-rose-soft: #ffd6df;
-  --color-rose-faint: #fff1f4;
-  --color-cream: #fff5e8;
-  --color-amber: #ffb55c;
-  --color-lavender: #e6dcff;
+  /* ── 單色系 ─────────────────────────────────── */
+  --color-accent: #b8324d;
+  --color-accent-soft: #f5e8eb;
+  --color-accent-deep: #8a223a;
 
-  /* 功能色 */
-  --color-success: #4caf50;
-  --color-warning: #ff9800;
-  --color-danger: #e53935;
+  /* 紙質背景(用很淡的暖灰白,不再放 radial 漸層) */
+  --color-paper: #fbf9f6;
+  --color-paper-dim: #f3efea;
+  --color-paper-line: #e7e2db;
 
-  /* 中性 */
-  --color-ink: #2a1f23;
-  --color-ink-soft: #6b5b62;
-  --color-paper: #fffaf5;
-  --color-paper-soft: #fdf3eb;
-  --color-paper-dark: #1a1212;
+  /* 文字 */
+  --color-ink: #1a1715;
+  --color-ink-mid: #6b655e;
+  --color-ink-soft: #a09a92;
+
+  /* 功能色(僅在錯誤、成功提示用) */
+  --color-success: #4a7c59;
+  --color-warning: #b8782a;
+  --color-danger: #b73838;
 
   /* 字型 */
   --font-sans: var(--font-noto-tc), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-noto-serif-tc), "Source Serif Pro", Georgia, "Times New Roman", serif;
   --font-handwritten: var(--font-caveat), "Comic Sans MS", cursive;
 
-  /* 圓角 */
-  --radius-card: 18px;
-  --radius-button: 14px;
-  --radius-cta: 28px;
+  /* 圓角(縮小,不要那麼軟糖) */
+  --radius-card: 10px;
+  --radius-button: 8px;
+  --radius-pill: 999px;
 
-  /* 陰影 — 像紙片漂浮在桌上,不要太重 */
-  --shadow-card: 0 1px 2px rgba(40, 25, 30, 0.04), 0 8px 24px -12px rgba(40, 25, 30, 0.08);
-  --shadow-card-hover: 0 2px 4px rgba(40, 25, 30, 0.06), 0 16px 32px -10px rgba(194, 24, 91, 0.18);
+  /* 陰影:幾乎不用,只用於 modal */
+  --shadow-modal: 0 24px 80px -16px rgba(26, 23, 21, 0.18);
+
+  /* 舊變數沿用以避免破壞性重構 */
+  --color-rose: var(--color-accent);
+  --color-rose-soft: var(--color-accent-soft);
+  --color-rose-faint: #fbf3f5;
+  --color-cream: var(--color-paper-dim);
+  --color-amber: #b8782a;
+  --color-lavender: #d8d2cb;
+  --color-ink-soft-deprecated: var(--color-ink-mid);
+  --shadow-card: 0 0 0 1px rgba(26, 23, 21, 0.05);
+  --shadow-card-hover: 0 1px 2px rgba(26, 23, 21, 0.04);
+  --radius-cta: 8px;
 }
 
 :root {
@@ -42,8 +54,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: var(--color-paper-dark);
-    --foreground: #f5e8e8;
+    --background: #15110f;
+    --foreground: #ece6df;
   }
 }
 
@@ -54,28 +66,20 @@ body {
 
 body {
   background: var(--background);
-  background-image:
-    radial-gradient(circle at 0% 0%, rgba(255, 209, 220, 0.4) 0%, transparent 35%),
-    radial-gradient(circle at 100% 0%, rgba(230, 220, 255, 0.3) 0%, transparent 35%),
-    radial-gradient(circle at 50% 100%, rgba(255, 245, 232, 0.4) 0%, transparent 40%);
-  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* iOS / Android 字體大小不要被縮放 */
 html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* 全站連結:無預設 underline,active state 有微動 */
 a, button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 隱藏 scrollbar(模板預覽用) */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -83,8 +87,25 @@ a, button {
   scrollbar-width: none;
 }
 
-/* selection 色 */
 ::selection {
-  background: var(--color-rose-soft);
-  color: var(--color-rose);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-deep);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* 細邊分隔線輔助 class — 全站「卡」與「分節」用這個取代陰影 */
+.surface {
+  background: white;
+  border: 1px solid var(--color-paper-line);
+  border-radius: var(--radius-card);
+}
+
+@media (prefers-color-scheme: dark) {
+  .surface {
+    background: #1d1916;
+    border-color: #2c2722;
+  }
 }

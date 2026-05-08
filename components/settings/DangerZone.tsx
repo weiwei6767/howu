@@ -2,8 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 
@@ -28,14 +26,22 @@ export function DangerZone({}: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <h2 className="text-base font-semibold text-zinc-700">{t("settings.danger_zone")}</h2>
-      <Button variant="ghost" onClick={logout} fullWidth>
+    <section className="flex flex-col gap-1 pt-4 border-t border-[var(--color-paper-line)]">
+      <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em] mb-2">
+        {t("settings.danger_zone")}
+      </h2>
+      <button
+        onClick={logout}
+        className="text-left py-3 text-sm text-[var(--color-ink)] hover:text-[var(--color-ink-mid)] border-b border-[var(--color-paper-line)] transition-colors"
+      >
         {t("settings.logout")}
-      </Button>
-      <Button variant="ghost" onClick={deleteAccount} fullWidth className="text-red-500">
+      </button>
+      <button
+        onClick={deleteAccount}
+        className="text-left py-3 text-sm text-[var(--color-danger)] hover:opacity-80 transition-colors"
+      >
         {t("settings.delete_account")}
-      </Button>
-    </Card>
+      </button>
+    </section>
   );
 }

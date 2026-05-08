@@ -5,10 +5,10 @@ import { useToastStore, type ToastTone } from "@/lib/store/toast";
 import { cn } from "@/lib/utils/cn";
 
 const TONE_CLASSES: Record<ToastTone, string> = {
-  default: "bg-zinc-900 text-white",
-  success: "bg-[var(--color-success)] text-white",
+  default: "bg-[var(--color-ink)] text-white",
+  success: "bg-[var(--color-ink)] text-white",
   error: "bg-[var(--color-danger)] text-white",
-  info: "bg-[var(--color-rose)] text-white",
+  info: "bg-[var(--color-ink)] text-white",
 };
 
 export function Toaster() {
@@ -21,13 +21,13 @@ export function Toaster() {
         {items.map((t) => (
           <motion.button
             key={t.id}
-            initial={{ y: -16, opacity: 0 }}
+            initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -8, opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            exit={{ y: -6, opacity: 0 }}
+            transition={{ duration: 0.15 }}
             onClick={() => dismiss(t.id)}
             className={cn(
-              "pointer-events-auto rounded-full px-4 py-2 text-sm shadow-lg max-w-sm text-left",
+              "pointer-events-auto rounded-[var(--radius-button)] px-4 py-2 text-sm max-w-sm text-left shadow-[var(--shadow-modal)]",
               TONE_CLASSES[t.tone],
             )}
           >

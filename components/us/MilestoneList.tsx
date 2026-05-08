@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { differenceInCalendarDays } from "date-fns";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -67,43 +66,50 @@ export function MilestoneList({ coupleId, milestones }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">{t("us.milestones_title")}</h2>
+    <section className="flex flex-col gap-3">
+      <header className="flex items-center justify-between">
+        <h2 className="text-sm text-[var(--color-ink-mid)]">{t("us.milestones_title")}</h2>
         <button
-          className="text-xs text-[var(--color-rose)] underline"
+          className="text-xs text-[var(--color-ink)] underline underline-offset-2 hover:text-[var(--color-ink-mid)]"
           onClick={() => setOpen(true)}
         >
           {t("us.add_milestone")}
         </button>
-      </div>
+      </header>
 
       {upcoming && (
-        <div className="rounded-[var(--radius-card)] bg-[var(--color-rose-soft)]/30 px-3 py-2">
-          <p className="text-xs text-zinc-500">{t("us.next_milestone")}</p>
-          <p className="text-sm font-medium mt-0.5">
-            {upcoming.title}{" "}
-            <span className="text-xs text-[var(--color-rose)]">
-              · {daysFromNow(upcoming.date, !!upcoming.recurring)}
-            </span>
-          </p>
+        <div className="flex items-baseline justify-between border-l-2 border-[var(--color-accent)] pl-3 py-1">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+              {t("us.next_milestone")}
+            </p>
+            <p className="text-sm mt-0.5">{upcoming.title}</p>
+          </div>
+          <span className="text-xs text-[var(--color-ink-mid)] tabular-nums">
+            {daysFromNow(upcoming.date, !!upcoming.recurring)}
+          </span>
         </div>
       )}
 
-      <ul className="flex flex-col divide-y divide-zinc-100">
+      <ul className="flex flex-col">
         {milestones.length === 0 && (
-          <li className="text-sm text-zinc-400 py-3">{t("promises.empty")}</li>
+          <li className="text-sm text-[var(--color-ink-soft)] py-3">
+            {t("promises.empty")}
+          </li>
         )}
         {milestones.map((m) => (
-          <li key={m.id} className="flex items-center justify-between py-2.5">
+          <li
+            key={m.id}
+            className="flex items-center justify-between py-3 border-b border-[var(--color-paper-line)] last:border-b-0"
+          >
             <div className="flex flex-col">
               <span className="text-sm">{m.title}</span>
-              <span className="text-xs text-zinc-400">
+              <span className="text-xs text-[var(--color-ink-soft)] mt-0.5">
                 {m.date} · {t(`us.milestone_type.${m.type ?? "custom"}` as const)}
               </span>
             </div>
             <button
-              className="text-xs text-zinc-400 hover:text-red-500"
+              className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-danger)]"
               onClick={() => remove(m.id)}
             >
               {t("common.delete")}
@@ -136,10 +142,10 @@ export function MilestoneList({ coupleId, milestones }: Props) {
                 key={tt}
                 type="button"
                 onClick={() => setType(tt)}
-                className={`px-3 py-1.5 rounded-full text-xs border ${
+                className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
                   type === tt
-                    ? "border-[var(--color-rose)] text-[var(--color-rose)] bg-[var(--color-rose-soft)]/30"
-                    : "border-zinc-200 text-zinc-600"
+                    ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                    : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
                 }`}
               >
                 {t(`us.milestone_type.${tt}`)}
@@ -156,7 +162,7 @@ export function MilestoneList({ coupleId, milestones }: Props) {
           </label>
         </div>
       </Modal>
-    </Card>
+    </section>
   );
 }
 

@@ -1,8 +1,5 @@
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { CoupleAvatars } from "@/components/ui/Avatar";
 import { todayISO } from "@/lib/utils/date";
 import {
   getDailyPick,
@@ -48,19 +45,19 @@ export async function TodayScreen({ user, couple }: Props) {
   const partnerName = partnerProfile?.display_name ?? null;
 
   const Header = (
-    <div className="flex items-center justify-between gap-3 pt-2">
-      <div className="flex items-center gap-3">
-        <CoupleAvatars meName={meName} partnerName={partnerName} size="md" />
-        <div className="flex flex-col">
-          <span className="text-[11px] text-zinc-400 leading-none">{formatTodayLabel(date)}</span>
-          <span className="text-sm font-medium leading-tight mt-0.5">
-            {meName ?? "你"} <span className="text-[var(--color-rose)]">&</span>{" "}
-            {partnerName ?? "對方"}
-          </span>
-        </div>
+    <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
+      <div className="flex flex-col">
+        <span className="text-[11px] text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
+          {formatTodayLabel(date)}
+        </span>
+        <span className="text-sm text-[var(--color-ink)] mt-0.5">
+          {meName ?? "你"} & {partnerName ?? "對方"}
+        </span>
       </div>
       {streak.current_streak > 0 && (
-        <Badge tone="rose">🔥 {streak.current_streak} 天</Badge>
+        <span className="text-xs text-[var(--color-ink-mid)] tabular-nums">
+          連續 {streak.current_streak} 天
+        </span>
       )}
     </div>
   );
@@ -72,33 +69,29 @@ export async function TodayScreen({ user, couple }: Props) {
       return (
         <>
           {Header}
-          <div className="mt-2">
-            <TemplatePicker
-              coupleId={couple.id}
-              templates={tpls}
-              streak={streak.current_streak}
-            />
-          </div>
+          <TemplatePicker
+            coupleId={couple.id}
+            templates={tpls}
+            streak={streak.current_streak}
+          />
         </>
       );
     }
     return (
       <div className="flex flex-col gap-5">
         {Header}
-        <Card className="text-center bg-gradient-to-br from-rose-50 via-amber-50 to-cream py-12 flex flex-col gap-3 border border-rose-100">
-          <div className="text-5xl">⏳</div>
-          <p className="text-base font-medium">
-            今天輪 {partnerName ?? "對方"} 選
+        <div className="surface py-12 px-6 flex flex-col items-center gap-3 text-center mt-2">
+          <p className="font-serif text-2xl">今天輪 {partnerName ?? "對方"} 選</p>
+          <p className="text-xs text-[var(--color-ink-mid)] max-w-xs leading-relaxed">
+            等他開好模板,你才能開始寫。
+            可以提醒一下他。
           </p>
-          <p className="text-xs text-zinc-500">
-            等他開模板,我們才開始寫
-          </p>
-        </Card>
+        </div>
         <Link
           href="/templates"
-          className="text-center text-xs text-zinc-400 hover:text-[var(--color-rose)] transition"
+          className="text-center text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition"
         >
-          ⚙️ 管理模板
+          管理模板
         </Link>
       </div>
     );
@@ -107,8 +100,8 @@ export async function TodayScreen({ user, couple }: Props) {
   const template = await getTemplate(pick.template_id);
   if (!template) {
     return (
-      <div className="text-center text-sm text-zinc-500 py-12">
-        今天的模板可能被刪了。請對方到 /templates 重選。
+      <div className="text-center text-sm text-[var(--color-ink-mid)] py-12">
+        今天的模板可能被刪了。請對方到「模板」重選。
       </div>
     );
   }
@@ -119,7 +112,7 @@ export async function TodayScreen({ user, couple }: Props) {
         {Header}
         <TodayCompleted
           templateName={template.name}
-          templateEmoji={template.emoji ?? "📝"}
+          templateEmoji={template.emoji ?? ""}
           my={my}
           partner={partner}
           partnerName={partnerName}
@@ -131,20 +124,21 @@ export async function TodayScreen({ user, couple }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {Header}
-      <header className="flex flex-col gap-1">
-        <p className="text-xs text-zinc-500">
-          今天 {pick.picked_by === user.id ? "你" : partnerName ?? "對方"} 選的 ↓
+      <header className="flex flex-col gap-1 mt-2">
+        <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-[0.18em]">
+          {pick.picked_by === user.id ? "你選的題本" : `${partnerName ?? "對方"} 選的題本`}
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {template.emoji} {template.name}
+        <h1 className="font-serif text-3xl flex items-center gap-2">
+          {template.emoji && <span>{template.emoji}</span>}
+          <span>{template.name}</span>
         </h1>
       </header>
       {partner && (
-        <Card className="bg-gradient-to-r from-rose-50 to-amber-50 py-3 px-4 shadow-none border border-rose-100">
-          <p className="text-sm">{partnerName ?? "對方"} 已寫完了 ✨ 換你</p>
-        </Card>
+        <p className="text-xs text-[var(--color-ink-mid)] -mt-2">
+          {partnerName ?? "對方"} 已寫完了 · 換你
+        </p>
       )}
       <TemplateQuestionnaire
         coupleId={couple.id}

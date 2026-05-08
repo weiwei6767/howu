@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { ddayCount } from "@/lib/utils/date";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
@@ -69,49 +68,58 @@ export function DDayCard({
 
   return (
     <>
-      <motion.div
-        className="relative rounded-[var(--radius-card)] overflow-hidden shadow-[var(--shadow-card)]"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <div className="relative rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-paper-line)]">
         <div className="absolute inset-0">
           {bg ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={bg} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-rose-100 via-amber-50 to-cream" />
+            <div className="w-full h-full bg-[var(--color-paper-dim)]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/35" />
+          {bg && <div className="absolute inset-0 bg-black/35" />}
         </div>
 
-        <div className="relative px-6 py-10 flex flex-col items-center text-center">
-          <p className={`text-xs tracking-widest mb-2 ${bg ? "text-white/90" : "text-zinc-500"}`}>
-            IN LOVE FOR
-          </p>
-          <motion.div
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className={`text-7xl font-bold tabular-nums leading-none ${
-              bg ? "text-white drop-shadow-lg" : "text-[var(--color-rose)]"
+        <div className="relative px-6 py-12 flex flex-col items-center text-center">
+          <p
+            className={`text-[10px] uppercase tracking-[0.32em] mb-3 ${
+              bg ? "text-white/85" : "text-[var(--color-ink-soft)]"
             }`}
-            style={{ textShadow: bg ? "0 2px 16px rgba(0,0,0,0.3)" : undefined }}
+          >
+            In Love For
+          </p>
+          <div
+            className={`font-serif text-7xl tabular-nums leading-none ${
+              bg ? "text-white" : "text-[var(--color-ink)]"
+            }`}
+            style={{ textShadow: bg ? "0 2px 16px rgba(0,0,0,0.35)" : undefined }}
           >
             {days}
-          </motion.div>
-          <p className={`text-sm mt-2 ${bg ? "text-white/90" : "text-zinc-500"}`}>天</p>
+          </div>
+          <p
+            className={`text-xs mt-3 tracking-widest uppercase ${
+              bg ? "text-white/85" : "text-[var(--color-ink-soft)]"
+            }`}
+          >
+            Days
+          </p>
           {(myName || partnerName) && (
-            <p className={`text-base mt-4 font-medium ${bg ? "text-white" : "text-zinc-700"}`}>
-              {myName ?? "你"}{" "}
-              <span className={bg ? "text-rose-200" : "text-[var(--color-rose)]"}>&</span>{" "}
-              {partnerName ?? "對方"}
+            <p
+              className={`text-sm mt-6 ${
+                bg ? "text-white" : "text-[var(--color-ink)]"
+              }`}
+            >
+              {myName ?? "你"} & {partnerName ?? "對方"}
             </p>
           )}
-          <p className={`text-[11px] mt-1 ${bg ? "text-white/70" : "text-zinc-400"}`}>
+          <p
+            className={`text-[11px] mt-1 ${
+              bg ? "text-white/70" : "text-[var(--color-ink-soft)]"
+            }`}
+          >
             自 {togetherSince}
           </p>
 
-          <div className="flex gap-2 mt-5">
+          <div className="flex gap-2 mt-6">
             <input
               ref={fileInputRef}
               type="file"
@@ -126,28 +134,28 @@ export function DDayCard({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className={`text-xs px-3 py-1.5 rounded-full backdrop-blur-md transition disabled:opacity-50 ${
+              className={`text-xs px-4 py-1.5 rounded-full transition disabled:opacity-50 ${
                 bg
-                  ? "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-                  : "bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50"
+                  ? "bg-white/15 text-white border border-white/35 hover:bg-white/25 backdrop-blur"
+                  : "bg-white text-[var(--color-ink)] border border-[var(--color-paper-line)] hover:border-[var(--color-ink-mid)]"
               }`}
             >
-              {uploading ? "上傳中..." : bg ? "🎨 換背景" : "🎨 加背景"}
+              {uploading ? "上傳中" : bg ? "換背景" : "加背景"}
             </button>
             <button
               type="button"
               onClick={() => setShareOpen(true)}
-              className={`text-xs px-3 py-1.5 rounded-full backdrop-blur-md transition ${
+              className={`text-xs px-4 py-1.5 rounded-full transition ${
                 bg
-                  ? "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-                  : "bg-[var(--color-rose)] text-white border border-[var(--color-rose)] hover:opacity-90"
+                  ? "bg-white text-[var(--color-ink)] hover:bg-white/90"
+                  : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink-mid)]"
               }`}
             >
-              ↗ 分享
+              分享
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <ShareDDayModal
         open={shareOpen}

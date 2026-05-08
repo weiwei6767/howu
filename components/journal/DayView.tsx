@@ -3,10 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 
@@ -43,7 +41,6 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
   async function deleteEntry(id: string) {
     if (!confirm("刪掉這篇?")) return;
     const supabase = createClient();
-    // 先撈 photos paths
     const target = entries.find((e) => e.id === id);
     if (target && target.photos.length > 0) {
       await supabase.storage.from("journal_photos").remove(target.photos.map((p) => p.path));
@@ -54,8 +51,7 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* 寫新一篇 */}
+    <div className="flex flex-col gap-6">
       {composing ? (
         <NewEntryEditor
           userId={userId}
@@ -68,16 +64,15 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
           }}
         />
       ) : (
-        <Button onClick={() => setComposing(true)} fullWidth size="lg">
-          + 在這天寫一篇
+        <Button onClick={() => setComposing(true)} fullWidth>
+          在這天寫一篇
         </Button>
       )}
 
-      {/* entries 列表 */}
       {entries.length === 0 && !composing && (
-        <Card className="text-center text-sm text-zinc-400 py-8">
+        <p className="text-center text-sm text-[var(--color-ink-soft)] py-8">
           這天還沒寫
-        </Card>
+        </p>
       )}
 
       {entries.map((e) => (
@@ -96,7 +91,6 @@ export function DayView({ userId, date, entries: initialEntries }: Props) {
   );
 }
 
-// ─────────────────────── 寫新一篇
 function NewEntryEditor({
   userId,
   date,
@@ -229,19 +223,18 @@ function NewEntryEditor({
   }
 
   return (
-    <Card className="flex flex-col gap-3 border-2 border-[var(--color-rose)]">
-      <h3 className="text-sm font-semibold">✏️ 寫一篇新的</h3>
+    <div className="surface p-4 flex flex-col gap-3">
       <Textarea
         rows={6}
         autoFocus
-        placeholder="今天想記下什麼?"
+        placeholder="今天想記下什麼"
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
       {photos.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {photos.map((p) => (
-            <div key={p.path} className="relative aspect-square rounded-md overflow-hidden bg-zinc-100 group">
+            <div key={p.path} className="relative aspect-square rounded-md overflow-hidden bg-[var(--color-paper-dim)] group">
               {p.signedUrl && (
                 <Image src={p.signedUrl} alt="" fill sizes="33vw" className="object-cover" />
               )}
@@ -269,11 +262,11 @@ function NewEntryEditor({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="text-sm text-[var(--color-rose)] hover:underline disabled:opacity-50"
+          className="text-sm text-[var(--color-ink-mid)] underline underline-offset-2 hover:text-[var(--color-ink)] disabled:opacity-50"
         >
-          {uploading ? "上傳中..." : "📷 加照片"}
+          {uploading ? "上傳中" : "加照片"}
         </button>
-        <label className="flex items-center gap-2 text-xs">
+        <label className="flex items-center gap-2 text-xs text-[var(--color-ink-mid)]">
           <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} />
           分享給對方
         </label>
@@ -286,11 +279,10 @@ function NewEntryEditor({
           儲存
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
-// ─────────────────────── 已存 entry 卡片
 function EntryCard({
   userId,
   entry,
@@ -381,12 +373,12 @@ function EntryCard({
 
   if (editing) {
     return (
-      <Card className="flex flex-col gap-3 border border-[var(--color-rose)]">
+      <div className="surface p-4 flex flex-col gap-3">
         <Textarea rows={6} value={content} onChange={(e) => setContent(e.target.value)} />
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p) => (
-              <div key={p.path} className="relative aspect-square rounded-md overflow-hidden bg-zinc-100 group">
+              <div key={p.path} className="relative aspect-square rounded-md overflow-hidden bg-[var(--color-paper-dim)] group">
                 {p.signedUrl && (
                   <Image src={p.signedUrl} alt="" fill sizes="33vw" className="object-cover" />
                 )}
@@ -414,11 +406,11 @@ function EntryCard({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="text-sm text-[var(--color-rose)] hover:underline disabled:opacity-50"
+            className="text-sm text-[var(--color-ink-mid)] underline underline-offset-2 hover:text-[var(--color-ink)] disabled:opacity-50"
           >
-            {uploading ? "上傳中..." : "📷 加照片"}
+            {uploading ? "上傳中" : "加照片"}
           </button>
-          <label className="flex items-center gap-2 text-xs">
+          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-mid)]">
             <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} />
             分享給對方
           </label>
@@ -431,30 +423,35 @@ function EntryCard({
             儲存
           </Button>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <header className="flex items-center justify-between text-xs text-zinc-400">
-        <span>{time && `寫於 ${time}`}</span>
-        <div className="flex items-center gap-2">
-          {entry.shared_with_partner && <Badge tone="rose">已分享</Badge>}
+    <article className="border-b border-[var(--color-paper-line)] pb-5 last:border-b-0">
+      <header className="flex items-center justify-between text-xs text-[var(--color-ink-soft)] mb-3">
+        <span>{time && time}</span>
+        <div className="flex items-center gap-3">
+          {entry.shared_with_partner && (
+            <span className="text-[var(--color-accent-deep)]">已分享</span>
+          )}
           <button
             onClick={() => setEditing(true)}
-            className="text-[var(--color-rose)] hover:underline"
+            className="hover:text-[var(--color-ink)] underline underline-offset-2"
           >
             編輯
           </button>
-          <button onClick={onDeleted} className="hover:text-red-500">
+          <button
+            onClick={onDeleted}
+            className="hover:text-[var(--color-danger)] underline underline-offset-2"
+          >
             刪除
           </button>
         </div>
       </header>
       {entry.signedUrls.length > 0 && (
         <div
-          className={`grid gap-2 ${
+          className={`grid gap-2 mb-3 ${
             entry.signedUrls.length === 1
               ? "grid-cols-1"
               : entry.signedUrls.length === 2
@@ -468,16 +465,18 @@ function EntryCard({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative aspect-square rounded-md overflow-hidden bg-zinc-100 hover:opacity-90 transition"
+              className="relative aspect-square rounded-md overflow-hidden bg-[var(--color-paper-dim)] hover:opacity-90 transition"
             >
               <Image src={url} alt="" fill sizes="(max-width: 768px) 33vw, 200px" className="object-cover" />
             </a>
           ))}
         </div>
       )}
-      <p className="text-base leading-relaxed whitespace-pre-wrap">
-        {entry.content || <span className="text-zinc-400">這篇只有照片</span>}
+      <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-[var(--color-ink)]">
+        {entry.content || (
+          <span className="text-[var(--color-ink-soft)]">這篇只有照片</span>
+        )}
       </p>
-    </Card>
+    </article>
   );
 }
