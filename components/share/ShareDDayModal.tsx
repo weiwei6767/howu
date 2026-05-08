@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { toPng } from "html-to-image";
+import { domToPng } from "modern-screenshot";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { DDayShareCard } from "./DDayShareCard";
@@ -119,11 +119,11 @@ export function ShareDDayModal({
       await waitForImagesLoaded(cardRef.current);
       await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-      // 雙跑(html-to-image 已知 mobile quirk)
-      await toPng(cardRef.current, { cacheBust: false, pixelRatio: 1 });
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: false,
-        pixelRatio: 3,
+      // modern-screenshot 對 iOS Safari 友善:內部用 createImageBitmap,
+      // 而不是直接 drawImage,避開 race condition
+      const dataUrl = await domToPng(cardRef.current, {
+        scale: 3,
+        backgroundColor: "transparent",
       });
 
       // 下載 — 用 blob URL 觸發,iOS 13+ 支援 download attr
