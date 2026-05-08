@@ -7,8 +7,8 @@ interface Props {
   togetherSince: string;
   partnerAName: string;
   partnerBName: string;
+  /** 已經 preload 成 data URL(避免 cross-origin canvas 被 taint) */
   backgroundUrl: string | null;
-  /** 用於下載到 PNG 時設更大的字 */
   scale?: "preview" | "export";
 }
 
@@ -16,7 +16,7 @@ export const DDayShareCard = forwardRef<HTMLDivElement, Props>(function DDayShar
   { days, togetherSince, partnerAName, partnerBName, backgroundUrl, scale = "preview" },
   ref,
 ) {
-  const numberSize = scale === "export" ? "11rem" : "8rem";
+  const numberSize = scale === "export" ? "8rem" : "5.5rem";
 
   return (
     <div
@@ -50,41 +50,44 @@ export const DDayShareCard = forwardRef<HTMLDivElement, Props>(function DDayShar
       <div className="relative h-full flex flex-col justify-between px-6 py-7 text-white">
         <div className="flex flex-col items-center gap-1.5 mt-2">
           <span className="text-[10px] tracking-[0.4em] opacity-90">HOWU</span>
-          <span className="text-[11px] tracking-[0.3em] opacity-80">IN LOVE FOR</span>
+          <span className="text-[10px] tracking-[0.3em] opacity-75">IN LOVE FOR</span>
         </div>
 
-        <div className="flex flex-col items-center -mt-6">
+        <div className="flex flex-col items-center -mt-4">
           <div
-            className="font-bold tabular-nums leading-none"
+            className="tabular-nums leading-none"
             style={{
               fontSize: numberSize,
-              textShadow: "0 4px 32px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.3)",
+              fontWeight: 500,
+              letterSpacing: "-0.04em",
+              fontFamily: 'Georgia, "Noto Serif TC", "Times New Roman", serif',
+              textShadow: "0 4px 24px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.3)",
             }}
           >
             {days}
           </div>
           <p
-            className="text-xl mt-1 opacity-95"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}
+            className="text-base mt-2 opacity-90 tracking-[0.3em]"
+            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}
           >
-            天
+            DAYS
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-0.5">
           <p
-            className="text-xl font-semibold text-center"
-            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.45)" }}
+            className="text-base font-medium text-center tracking-wide"
+            style={{ textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}
           >
-            {partnerAName} <span className="text-rose-200">&</span> {partnerBName}
+            {partnerAName} <span className="text-rose-200 mx-1">&</span> {partnerBName}
           </p>
           <p
-            className="text-[11px] opacity-85"
+            className="text-[10px] opacity-75 tracking-wider"
             style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
           >
-            自 {togetherSince}
+            since {togetherSince}
           </p>
-          <p className="text-[10px] tracking-[0.2em] opacity-70 mt-2">howu.online</p>
+          <p className="text-[9px] tracking-[0.3em] opacity-60 mt-3">howu.online</p>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,18 @@ interface Props {
   backgroundUrl: string | null;
 }
 
+/** Cross-origin 圖在 canvas 會 taint,先 fetch 成 dataURL 再顯示。 */
+async function urlToDataUrl(url: string): Promise<string> {
+  const res = await fetch(url, { mode: "cors", credentials: "omit" });
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 export function ShareDDayModal({
   open,
   onClose,
@@ -30,6 +42,36 @@ export function ShareDDayModal({
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
+  const [bgLoading, setBgLoading] = useState(false);
+
+  // 開啟 modal 時把背景圖預載成 dataURL,避免 toPng 撞 cross-origin taint
+  useEffect(() => {
+    if (!open) {
+      setBgDataUrl(null);
+      return;
+    }
+    if (!backgroundUrl) {
+      setBgDataUrl(null);
+      return;
+    }
+    let cancelled = false;
+    setBgLoading(true);
+    urlToDataUrl(backgroundUrl)
+      .then((d) => {
+        if (!cancelled) setBgDataUrl(d);
+      })
+      .catch((e) => {
+        console.error("bg load failed", e);
+        if (!cancelled) setBgDataUrl(null);
+      })
+      .finally(() => {
+        if (!cancelled) setBgLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, backgroundUrl]);
 
   const shareUrl =
     typeof window !== "undefined"
@@ -39,18 +81,22 @@ export function ShareDDayModal({
 
   async function downloadImage() {
     if (!cardRef.current) return;
+    if (backgroundUrl && !bgDataUrl) {
+      toast("背景圖還在載,稍等一下再點", { tone: "info" });
+      return;
+    }
     setDownloading(true);
     try {
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         pixelRatio: 3,
-        backgroundColor: "#000",
+        skipFonts: false,
       });
       const link = document.createElement("a");
       link.download = `howu-${days}-days.png`;
       link.href = dataUrl;
       link.click();
-      toast("已下載到相簿 / 下載資料夾", { tone: "success" });
+      toast("已下載", { tone: "success" });
     } catch (e) {
       toast(`下載失敗:${(e as Error).message}`, { tone: "error" });
     } finally {
@@ -82,7 +128,6 @@ export function ShareDDayModal({
   }
 
   async function nativeShare() {
-    // 行動裝置原生分享(可選圖片或連結)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof navigator !== "undefined" && (navigator as any).share) {
       try {
@@ -95,6 +140,9 @@ export function ShareDDayModal({
       } catch {}
     }
   }
+
+  // 預覽用 dataURL(若已載完),沒載完先用原 URL(只看不下載沒問題)
+  const displayBg = bgDataUrl ?? backgroundUrl;
 
   return (
     <AnimatePresence>
@@ -126,7 +174,6 @@ export function ShareDDayModal({
             </header>
 
             <div className="px-6 pb-5 overflow-y-auto flex-1">
-              {/* 預覽卡 */}
               <div className="max-w-[260px] mx-auto mb-4">
                 <DDayShareCard
                   ref={cardRef}
@@ -134,19 +181,19 @@ export function ShareDDayModal({
                   togetherSince={togetherSince}
                   partnerAName={partnerAName}
                   partnerBName={partnerBName}
-                  backgroundUrl={backgroundUrl}
+                  backgroundUrl={displayBg}
                   scale="preview"
                 />
               </div>
               <p className="text-xs text-zinc-500 text-center mb-4">
-                這就是分享出去長的樣子
+                {bgLoading ? "背景載入中..." : "這就是分享出去長的樣子"}
               </p>
 
-              {/* 行動 */}
               <div className="flex flex-col gap-2">
                 <Button
                   onClick={downloadImage}
                   loading={downloading}
+                  disabled={bgLoading}
                   fullWidth
                   size="lg"
                 >
