@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,7 +18,6 @@ export function ProfileForm({ profile }: Props) {
   const router = useRouter();
   const [name, setName] = useState(profile.display_name);
   const [birthday, setBirthday] = useState(profile.birthday);
-  const [locale, setLocale] = useState(profile.locale);
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -28,7 +28,7 @@ export function ProfileForm({ profile }: Props) {
       if (!u.user) return;
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: name.trim(), birthday: birthday || null, locale })
+        .update({ display_name: name.trim(), birthday: birthday || null })
         .eq("id", u.user.id);
       if (error) throw new Error(error.message);
       toast(t("settings.save_success"), { tone: "success" });
@@ -60,25 +60,7 @@ export function ProfileForm({ profile }: Props) {
         <Input id="birthday" type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-xs text-[var(--color-ink-mid)]">{t("settings.language")}</span>
-        <div className="flex gap-2">
-          {["zh-TW", "en"].map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLocale(l)}
-              className={`flex-1 py-2 text-sm rounded-[var(--radius-button)] border transition-colors ${
-                locale === l
-                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
-                  : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
-              }`}
-            >
-              {l === "zh-TW" ? "繁體中文" : "English"}
-            </button>
-          ))}
-        </div>
-      </div>
+      <LocaleSwitcher />
 
       <Button onClick={save} loading={saving} className="self-start">
         {t("common.save")}
