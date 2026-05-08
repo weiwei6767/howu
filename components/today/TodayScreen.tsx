@@ -84,6 +84,7 @@ export async function TodayScreen({ user, couple }: Props) {
         my={my}
         partner={partner}
         partnerName={partnerProfile?.display_name ?? null}
+        myName={profile?.display_name ?? null}
         streak={streak}
       />
     );
