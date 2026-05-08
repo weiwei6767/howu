@@ -7,6 +7,7 @@ import {
   getMilestones,
   getStreak,
 } from "@/lib/supabase/queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/utils/date";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -35,12 +36,26 @@ export default async function UsPage({
     getStreak(couple.id),
   ]);
 
+  // 抓背景圖 signed URL(若有)
+  let backgroundUrl: string | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bgPath = (couple as any).background_photo_path as string | null | undefined;
+  if (bgPath) {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase.storage
+      .from("shared_photos")
+      .createSignedUrl(bgPath, 60 * 60 * 6);
+    backgroundUrl = data?.signedUrl ?? null;
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <DDayCard
+        coupleId={couple.id}
         togetherSince={couple.together_since}
         myName={me?.display_name ?? null}
         partnerName={partnerProfile?.display_name ?? null}
+        backgroundUrl={backgroundUrl}
       />
 
       {streak.current_streak > 0 && (
