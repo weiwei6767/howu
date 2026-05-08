@@ -7,7 +7,7 @@ interface Props {
   togetherSince: string;
   partnerAName: string;
   partnerBName: string;
-  /** 已經 preload 成 data URL(避免 cross-origin canvas 被 taint) */
+  /** 必須是 same-origin(/api/img-proxy?...)以避免 canvas taint */
   backgroundUrl: string | null;
   scale?: "preview" | "export";
 }
@@ -24,20 +24,18 @@ export const DDayShareCard = forwardRef<HTMLDivElement, Props>(function DDayShar
       className="relative rounded-[28px] overflow-hidden shadow-2xl"
       style={{ aspectRatio: "9 / 16", width: "100%" }}
     >
-      {/* 背景 */}
+      {/* 背景 — same-origin proxy 不需 crossOrigin attribute */}
       {backgroundUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={backgroundUrl}
           alt=""
-          crossOrigin="anonymous"
           className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-rose-300 via-amber-200 to-violet-300" />
       )}
 
-      {/* 漸層蓋層 */}
       <div
         className="absolute inset-0"
         style={{
@@ -46,7 +44,6 @@ export const DDayShareCard = forwardRef<HTMLDivElement, Props>(function DDayShar
         }}
       />
 
-      {/* 內容 */}
       <div className="relative h-full flex flex-col justify-between px-6 py-7 text-white">
         <div className="flex flex-col items-center gap-1.5 mt-2">
           <span className="text-[10px] tracking-[0.4em] opacity-90">HOWU</span>

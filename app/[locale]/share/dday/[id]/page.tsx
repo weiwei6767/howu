@@ -28,15 +28,10 @@ async function fetchShareData(id: string): Promise<ShareData | null> {
   return data as ShareData;
 }
 
-async function getBackgroundUrl(path: string | null): Promise<string | null> {
+function getBackgroundUrl(path: string | null): string | null {
   if (!path) return null;
-  const client = createServerClient(SUPABASE_URL, SUPABASE_SR || SUPABASE_ANON, {
-    cookies: { getAll: () => [], setAll: () => {} },
-  });
-  const { data } = await client.storage
-    .from("shared_photos")
-    .createSignedUrl(path, 60 * 60 * 24);
-  return data?.signedUrl ?? null;
+  // 走 same-origin proxy,瀏覽器長按存圖 / 截圖 一律可用
+  return `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(path)}`;
 }
 
 export async function generateMetadata({
@@ -74,7 +69,7 @@ export default async function DDaySharePage({
   if (!d) notFound();
 
   const days = ddayCount(d.together_since);
-  const bg = await getBackgroundUrl(d.background_photo_path);
+  const bg = getBackgroundUrl(d.background_photo_path);
   const a = d.partner_a_name ?? "你";
   const b = d.partner_b_name ?? "對方";
 

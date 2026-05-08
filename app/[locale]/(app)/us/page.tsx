@@ -7,7 +7,6 @@ import {
   getMilestones,
   getStreak,
 } from "@/lib/supabase/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/utils/date";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -36,17 +35,12 @@ export default async function UsPage({
     getStreak(couple.id),
   ]);
 
-  // 抓背景圖 signed URL(若有)
-  let backgroundUrl: string | null = null;
+  // 走 same-origin proxy 避免 cross-origin canvas taint(下載 PNG 黑底問題)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bgPath = (couple as any).background_photo_path as string | null | undefined;
-  if (bgPath) {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase.storage
-      .from("shared_photos")
-      .createSignedUrl(bgPath, 60 * 60 * 6);
-    backgroundUrl = data?.signedUrl ?? null;
-  }
+  const backgroundUrl = bgPath
+    ? `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(bgPath)}`
+    : null;
 
   return (
     <div className="flex flex-col gap-5">
