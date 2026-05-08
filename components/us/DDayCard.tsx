@@ -49,12 +49,12 @@ export function DDayCard({
         .from("shared_photos")
         .createSignedUrl(path, 60 * 60 * 24 * 30);
 
-      // 更新 couples.background_photo_path
+      // 透過 RPC 更新(couples 表沒開 UPDATE RLS,直接 update 會被靜默擋掉)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: updErr } = await (supabase as any)
-        .from("couples")
-        .update({ background_photo_path: path })
-        .eq("id", coupleId);
+      const { error: updErr } = await (supabase as any).rpc("set_couple_background", {
+        p_couple_id: coupleId,
+        p_path: path,
+      });
       if (updErr) throw new Error(updErr.message);
 
       setOptimisticUrl(signed?.signedUrl ?? null);
