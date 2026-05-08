@@ -9,7 +9,7 @@ export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(f
     <div
       ref={ref}
       className={cn(
-        "rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] p-6 dark:bg-zinc-900",
+        "rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] p-5 dark:bg-zinc-900",
         className,
       )}
       {...rest}

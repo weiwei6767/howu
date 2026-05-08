@@ -3,7 +3,7 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "soft";
 type Size = "sm" | "md" | "lg";
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -15,18 +15,20 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "bg-[var(--color-rose)] text-white hover:opacity-90 active:scale-[0.98]",
+    "bg-[var(--color-rose)] text-white shadow-[0_4px_12px_-4px_rgba(194,24,91,0.5)] hover:shadow-[0_8px_20px_-4px_rgba(194,24,91,0.5)] active:scale-[0.97]",
   secondary:
-    "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 active:scale-[0.98]",
-  ghost: "text-zinc-700 hover:bg-zinc-100 active:scale-[0.98]",
+    "border border-zinc-200 bg-white text-zinc-900 hover:border-[var(--color-rose)]/40 hover:bg-zinc-50 active:scale-[0.97]",
+  soft:
+    "bg-[var(--color-rose-soft)] text-[var(--color-rose)] hover:bg-[var(--color-rose-soft)]/80 active:scale-[0.97]",
+  ghost: "text-zinc-700 hover:bg-zinc-100 active:scale-[0.97]",
   danger:
-    "bg-[var(--color-danger)] text-white hover:opacity-90 active:scale-[0.98]",
+    "bg-[var(--color-danger)] text-white hover:opacity-90 active:scale-[0.97]",
 };
 
 const SIZE: Record<Size, string> = {
   sm: "h-9 px-3 text-sm rounded-[var(--radius-button)]",
   md: "h-12 px-5 text-base rounded-[var(--radius-button)]",
-  lg: "h-14 px-6 text-base rounded-[var(--radius-cta)]",
+  lg: "h-14 px-6 text-base font-semibold rounded-[var(--radius-cta)]",
 };
 
 export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
@@ -39,12 +41,12 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
       disabled={disabled || loading}
       onClick={(e) => {
         if (typeof window !== "undefined" && "vibrate" in navigator) {
-          try { navigator.vibrate(10); } catch {}
+          try { navigator.vibrate(8); } catch {}
         }
         onClick?.(e);
       }}
       className={cn(
-        "inline-flex items-center justify-center gap-2 font-medium transition disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-rose)]/40",
+        "inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-rose)]/40",
         VARIANT[variant],
         SIZE[size],
         fullWidth && "w-full",
