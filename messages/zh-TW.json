@@ -406,6 +406,7 @@
   "leaderboard": {
     "title": "排行榜",
     "code_label": "Leaderboard",
+    "back_home": "← 回主頁",
     "intro": "都是匿名的,只看見天數與等級。",
     "current_streak": "目前連續",
     "longest_streak": "最長紀錄",
@@ -425,21 +426,32 @@
   "store": {
     "title": "商城",
     "code_label": "Store",
-    "intro": "Premium 訂閱、訂單、未來會放在這裡。",
-    "premium_title": "howu Premium",
-    "premium_subtitle": "進階功能,讓兩個人寫得更深。",
-    "premium_features": {
-      "unlimited": "每日問卷不限題數",
-      "deeper_book": "更精緻的回憶冊樣式",
-      "ai_recap": "AI 月度回顧 / 信件",
-      "priority": "優先客服"
-    },
-    "premium_cta": "敬請期待",
-    "premium_coming_soon": "Premium 還在準備中。",
+    "back_home": "← 回主頁",
+    "intro": "把你們的回憶帶回家。",
+    "coming_soon": "即將上架",
+    "remind_me": "上架時通知我",
     "orders_title": "我的訂單",
     "no_orders": "目前還沒有任何訂單。",
-    "more_title": "其他",
-    "more_coming": "更多商品在路上,期待一下。"
+    "crystal": {
+      "name": "HOWU Crystal Memory",
+      "tagline": "把你們的天數留成水晶",
+      "size": "10 × 10 cm",
+      "price": "NT$ 499",
+      "feature_streak": "顯示你們的連續互動天數",
+      "feature_names": "雙方名字",
+      "feature_anniversary": "紀念日期",
+      "feature_quote": "一句感情語錄",
+      "atmosphere": "高級透明水晶 · 桌面擺設 · 情侶禮物氛圍"
+    },
+    "letter": {
+      "name": "HOWU Letter",
+      "tagline": "用實體小卡寄一封給對方",
+      "price": "NT$ 150",
+      "express": "加急寄送 +NT$ 100",
+      "feature_write": "在 App 寫內容,HOWU 印刷與郵寄",
+      "feature_mail": "代為郵寄到指定地址",
+      "feature_style": "高級明信片質感、有開箱感"
+    }
   },
   "dday": {
     "in_love_for": "In Love For",

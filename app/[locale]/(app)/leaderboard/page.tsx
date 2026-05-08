@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { requireUser, getActiveCouple } from "@/lib/supabase/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -138,6 +139,13 @@ export default async function LeaderboardPage({
 
   return (
     <div className="flex flex-col gap-8">
+      <Link
+        href="/"
+        className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] self-start"
+      >
+        {t("back_home")}
+      </Link>
+
       <header>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
           {t("code_label")}

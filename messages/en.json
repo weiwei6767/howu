@@ -406,6 +406,7 @@
   "leaderboard": {
     "title": "Leaderboard",
     "code_label": "Leaderboard",
+    "back_home": "← Back to home",
     "intro": "All anonymous — only days and ranks shown.",
     "current_streak": "Current streak",
     "longest_streak": "Longest streak",
@@ -425,21 +426,32 @@
   "store": {
     "title": "Store",
     "code_label": "Store",
-    "intro": "Premium plans, your orders, and more — coming here.",
-    "premium_title": "howu Premium",
-    "premium_subtitle": "Go deeper, together.",
-    "premium_features": {
-      "unlimited": "Unlimited questions per day",
-      "deeper_book": "Refined memory book layouts",
-      "ai_recap": "AI monthly recap & letters",
-      "priority": "Priority support"
-    },
-    "premium_cta": "Coming soon",
-    "premium_coming_soon": "Premium is on the way.",
+    "back_home": "← Back to home",
+    "intro": "Take your memories home.",
+    "coming_soon": "Coming soon",
+    "remind_me": "Notify me on launch",
     "orders_title": "My orders",
     "no_orders": "No orders yet.",
-    "more_title": "More",
-    "more_coming": "More items coming."
+    "crystal": {
+      "name": "HOWU Crystal Memory",
+      "tagline": "Turn your days into a crystal keepsake",
+      "size": "10 × 10 cm",
+      "price": "NT$ 499",
+      "feature_streak": "Shows your streak count",
+      "feature_names": "Both names",
+      "feature_anniversary": "Anniversary date",
+      "feature_quote": "A short love quote",
+      "atmosphere": "Premium clear crystal · desktop piece · couples gift"
+    },
+    "letter": {
+      "name": "HOWU Letter",
+      "tagline": "Send a real card to your partner",
+      "price": "NT$ 150",
+      "express": "Express +NT$ 100",
+      "feature_write": "Write in the app, HOWU prints and mails",
+      "feature_mail": "We mail it to the address you choose",
+      "feature_style": "Premium postcard feel, real unboxing moment"
+    }
   },
   "dday": {
     "in_love_for": "In Love For",
