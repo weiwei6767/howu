@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/Button";
@@ -15,8 +15,20 @@ interface Props {
   togetherSince: string;
   partnerAName: string;
   partnerBName: string;
-  /** same-origin URL(/api/img-proxy?...),避免 canvas taint */
+  /** /api/img-proxy URL,我們會 fetch 成 dataURL */
   backgroundUrl: string | null;
+}
+
+async function urlToDataUrl(url: string): Promise<string> {
+  const res = await fetch(url, { mode: "cors", credentials: "omit" });
+  if (!res.ok) throw new Error(`fetch ${res.status}`);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 export function ShareDDayModal({
@@ -31,6 +43,32 @@ export function ShareDDayModal({
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
+  const [bgLoading, setBgLoading] = useState(false);
+
+  // 把背景 fetch 成 dataURL,再 inline 進 DOM。canvas drawImage 100% 拿得到。
+  useEffect(() => {
+    if (!open || !backgroundUrl) {
+      setBgDataUrl(null);
+      return;
+    }
+    let cancelled = false;
+    setBgLoading(true);
+    urlToDataUrl(backgroundUrl)
+      .then((d) => {
+        if (!cancelled) setBgDataUrl(d);
+      })
+      .catch((e) => {
+        console.error("bg fetch failed", e);
+        if (!cancelled) setBgDataUrl(null);
+      })
+      .finally(() => {
+        if (!cancelled) setBgLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, backgroundUrl]);
 
   const shareUrl =
     typeof window !== "undefined"
@@ -41,9 +79,17 @@ export function ShareDDayModal({
   async function waitForImagesLoaded(root: HTMLElement) {
     const imgs = Array.from(root.querySelectorAll("img"));
     await Promise.all(
-      imgs.map((img) => {
-        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-        return new Promise<void>((resolve) => {
+      imgs.map(async (img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          // iOS Safari 額外 decode 確保 pixel 真的進記憶體
+          if (typeof img.decode === "function") {
+            try {
+              await img.decode();
+            } catch {}
+          }
+          return;
+        }
+        await new Promise<void>((resolve) => {
           const done = () => {
             img.removeEventListener("load", done);
             img.removeEventListener("error", done);
@@ -51,33 +97,47 @@ export function ShareDDayModal({
           };
           img.addEventListener("load", done);
           img.addEventListener("error", done);
-          // 安全網:5 秒後一定 release
           setTimeout(done, 5000);
         });
+        if (typeof img.decode === "function") {
+          try {
+            await img.decode();
+          } catch {}
+        }
       }),
     );
   }
 
   async function downloadImage() {
     if (!cardRef.current) return;
+    if (backgroundUrl && !bgDataUrl) {
+      toast("背景還在載,稍等一下", { tone: "info" });
+      return;
+    }
     setDownloading(true);
     try {
-      // 先等 background image 真的 load 完成,否則 toPng 會 capture 到黑色
       await waitForImagesLoaded(cardRef.current);
-      // 多一輪 raf 讓 layout 穩定
       await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-      // 跑兩次:第一次有時 image 還沒進 cache 會黑,第二次穩
+      // 雙跑(html-to-image 已知 mobile quirk)
       await toPng(cardRef.current, { cacheBust: false, pixelRatio: 1 });
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: false,
         pixelRatio: 3,
       });
+
+      // 下載 — 用 blob URL 觸發,iOS 13+ 支援 download attr
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.download = `howu-${days}-days.png`;
-      link.href = dataUrl;
+      link.href = blobUrl;
+      document.body.appendChild(link);
       link.click();
-      toast("已下載", { tone: "success" });
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      toast("已下載 — iOS 請去檔案 / 下載項目找", { tone: "success", duration: 5000 });
     } catch (e) {
       toast(`下載失敗:${(e as Error).message}`, { tone: "error" });
     } finally {
@@ -122,6 +182,9 @@ export function ShareDDayModal({
     }
   }
 
+  // 預覽 / capture 都用 dataURL(若已載完);沒載完用 placeholder gradient
+  const cardBg = bgDataUrl ?? (backgroundUrl ? null : null);
+
   return (
     <AnimatePresence>
       {open && (
@@ -159,25 +222,30 @@ export function ShareDDayModal({
                   togetherSince={togetherSince}
                   partnerAName={partnerAName}
                   partnerBName={partnerBName}
-                  backgroundUrl={backgroundUrl}
+                  backgroundUrl={cardBg}
                   scale="preview"
                 />
               </div>
               <p className="text-xs text-zinc-500 text-center mb-4">
-                這就是分享出去長的樣子
+                {bgLoading ? "背景載入中..." : "這就是分享出去長的樣子"}
               </p>
 
               <div className="flex flex-col gap-2">
                 <Button
                   onClick={downloadImage}
                   loading={downloading}
+                  disabled={bgLoading}
                   fullWidth
                   size="lg"
                 >
-                  📥 下載圖片(存到相簿)
+                  📥 下載圖片
                 </Button>
 
-                <div className="grid grid-cols-2 gap-2">
+                <p className="text-[11px] text-zinc-400 text-center -mt-1">
+                  iPhone:長按下方預覽圖選「儲存」也行
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 mt-2">
                   <Button onClick={shareToThreads} variant="secondary" fullWidth>
                     🧵 Threads
                   </Button>
@@ -197,12 +265,6 @@ export function ShareDDayModal({
                   其他應用程式…
                 </button>
               </div>
-
-              <p className="text-[11px] text-zinc-400 text-center mt-4 leading-relaxed">
-                IG 限時動態:下載後從相簿拉到 Story
-                <br />
-                Threads / LINE 連結:對方點開會看到完整大卡
-              </p>
             </div>
           </motion.div>
         </motion.div>
