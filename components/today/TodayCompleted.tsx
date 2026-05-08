@@ -31,8 +31,8 @@ export function TodayCompleted({
   myName,
   streak,
 }: Props) {
-  const myAnswers = (my.rotating_answers as AnswerEntry[]) ?? [];
-  const partnerAnswers = ((partner?.rotating_answers as AnswerEntry[] | null) ?? null);
+  const myAnswers = (my.rotating_answers as unknown as AnswerEntry[]) ?? [];
+  const partnerAnswers = ((partner?.rotating_answers as unknown as AnswerEntry[] | null) ?? null);
 
   // 配對:同一個 question_id 我跟對方放一起
   const partnerById = new Map<string, AnswerEntry>();
