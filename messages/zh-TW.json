@@ -483,5 +483,32 @@
   "memory_book": {
     "back": "← 返回",
     "print": "🖨️ 列印 / 存成 PDF"
+  },
+  "template_share": {
+    "section_title": "把這份模板分享給別的情侶",
+    "section_subtitle": "他們點開連結就能整份加進自己的問卷模板,不會影響到你的紀錄。",
+    "show_link": "顯示分享連結",
+    "share_title": "我們的問卷模板 · howu",
+    "shared_template_label": "Shared Template",
+    "preview_meta": "{qn} 題 · {pn} 條承諾",
+    "login_to_clone": "登入後加進我的模板",
+    "pair_first": "先配對另一半才能加",
+    "add_to_my_templates": "加進我的模板",
+    "clone_explainer": "我們會把這份模板整份複製到你那邊,你之後可以自由改動。",
+    "cloned": "已加進你的模板",
+    "err_not_authenticated": "請先登入",
+    "err_no_couple": "你還沒配對,先邀請另一半",
+    "err_not_found": "找不到這份模板",
+    "not_found_title": "找不到這份模板",
+    "not_found_body": "可能已被刪除,或連結貼錯。"
+  },
+  "us_week": {
+    "section_label": "本週",
+    "moods_title": "我們的心情",
+    "moods_empty": "這禮拜還沒留下心情標籤,寫今天時順手選一下吧。",
+    "moments_title": "本週的瞬間",
+    "moments_empty": "這禮拜還沒被記錄的瞬間歐 ✦",
+    "moments_empty_cta": "去新增相簿",
+    "person_top_moods": "{name} 最常的"
   }
 }

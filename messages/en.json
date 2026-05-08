@@ -483,5 +483,32 @@
   "memory_book": {
     "back": "← Back",
     "print": "Print / Save as PDF"
+  },
+  "template_share": {
+    "section_title": "Share this template with another couple",
+    "section_subtitle": "They open the link and add it to their own templates — your records aren't affected.",
+    "show_link": "Show share link",
+    "share_title": "Our question template · howu",
+    "shared_template_label": "Shared Template",
+    "preview_meta": "{qn} questions · {pn} promises",
+    "login_to_clone": "Sign in to add to my templates",
+    "pair_first": "Pair with your partner first",
+    "add_to_my_templates": "Add to my templates",
+    "clone_explainer": "We copy the whole template to your side — you can edit it freely afterward.",
+    "cloned": "Added to your templates",
+    "err_not_authenticated": "Please sign in first",
+    "err_no_couple": "Pair with a partner before adding templates",
+    "err_not_found": "Template not found",
+    "not_found_title": "Template not found",
+    "not_found_body": "It may have been deleted, or the link is wrong."
+  },
+  "us_week": {
+    "section_label": "This week",
+    "moods_title": "Our moods",
+    "moods_empty": "No mood tags this week yet — pick some when you write today.",
+    "moments_title": "Moments this week",
+    "moments_empty": "No moments captured this week yet ✦",
+    "moments_empty_cta": "Add a photo",
+    "person_top_moods": "{name}'s top"
   }
 }

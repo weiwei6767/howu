@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TemplateEditor } from "@/components/templates/TemplateEditor";
+import { TemplateShareLink } from "@/components/templates/TemplateShareLink";
 
 interface Template {
   id: string;
@@ -88,6 +89,8 @@ export default async function EditTemplatePage({
         initialQuestions={(qRaw as Question[] | null) ?? []}
         initialPromises={(pRaw as PromiseRow[] | null) ?? []}
       />
+
+      <TemplateShareLink templateId={tpl.id} />
     </div>
   );
 }

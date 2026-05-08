@@ -8,9 +8,11 @@ import {
   getStreak,
 } from "@/lib/supabase/queries";
 import { todayISO } from "@/lib/utils/date";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DDayCard } from "@/components/us/DDayCard";
 import { MilestoneList } from "@/components/us/MilestoneList";
 import { PartnerToday } from "@/components/us/PartnerToday";
+import { WeeklySnapshot } from "@/components/us/WeeklySnapshot";
 
 export default async function UsPage({
   params,
@@ -40,6 +42,44 @@ export default async function UsPage({
     : null;
 
   const relType = couple.relationship_type ?? "same_city";
+
+  // 本週(週一 → 週日, Asia/Taipei)
+  const tpNow = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
+  );
+  const dow = tpNow.getDay(); // 0=Sun
+  const monOffset = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(tpNow);
+  monday.setDate(monday.getDate() + monOffset);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6);
+  const weekStart = monday.toISOString().slice(0, 10);
+  const weekEnd = sunday.toISOString().slice(0, 10);
+
+  const supabase = await createSupabaseServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: weekRespRaw } = await (supabase as any)
+    .from("daily_responses")
+    .select("responder_id, date, mood_tags, rotating_answers")
+    .eq("couple_id", couple.id)
+    .gte("date", weekStart)
+    .lte("date", weekEnd);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: weekPhotosRaw } = await (supabase as any)
+    .from("shared_photos")
+    .select("id, url, caption, taken_at")
+    .eq("couple_id", couple.id)
+    .gte("taken_at", weekStart)
+    .lte("taken_at", weekEnd)
+    .order("taken_at", { ascending: false })
+    .limit(9);
+
+  const weekResponses = weekRespRaw ?? [];
+  const weekPhotos = (weekPhotosRaw ?? []).filter(
+    (p: { url: string }) => p.url && !p.url.includes("/bg/"),
+  );
 
   return (
     <div className="flex flex-col gap-7">
@@ -71,6 +111,15 @@ export default async function UsPage({
       )}
 
       <PartnerToday partnerName={partnerProfile?.display_name ?? null} partner={partnerToday} />
+
+      <WeeklySnapshot
+        myId={user.id}
+        partnerId={partnerId}
+        myName={me?.display_name ?? null}
+        partnerName={partnerProfile?.display_name ?? null}
+        responses={weekResponses}
+        photos={weekPhotos}
+      />
 
       <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
         <span className="text-sm text-[var(--color-ink-mid)]">{t("invite.relationship_type_label")}</span>
