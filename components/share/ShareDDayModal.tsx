@@ -38,12 +38,39 @@ export function ShareDDayModal({
       : `https://howu.online/share/dday/${coupleId}`;
   const shareText = `${partnerAName} & ${partnerBName} · 在一起 ${days} 天 ✨ howu`;
 
+  async function waitForImagesLoaded(root: HTMLElement) {
+    const imgs = Array.from(root.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map((img) => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          const done = () => {
+            img.removeEventListener("load", done);
+            img.removeEventListener("error", done);
+            resolve();
+          };
+          img.addEventListener("load", done);
+          img.addEventListener("error", done);
+          // 安全網:5 秒後一定 release
+          setTimeout(done, 5000);
+        });
+      }),
+    );
+  }
+
   async function downloadImage() {
     if (!cardRef.current) return;
     setDownloading(true);
     try {
+      // 先等 background image 真的 load 完成,否則 toPng 會 capture 到黑色
+      await waitForImagesLoaded(cardRef.current);
+      // 多一輪 raf 讓 layout 穩定
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+      // 跑兩次:第一次有時 image 還沒進 cache 會黑,第二次穩
+      await toPng(cardRef.current, { cacheBust: false, pixelRatio: 1 });
       const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
+        cacheBust: false,
         pixelRatio: 3,
       });
       const link = document.createElement("a");
