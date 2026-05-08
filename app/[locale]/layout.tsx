@@ -2,25 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Noto_Sans_TC, Noto_Serif_TC, Inter, Caveat } from "next/font/google";
+import { Inter, Caveat } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/Toaster";
 import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import "../globals.css";
-
-const notoTC = Noto_Sans_TC({
-  variable: "--font-noto-tc",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
-
-const notoSerifTC = Noto_Serif_TC({
-  variable: "--font-noto-serif-tc",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -81,7 +67,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${notoTC.variable} ${notoSerifTC.variable} ${inter.variable} ${caveat.variable} h-full antialiased`}
+      className={`${inter.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
