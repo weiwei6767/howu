@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getUser, getActiveCouple } from "@/lib/supabase/auth";

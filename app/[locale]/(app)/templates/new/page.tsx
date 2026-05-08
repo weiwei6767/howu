@@ -1,5 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { NewTemplateForm } from "@/components/templates/NewTemplateForm";
 

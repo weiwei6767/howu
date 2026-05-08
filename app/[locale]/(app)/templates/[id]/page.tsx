@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";

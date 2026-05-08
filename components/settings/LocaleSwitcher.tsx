@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 
 const LOCALES = [
@@ -20,19 +21,26 @@ export function LocaleSwitcher() {
   function switchTo(target: string) {
     if (target === current) return;
     startTransition(async () => {
-      try {
-        const supabase = createClient();
-        const { data: u } = await supabase.auth.getUser();
-        if (u.user) {
-          await supabase
-            .from("profiles")
-            .update({ locale: target })
-            .eq("id", u.user.id);
-        }
-      } catch {}
+      // 樂觀切 URL,失敗在 DB 部份不擋路
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(pathname as any, { locale: target as "zh-TW" | "en" });
       router.refresh();
+
+      // 同步寫進 profiles.locale,讓下次登入也保留偏好
+      try {
+        const supabase = createClient();
+        const { data: u } = await supabase.auth.getUser();
+        if (!u.user) return;
+        const { error } = await supabase
+          .from("profiles")
+          .update({ locale: target })
+          .eq("id", u.user.id);
+        if (error) {
+          toast(error.message, { tone: "error" });
+        }
+      } catch (e) {
+        toast((e as Error).message, { tone: "error" });
+      }
     });
   }
 

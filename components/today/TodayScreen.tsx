@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { User } from "@supabase/supabase-js";
 import { getTranslations } from "next-intl/server";
 import { todayISO } from "@/lib/utils/date";

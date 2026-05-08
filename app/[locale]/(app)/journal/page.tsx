@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/supabase/auth";
 import { getJournalMonthSummary, getJournalEntriesOfDate } from "@/lib/journal/queries";
