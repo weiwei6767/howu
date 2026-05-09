@@ -127,9 +127,9 @@ function AnswerRow({
   t: T;
 }) {
   return (
-    <section className="flex flex-col gap-3">
+    <section className="rounded-[var(--radius-card)] bg-[var(--color-paper-dim)] border border-[var(--color-paper-line)] px-4 py-4 flex flex-col gap-3">
       <header className="flex items-baseline gap-3">
-        <span className="font-serif text-sm text-[var(--color-ink-soft)] tabular-nums shrink-0">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white border border-[var(--color-paper-line)] font-serif text-xs text-[var(--color-ink)] tabular-nums shrink-0">
           {String(index).padStart(2, "0")}
         </span>
         <h3 className="text-[15px] leading-snug flex-1 text-[var(--color-ink)] font-medium">
@@ -141,7 +141,7 @@ function AnswerRow({
         </h3>
       </header>
 
-      <div className="pl-7">
+      <div>
         {type === "slider" || type === "guess_partner" ? (
           <SliderRow
             myValue={myValue}
