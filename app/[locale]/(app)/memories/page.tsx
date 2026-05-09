@@ -4,6 +4,7 @@ import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PhotoGrid } from "@/components/memories/PhotoGrid";
 import { PhotoUploadTile } from "@/components/memories/PhotoUploadTile";
+import { Sparkle, ArcUnderline } from "@/components/ui/Ornaments";
 
 interface PhotoRow {
   id: string;
@@ -77,11 +78,14 @@ export default async function MemoriesPage({
 
   return (
     <div className="flex flex-col gap-7">
-      <header>
+      <header className="relative">
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
           {t("memories.section_title")}
         </p>
-        <h1 className="font-serif text-3xl mt-1">{t("memories.title")}</h1>
+        <h1 className="font-serif text-3xl mt-1 inline-block relative">
+          {t("memories.title")}
+          <ArcUnderline className="absolute -bottom-1 left-0 w-full h-2 text-[var(--color-accent)]/60" />
+        </h1>
       </header>
 
       {/* 月度小數據 */}
@@ -126,10 +130,16 @@ export default async function MemoriesPage({
         <Link
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           href={"/memories/book" as any}
-          className="rounded-[var(--radius-card)] bg-[var(--color-ink)] text-white px-5 py-5 flex items-center justify-between active:opacity-90 transition-opacity"
+          className="relative overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-ink)] text-white px-5 py-6 flex items-center justify-between active:opacity-90 transition-opacity"
         >
-          <div className="min-w-0">
-            <p className="font-serif text-xl leading-tight truncate">
+          {/* 角落星星裝飾 */}
+          <Sparkle className="absolute top-3 right-4 w-3 h-3 text-white/40" />
+          <Sparkle className="absolute bottom-4 right-12 w-2 h-2 text-white/25" />
+          <div className="min-w-0 relative">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-white/60 mb-1">
+              Memory Book
+            </p>
+            <p className="font-serif text-2xl leading-tight truncate">
               {t("memories.title")}
             </p>
             <p className="text-xs text-white/70 mt-1 truncate">
@@ -151,7 +161,7 @@ export default async function MemoriesPage({
           )}
         </header>
 
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-3 gap-3">
           <PhotoUploadTile coupleId={couple.id} />
           <PhotoGrid photos={signed} />
         </div>

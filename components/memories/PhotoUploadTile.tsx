@@ -75,7 +75,7 @@ export function PhotoUploadTile({ coupleId }: Props) {
       onClick={() => fileRef.current?.click()}
       disabled={isUploading}
       aria-label={t("memories.upload")}
-      className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--color-accent-soft)]/50 to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 hover:border-[var(--color-accent)] transition-colors flex flex-col items-center justify-center gap-1 group disabled:opacity-100"
+      className="relative aspect-square bg-white p-1.5 pb-3 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.15)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all group disabled:opacity-100"
     >
       <input
         ref={fileRef}
@@ -88,30 +88,35 @@ export function PhotoUploadTile({ coupleId }: Props) {
           if (e.target.files) handleFiles(e.target.files);
         }}
       />
-      {isUploading ? (
-        <>
-          <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-ink-mid)] border-t-transparent" />
-          <span className="text-[10px] tabular-nums text-[var(--color-ink-mid)] mt-1">
-            {progress!.done} / {progress!.total}
-          </span>
-          <div className="absolute bottom-0 left-0 h-1 bg-[var(--color-accent)] transition-all" style={{ width: `${pct}%` }} />
-        </>
-      ) : (
-        <>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            className="w-7 h-7 text-[var(--color-accent)] transition-colors"
-          >
-            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-          </svg>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent-deep)]">
-            {t("memories.upload")}
-          </span>
-        </>
-      )}
+      <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 flex flex-col items-center justify-center gap-1">
+        {isUploading ? (
+          <>
+            <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />
+            <span className="text-[10px] tabular-nums text-[var(--color-ink-mid)] mt-1">
+              {progress!.done} / {progress!.total}
+            </span>
+            <div className="absolute bottom-3 left-1.5 h-1 bg-[var(--color-accent)] transition-all" style={{ width: `calc(${pct}% - 0.75rem)` }} />
+          </>
+        ) : (
+          <>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              className="w-8 h-8 text-[var(--color-accent)]"
+            >
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+            </svg>
+            <span
+              className="text-sm text-[var(--color-accent-deep)]"
+              style={{ fontFamily: "var(--font-caveat), Georgia, serif" }}
+            >
+              {t("memories.upload")}
+            </span>
+          </>
+        )}
+      </div>
     </button>
   );
 }

@@ -24,7 +24,7 @@ export function PhotoGrid({ photos }: Props) {
           key={p.id}
           type="button"
           onClick={() => setOpenIndex(i)}
-          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] active:opacity-80 transition cursor-zoom-in"
+          className="aspect-square relative bg-white p-1.5 pb-3 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.18)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all cursor-zoom-in"
           title={p.caption ?? ""}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -33,7 +33,7 @@ export function PhotoGrid({ photos }: Props) {
             alt={p.caption ?? ""}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full h-full object-cover"
           />
         </button>
       ))}

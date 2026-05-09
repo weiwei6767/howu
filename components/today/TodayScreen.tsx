@@ -10,7 +10,7 @@ import {
 } from "@/lib/today/picker";
 import { getProfile, getTodayResponse, getPartnerTodayResponse, getStreak } from "@/lib/supabase/queries";
 import { getPartnerProfile } from "@/lib/supabase/auth";
-import { CoupleAvatars } from "@/components/ui/Avatar";
+import { HeartScribble, Sparkle } from "@/components/ui/Ornaments";
 import type { Couple } from "@/lib/supabase/queries";
 import { TemplatePicker } from "./TemplatePicker";
 import { TemplateQuestionnaire } from "./TemplateQuestionnaire";
@@ -46,37 +46,56 @@ export async function TodayScreen({ user, couple }: Props) {
   const dateLabel = `${d.getMonth() + 1} / ${d.getDate()} · ${t(`weekday.${wd}` as "weekday.0")}`;
 
   const Header = (
-    <div className="rounded-[var(--radius-card)] border border-[var(--color-paper-line)] bg-gradient-to-br from-[var(--color-accent-soft)]/60 via-white to-[var(--color-paper-dim)]/40 px-4 py-4 flex items-center gap-3">
-      <CoupleAvatars
-        meName={meName}
-        partnerName={partnerName}
-        size="md"
-      />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-[var(--color-ink)] truncate leading-tight">
+    <section className="relative overflow-hidden rounded-[20px] border border-[var(--color-accent)]/25 bg-gradient-to-b from-white via-[var(--color-accent-soft)]/40 to-white px-5 pt-7 pb-6">
+      {/* 角落小 sparkle 裝飾 */}
+      <Sparkle className="absolute top-3 right-4 w-3 h-3 text-[var(--color-accent)]/50" />
+      <Sparkle className="absolute bottom-4 left-5 w-2 h-2 text-[var(--color-accent)]/40" />
+
+      {/* 名字 — 手寫感 */}
+      <div className="text-center">
+        <p
+          className="text-[var(--color-ink)] leading-none"
+          style={{ fontFamily: "var(--font-caveat), Georgia, serif", fontSize: "2rem" }}
+        >
           {meName ?? t("today_completed.partner_label")}{" "}
-          <span className="text-[var(--color-accent)] mx-0.5">&</span>{" "}
+          <span className="text-[var(--color-accent)]">&</span>{" "}
           {partnerName ?? t("today_completed.partner_label")}
         </p>
-        <p className="text-[11px] text-[var(--color-ink-mid)] mt-0.5 tabular-nums">
-          <span className="font-serif text-[var(--color-accent-deep)]">{dday}</span>
-          <span className="ml-1">{t("memories.unit_days")}</span>
-          <span className="mx-2 text-[var(--color-ink-soft)]">·</span>
-          <span className="uppercase tracking-wider text-[10px]">{dateLabel}</span>
-        </p>
       </div>
-      {streak.current_streak > 0 && (
-        <span className="shrink-0 inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-white border border-[var(--color-accent)]/25 shadow-sm">
-          <span className="text-[var(--color-accent)] text-xs leading-none">✦</span>
-          <span className="font-serif text-sm tabular-nums text-[var(--color-ink)]">
-            {streak.current_streak}
-          </span>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-mid)]">
-            {t("memories.unit_days")}
-          </span>
+
+      {/* D-Day 大數字 */}
+      <div className="flex items-baseline justify-center gap-2 mt-4">
+        <span className="text-[10px] uppercase tracking-[0.32em] text-[var(--color-ink-mid)]">
+          Day
         </span>
-      )}
-    </div>
+        <span
+          className="font-serif tabular-nums text-[var(--color-accent-deep)] leading-none italic"
+          style={{ fontSize: "3.5rem", letterSpacing: "-0.02em" }}
+        >
+          {dday}
+        </span>
+        <HeartScribble className="w-5 h-5 text-[var(--color-accent)]" />
+      </div>
+
+      {/* 日期 + streak 一行 */}
+      <div className="flex items-center justify-center gap-3 mt-3 text-[11px] text-[var(--color-ink-mid)]">
+        <span className="uppercase tracking-[0.18em]">{dateLabel}</span>
+        {streak.current_streak > 0 && (
+          <>
+            <span className="text-[var(--color-ink-soft)]">·</span>
+            <span className="inline-flex items-baseline gap-1">
+              <Sparkle className="w-2.5 h-2.5 text-[var(--color-accent)]" />
+              <span className="font-serif text-sm tabular-nums text-[var(--color-ink)]">
+                {streak.current_streak}
+              </span>
+              <span className="uppercase tracking-wider">
+                {t("memories.unit_days")}
+              </span>
+            </span>
+          </>
+        )}
+      </div>
+    </section>
   );
 
   if (!pick) {

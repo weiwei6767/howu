@@ -112,7 +112,7 @@ export async function WeeklySnapshot({
             </span>
           )}
         </header>
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-3 gap-3">
           <PhotoUploadTile coupleId={coupleId} />
           <PhotoGrid photos={signedPhotos} />
         </div>
