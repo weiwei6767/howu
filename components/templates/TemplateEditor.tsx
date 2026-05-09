@@ -12,6 +12,10 @@ import {
   type SuggestionType,
 } from "@/lib/templates/suggestions";
 import { TemplatePreview } from "./TemplatePreview";
+import {
+  MoodTagPicker,
+  DEFAULT_MOOD_TAGS,
+} from "./MoodTagPicker";
 
 const TYPE_OPTIONS: { value: SuggestionType; label: string }[] = [
   { value: "slider", label: "1-10 滑桿" },
@@ -70,6 +74,9 @@ export function TemplateEditor({
 
   const [newType, setNewType] = useState<SuggestionType>("short_text");
   const [newText, setNewText] = useState("");
+  const [newMoodTags, setNewMoodTags] = useState<string[]>([
+    ...DEFAULT_MOOD_TAGS,
+  ]);
   const [newPromise, setNewPromise] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -93,7 +100,11 @@ export function TemplateEditor({
     [usedPromiseTexts],
   );
 
-  async function addQuestion(text: string, type: SuggestionType) {
+  async function addQuestion(
+    text: string,
+    type: SuggestionType,
+    options?: string[] | null,
+  ) {
     if (!text.trim()) return;
     setLoading(true);
     try {
@@ -106,7 +117,7 @@ export function TemplateEditor({
           position: questions.length,
           type,
           text: text.trim(),
-          options: null,
+          options: options && options.length > 0 ? options : null,
         })
         .select("id, position, type, text, options")
         .single();
@@ -326,7 +337,13 @@ export function TemplateEditor({
                   >
                     <button
                       type="button"
-                      onClick={() => addQuestion(s.text, s.type)}
+                      onClick={() =>
+                        addQuestion(
+                          s.text,
+                          s.type,
+                          s.type === "mood_tags" ? [...DEFAULT_MOOD_TAGS] : null,
+                        )
+                      }
                       disabled={loading}
                       className="w-full flex items-center gap-2 py-3 text-left text-sm group active:bg-[var(--color-paper-dim)] transition-colors px-1 rounded"
                     >
@@ -371,15 +388,36 @@ export function TemplateEditor({
             <Input
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
-              placeholder="題目內容(例:今天的滿足度)"
+              placeholder={
+                newType === "mood_tags"
+                  ? "題目內容(例:今天的心情)"
+                  : "題目內容(例:今天的滿足度)"
+              }
               maxLength={80}
             />
+            {newType === "mood_tags" && (
+              <MoodTagPicker
+                selected={newMoodTags}
+                onChange={setNewMoodTags}
+              />
+            )}
             <Button
               onClick={() => {
-                addQuestion(newText, newType);
+                addQuestion(
+                  newText,
+                  newType,
+                  newType === "mood_tags" ? newMoodTags : null,
+                );
                 setNewText("");
+                if (newType === "mood_tags") {
+                  setNewMoodTags([...DEFAULT_MOOD_TAGS]);
+                }
               }}
-              disabled={!newText.trim() || loading}
+              disabled={
+                !newText.trim() ||
+                loading ||
+                (newType === "mood_tags" && newMoodTags.length === 0)
+              }
               loading={loading}
               className="self-start"
             >

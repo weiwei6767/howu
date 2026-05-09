@@ -220,6 +220,7 @@ function QuestionField({
         <MoodTags
           values={Array.isArray(value) ? value : []}
           onChange={(v) => onChange(v)}
+          available={question.options ?? null}
         />
       </section>
     );
