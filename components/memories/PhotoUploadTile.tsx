@@ -75,7 +75,7 @@ export function PhotoUploadTile({ coupleId }: Props) {
       onClick={() => fileRef.current?.click()}
       disabled={isUploading}
       aria-label={t("memories.upload")}
-      className="relative aspect-square bg-white p-1.5 pb-3 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.15)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all group disabled:opacity-100"
+      className="relative aspect-[5/6] bg-white p-1.5 pb-7 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.15)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all group disabled:opacity-100 flex flex-col"
     >
       <input
         ref={fileRef}
@@ -88,7 +88,7 @@ export function PhotoUploadTile({ coupleId }: Props) {
           if (e.target.files) handleFiles(e.target.files);
         }}
       />
-      <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 flex flex-col items-center justify-center gap-1">
+      <div className="flex-1 bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 flex flex-col items-center justify-center gap-1">
         {isUploading ? (
           <>
             <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />

@@ -130,7 +130,13 @@ export default async function MemoriesPage({
         <Link
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           href={"/memories/book" as any}
-          className="relative overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-ink)] text-white px-5 py-6 flex items-center justify-between active:opacity-90 transition-opacity"
+          className="relative overflow-hidden rounded-[var(--radius-card)] text-white px-5 py-6 flex items-center justify-between active:opacity-90 transition-opacity"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, #8a3a4d 0%, #6a2837 55%, #4a1a2a 100%)",
+            boxShadow:
+              "0 12px 32px -12px rgba(106, 40, 55, 0.45), inset 0 1px 0 rgba(255,255,255,0.08)",
+          }}
         >
           {/* 角落星星裝飾 */}
           <Sparkle className="absolute top-3 right-4 w-3 h-3 text-white/40" />
