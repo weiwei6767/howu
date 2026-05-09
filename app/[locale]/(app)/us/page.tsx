@@ -11,6 +11,13 @@ import { DDayCard } from "@/components/us/DDayCard";
 import { MilestoneList } from "@/components/us/MilestoneList";
 import { WeeklySnapshot } from "@/components/us/WeeklySnapshot";
 
+function ymd(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export default async function UsPage({
   params,
 }: {
@@ -23,7 +30,6 @@ export default async function UsPage({
   const user = await requireUser();
   const couple = await requireCouple(user.id);
 
-  const partnerId = couple.partner_a_id === user.id ? couple.partner_b_id : couple.partner_a_id;
   const [me, partnerProfile, milestones, streak] = await Promise.all([
     getProfile(user.id),
     getPartnerProfile(user.id, couple),
@@ -39,10 +45,12 @@ export default async function UsPage({
 
   const relType = couple.relationship_type ?? "same_city";
 
-  // 本週(週一 → 週日, Asia/Taipei)
+  // Asia/Taipei「現在」
   const tpNow = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
   );
+
+  // 本週(週一 → 週日)
   const dow = tpNow.getDay();
   const monOffset = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(tpNow);
@@ -50,18 +58,28 @@ export default async function UsPage({
   monday.setHours(0, 0, 0, 0);
   const sunday = new Date(monday);
   sunday.setDate(sunday.getDate() + 6);
-  const weekStart = monday.toISOString().slice(0, 10);
-  const weekEnd = sunday.toISOString().slice(0, 10);
+  const weekStart = ymd(monday);
+  const weekEnd = ymd(sunday);
+
+  // 本月
+  const monthStart = ymd(new Date(tpNow.getFullYear(), tpNow.getMonth(), 1));
+  const monthEnd = ymd(new Date(tpNow.getFullYear(), tpNow.getMonth() + 1, 0));
+
+  // 今年
+  const yearStart = ymd(new Date(tpNow.getFullYear(), 0, 1));
+  const yearEnd = ymd(new Date(tpNow.getFullYear(), 11, 31));
 
   const supabase = await createSupabaseServerClient();
+  // 拉一整年的 responses(只 mood 相關欄位),client 端再依切換的時間區間 filter
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: weekRespRaw } = await (supabase as any)
+  const { data: yearRespRaw } = await (supabase as any)
     .from("daily_responses")
-    .select("responder_id, date, mood_tags, rotating_answers")
+    .select("date, mood_tags, rotating_answers")
     .eq("couple_id", couple.id)
-    .gte("date", weekStart)
-    .lte("date", weekEnd);
+    .gte("date", yearStart)
+    .lte("date", yearEnd);
 
+  // 本週瞬間(照片仍然只看本週,不跟著切)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: weekPhotosRaw } = await (supabase as any)
     .from("shared_photos")
@@ -72,7 +90,7 @@ export default async function UsPage({
     .order("taken_at", { ascending: false })
     .limit(9);
 
-  const weekResponses = weekRespRaw ?? [];
+  const yearResponses = yearRespRaw ?? [];
   const weekPhotos = (weekPhotosRaw ?? []).filter(
     (p: { url: string }) => p.url && !p.url.includes("/bg/"),
   );
@@ -108,12 +126,14 @@ export default async function UsPage({
 
       <WeeklySnapshot
         coupleId={couple.id}
-        myId={user.id}
-        partnerId={partnerId}
-        myName={me?.display_name ?? null}
-        partnerName={partnerProfile?.display_name ?? null}
-        responses={weekResponses}
+        responses={yearResponses}
         photos={weekPhotos}
+        weekStart={weekStart}
+        weekEnd={weekEnd}
+        monthStart={monthStart}
+        monthEnd={monthEnd}
+        yearStart={yearStart}
+        yearEnd={yearEnd}
       />
 
       <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
