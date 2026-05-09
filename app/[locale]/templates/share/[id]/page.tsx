@@ -203,7 +203,7 @@ export default async function TemplateSharePage({
         </section>
       )}
 
-      {/* 預覽:承諾 */}
+      {/* 預覽:小懲罰 */}
       {tpl.promises.length > 0 && (
         <section className="flex flex-col gap-3">
           <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">

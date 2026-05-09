@@ -201,7 +201,7 @@
     "milestone_placeholder": "e.g. our first trip"
   },
   "couple": {
-    "promises": "Our Promises",
+    "promises": "Our Punishments",
     "memory_book": "Our Memory Book",
     "four_grid": "Today in 4 Frames",
     "whisper": "Whisper"
@@ -297,7 +297,7 @@
   "templates": {
     "title": "Question Templates",
     "code_label": "Templates",
-    "intro": "Build your own daily check-ins. Make a few, take turns picking. Each can have its own promises.",
+    "intro": "Build your own daily check-ins. Make a few, take turns picking. Each can have its own punishments — small things to do if your partner skips that day.",
     "empty": "No templates yet. Tap \"Add\" on the top right.",
     "n_questions": "{n} questions",
     "no_questions": "no questions",
@@ -353,7 +353,7 @@
     "punishments_explainer": "Small things to do if your partner skips today's check-in. (Auto-billing coming later.)",
     "preview_letter_placeholder": "Dear...",
     "preview_short_text": "Short note",
-    "preview_no_content_yet": "Nothing yet\nPick a suggestion to start",
+    "preview_no_content_yet": "Nothing yet\nPick a question or punishment from the right",
     "preview_finish": "Finish today's check-in",
     "preview_guess_hint": "Guess partner"
   },
@@ -434,11 +434,11 @@
     "data_kept": "Your individual account is fine and you can pair with someone else later."
   },
   "promises": {
-    "title": "Our Promises",
-    "subtitle": "Little agreements between you two",
-    "add": "Add promise",
-    "placeholder": "e.g. eat dinner together at least once a week",
-    "empty": "No promises yet"
+    "title": "Small punishments",
+    "subtitle": "What you owe if your partner skips a day",
+    "add": "Add punishment",
+    "placeholder": "e.g. buy them a coffee",
+    "empty": "No punishments yet"
   },
   "leaderboard": {
     "title": "Leaderboard",
@@ -539,7 +539,7 @@
     "show_link": "Show share link",
     "share_title": "Our question template · howu",
     "shared_template_label": "Shared Template",
-    "preview_meta": "{qn} questions · {pn} promises",
+    "preview_meta": "{qn} questions · {pn} punishments",
     "login_to_clone": "Sign in to add to my templates",
     "pair_first": "Pair with your partner first",
     "add_to_my_templates": "Add to my templates",
