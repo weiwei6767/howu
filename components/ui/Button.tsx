@@ -47,15 +47,24 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
         onClick?.(e);
       }}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-button)] font-medium transition-colors disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ink)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-paper)]",
+        "relative inline-flex items-center justify-center gap-2 rounded-[var(--radius-button)] font-medium transition-colors disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ink)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-paper)]",
         VARIANT[variant],
         SIZE[size],
         fullWidth && "w-full",
+        loading ? "cursor-progress" : "disabled:opacity-40",
         className,
       )}
+      aria-busy={loading || undefined}
       {...rest}
     >
-      {loading ? <Spinner /> : children}
+      <span className={cn("inline-flex items-center gap-2 transition-opacity", loading && "opacity-0")}>
+        {children}
+      </span>
+      {loading && (
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
+          <Spinner />
+        </span>
+      )}
     </button>
   );
 });
