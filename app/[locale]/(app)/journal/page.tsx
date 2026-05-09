@@ -136,8 +136,8 @@ export default async function JournalPage({
         </p>
       )}
 
-      {/* ─── 對方分享給你的 ─── */}
-      {partnerShared.length > 0 && (
+      {/* ─── 對方分享給你的(配對中就一定顯示,空也顯示框) ─── */}
+      {partnerId && (
         <section className="flex flex-col gap-4">
           <header className="flex items-center justify-center gap-3">
             <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
@@ -147,17 +147,38 @@ export default async function JournalPage({
             </span>
             <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
           </header>
-          <ul className="flex flex-col gap-4">
-            {partnerShared.map((e, i) => (
-              <PartnerSharedCard
-                key={e.id}
-                entry={e}
-                index={i}
-                authorName={partnerName}
-                t={t}
-              />
-            ))}
-          </ul>
+          {partnerShared.length === 0 ? (
+            <div
+              className="rounded-[14px] border border-dashed border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)]/25 px-5 py-8 text-center flex flex-col items-center gap-1.5"
+            >
+              <span
+                className="text-[var(--color-accent-deep)]/70"
+                style={{
+                  fontFamily: "var(--font-caveat), Georgia, serif",
+                  fontSize: "1.1rem",
+                }}
+              >
+                {partnerName} 還沒分享日記給你
+              </span>
+              <span className="text-xs text-[var(--color-ink-soft)] leading-relaxed">
+                寫日記時勾「分享給對方」,
+                <br />
+                就會出現在另一邊的這個位置
+              </span>
+            </div>
+          ) : (
+            <ul className="flex flex-col gap-4">
+              {partnerShared.map((e, i) => (
+                <PartnerSharedCard
+                  key={e.id}
+                  entry={e}
+                  index={i}
+                  authorName={partnerName}
+                  t={t}
+                />
+              ))}
+            </ul>
+          )}
         </section>
       )}
 

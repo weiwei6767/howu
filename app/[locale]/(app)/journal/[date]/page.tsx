@@ -80,7 +80,7 @@ export default async function JournalDatePage({
 
       <DayView userId={user.id} date={date} entries={items} />
 
-      {partnerShared.length > 0 && (
+      {partnerId && (
         <section className="flex flex-col gap-4 mt-2">
           <header className="flex items-center justify-center gap-3">
             <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
@@ -90,11 +90,28 @@ export default async function JournalDatePage({
             </span>
             <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
           </header>
-          <ul className="flex flex-col gap-4">
-            {partnerShared.map((e) => (
-              <PartnerSharedFull key={e.id} entry={e} authorName={partnerName} />
-            ))}
-          </ul>
+          {partnerShared.length === 0 ? (
+            <div className="rounded-[14px] border border-dashed border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)]/25 px-5 py-7 text-center flex flex-col items-center gap-1.5">
+              <span
+                className="text-[var(--color-accent-deep)]/70"
+                style={{
+                  fontFamily: "var(--font-caveat), Georgia, serif",
+                  fontSize: "1.1rem",
+                }}
+              >
+                {partnerName} 這天沒有分享給你
+              </span>
+              <span className="text-xs text-[var(--color-ink-soft)] leading-relaxed">
+                對方有寫並勾「分享給對方」才會出現
+              </span>
+            </div>
+          ) : (
+            <ul className="flex flex-col gap-4">
+              {partnerShared.map((e) => (
+                <PartnerSharedFull key={e.id} entry={e} authorName={partnerName} />
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </div>
