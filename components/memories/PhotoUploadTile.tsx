@@ -75,7 +75,7 @@ export function PhotoUploadTile({ coupleId }: Props) {
       onClick={() => fileRef.current?.click()}
       disabled={isUploading}
       aria-label={t("memories.upload")}
-      className="relative aspect-square overflow-hidden bg-[var(--color-paper-dim)] border border-dashed border-[var(--color-paper-line)] hover:border-[var(--color-ink-mid)] transition-colors flex flex-col items-center justify-center gap-1 group disabled:opacity-100"
+      className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--color-accent-soft)]/50 to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 hover:border-[var(--color-accent)] transition-colors flex flex-col items-center justify-center gap-1 group disabled:opacity-100"
     >
       <input
         ref={fileRef}
@@ -103,11 +103,11 @@ export function PhotoUploadTile({ coupleId }: Props) {
             fill="none"
             stroke="currentColor"
             strokeWidth={1.5}
-            className="w-7 h-7 text-[var(--color-ink-mid)] group-hover:text-[var(--color-ink)] transition-colors"
+            className="w-7 h-7 text-[var(--color-accent)] transition-colors"
           >
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />
           </svg>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink-mid)]">
+          <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent-deep)]">
             {t("memories.upload")}
           </span>
         </>

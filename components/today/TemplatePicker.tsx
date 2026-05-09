@@ -105,9 +105,9 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
                       </p>
                     </div>
                     <span
-                      className={`w-5 h-5 rounded-full border shrink-0 flex items-center justify-center text-xs ${
+                      className={`w-5 h-5 rounded-full border shrink-0 flex items-center justify-center text-xs transition-all ${
                         isSelected
-                          ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
+                          ? "bg-[var(--color-accent)] border-[var(--color-accent)] text-white shadow-[0_2px_8px_-2px_rgba(184,50,77,0.5)]"
                           : "border-[var(--color-paper-line)]"
                       }`}
                     >

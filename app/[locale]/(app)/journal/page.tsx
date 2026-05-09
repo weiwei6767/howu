@@ -39,10 +39,10 @@ export default async function JournalPage({
       <Link
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         href={`/journal/${today}` as any}
-        className="surface px-5 py-5 flex items-center justify-between gap-3 active:bg-[var(--color-paper-dim)] transition-colors"
+        className="rounded-[var(--radius-card)] border border-[var(--color-accent)]/25 bg-gradient-to-br from-[var(--color-accent-soft)]/60 to-white px-5 py-5 flex items-center justify-between gap-3 active:opacity-90 transition-opacity"
       >
         <div className="flex flex-col min-w-0">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-accent-deep)]">
             {t("common.today")} · {now.getMonth() + 1}/{now.getDate()} ·{" "}
             {t(`weekday.${wd}` as "weekday.0")}
           </p>
@@ -52,7 +52,7 @@ export default async function JournalPage({
               : t("journal.today_n_entries", { n: todayEntries.length })}
           </p>
         </div>
-        <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-ink)] text-white text-lg">
+        <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-[var(--color-accent)] text-white text-lg shadow-[0_4px_16px_-4px_rgba(184,50,77,0.5)]">
           {todayEntries.length === 0 ? "+" : "→"}
         </span>
       </Link>

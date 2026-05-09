@@ -44,14 +44,18 @@ export function TodayCompleted({
   return (
     <div className="flex flex-col gap-6">
       {/* ─── 頂部狀態卡 ─── */}
-      <header className="surface px-6 py-7 flex flex-col items-center text-center gap-2">
-        <div
-          aria-hidden
-          className="w-10 h-10 rounded-full bg-[var(--color-ink)] text-white flex items-center justify-center text-base"
-        >
-          ✓
+      <header className="rounded-[var(--radius-card)] border border-[var(--color-accent)]/20 bg-gradient-to-b from-[var(--color-accent-soft)]/50 to-white px-6 py-7 flex flex-col items-center text-center gap-2">
+        <div className="relative">
+          <span className="absolute -top-1 -left-3 text-[var(--color-accent)]/60 text-xs">✦</span>
+          <span className="absolute -top-1 -right-3 text-[var(--color-accent)]/60 text-xs">✦</span>
+          <div
+            aria-hidden
+            className="w-12 h-12 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center text-lg shadow-[0_4px_16px_-4px_rgba(184,50,77,0.4)]"
+          >
+            ✓
+          </div>
         </div>
-        <h1 className="font-serif text-2xl leading-tight mt-1">
+        <h1 className="font-serif text-2xl leading-tight mt-2">
           {t("today_screen.completed_title")}
         </h1>
         <p className="text-sm text-[var(--color-ink-mid)] flex items-center gap-1.5">
@@ -61,14 +65,17 @@ export function TodayCompleted({
 
         <div className="flex items-center gap-2 mt-2">
           {streak.current_streak > 0 && (
-            <span className="text-[11px] uppercase tracking-wider px-3 py-1 rounded-full bg-[var(--color-paper-dim)] border border-[var(--color-paper-line)] tabular-nums">
-              {t("today_screen.streak_short", { n: streak.current_streak })}
+            <span className="inline-flex items-baseline gap-1 text-[11px] px-3 py-1 rounded-full bg-white border border-[var(--color-accent)]/25 tabular-nums">
+              <span className="text-[var(--color-accent)]">✦</span>
+              <span className="text-[var(--color-ink)]">
+                {t("today_screen.streak_short", { n: streak.current_streak })}
+              </span>
             </span>
           )}
           <span
             className={`text-[11px] uppercase tracking-wider px-3 py-1 rounded-full border ${
               bothDone
-                ? "border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)] text-[var(--color-accent-deep)]"
+                ? "border-[var(--color-accent)]/30 bg-[var(--color-accent)] text-white"
                 : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
             }`}
           >

@@ -81,13 +81,13 @@ export function AppNav() {
                   {active && (
                     <span
                       aria-hidden
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[var(--color-ink)]"
+                      className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[var(--color-accent)]"
                     />
                   )}
                   <span
                     className={
                       active
-                        ? "text-[var(--color-ink)]"
+                        ? "text-[var(--color-accent-deep)]"
                         : "text-[var(--color-ink-soft)]"
                     }
                   >
@@ -96,7 +96,7 @@ export function AppNav() {
                   <span
                     className={
                       active
-                        ? "text-[var(--color-ink)] font-medium"
+                        ? "text-[var(--color-accent-deep)] font-medium"
                         : "text-[var(--color-ink-soft)]"
                     }
                   >
