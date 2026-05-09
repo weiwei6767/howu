@@ -258,7 +258,7 @@ export function TemplateEditor({
 
       {/* ─── 桌面三欄、手機單欄 ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(280px,340px)] gap-8">
-        {/* 左:題目 + 承諾(主要編輯區) */}
+        {/* 左:題目 + 小懲罰(主要編輯區) */}
         <div className="flex flex-col gap-7 min-w-0">
           {/* 已選 */}
           <section className="flex flex-col gap-3">
@@ -386,17 +386,20 @@ export function TemplateEditor({
             </Button>
           </section>
 
-          {/* 承諾 */}
+          {/* 小懲罰 */}
           <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
             <header className="flex items-baseline justify-between">
               <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
-                承諾 ({promises.length})
+                小懲罰 ({promises.length})
               </h2>
             </header>
+            <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed -mt-1">
+              如果對方那天沒寫問卷,要履行的小事(以後會支援自動扣款)
+            </p>
 
             {promises.length === 0 ? (
               <div className="text-center text-sm text-[var(--color-ink-soft)] py-8 border border-dashed border-[var(--color-paper-line)] rounded-[var(--radius-card)]">
-                還沒加承諾
+                還沒加小懲罰
                 <br />從下方來加入
               </div>
             ) : (
@@ -423,7 +426,7 @@ export function TemplateEditor({
             {visiblePromiseSugs.length > 0 && (
               <div className="flex flex-col">
                 <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)] mb-1">
-                  推薦承諾
+                  推薦小懲罰
                 </p>
                 {visiblePromiseSugs.map((s, i) => (
                   <button
@@ -449,7 +452,7 @@ export function TemplateEditor({
               <Input
                 value={newPromise}
                 onChange={(e) => setNewPromise(e.target.value)}
-                placeholder="自己寫一條承諾"
+                placeholder="自己寫一條小懲罰"
                 maxLength={80}
               />
               <Button

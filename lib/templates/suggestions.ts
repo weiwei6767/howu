@@ -28,11 +28,15 @@ const DAILY: QuestionSuggestion[] = [
 
 export const QUESTION_SUGGESTIONS: readonly QuestionSuggestion[] = [...DAILY];
 
+// 小懲罰建議 — 對方那天沒寫今日問卷時要履行的小事
+// 未來會支援「指定金額自動扣款給對方」的版本
 export const PROMISE_SUGGESTIONS: readonly { text: string; popularity: number }[] = [
-  { text: "看完對方答案不立刻分析,先深呼吸", popularity: 71 },
-  { text: "回應對方至少一句話", popularity: 88 },
-  { text: "寫完問卷才睡覺", popularity: 65 },
-  { text: "如果有心結,當天提出不過夜", popularity: 54 },
-  { text: "感謝對方時要寫具體的一件事", popularity: 47 },
-  { text: "看到對方寫的負面情緒,先擁抱不解決", popularity: 38 },
+  { text: "請對方一杯飲料", popularity: 88 },
+  { text: "幫對方按摩 10 分鐘", popularity: 79 },
+  { text: "包辦今天的洗碗", popularity: 72 },
+  { text: "早餐買對方愛吃的", popularity: 68 },
+  { text: "請看一場電影", popularity: 60 },
+  { text: "寫一張手寫小卡道歉", popularity: 54 },
+  { text: "陪做一件對方想做的事", popularity: 49 },
+  { text: "包辦下一次倒垃圾", popularity: 42 },
 ];

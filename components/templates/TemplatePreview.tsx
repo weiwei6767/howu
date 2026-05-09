@@ -47,7 +47,7 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
 
         {questions.length === 0 && promises.length === 0 && (
           <div className="surface p-5 text-center text-xs text-[var(--color-ink-soft)]">
-            還沒有題目跟承諾
+            還沒有題目跟小懲罰
             <br />
             從右邊建議挑題開始
           </div>
@@ -72,7 +72,7 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
         {promises.length > 0 && (
           <div className="border-l-2 border-[var(--color-accent)] pl-3 py-1 text-[11px] flex flex-col gap-0.5">
             <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)]">
-              這份問卷的承諾
+              如果今天沒寫的小懲罰
             </span>
             {promises.map((p) => (
               <div key={p.id} className="text-[var(--color-ink)]">{p.text}</div>
