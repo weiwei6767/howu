@@ -413,11 +413,7 @@ export function TemplateEditor({
                   setNewMoodTags([...DEFAULT_MOOD_TAGS]);
                 }
               }}
-              disabled={
-                !newText.trim() ||
-                loading ||
-                (newType === "mood_tags" && newMoodTags.length === 0)
-              }
+              disabled={!newText.trim() || loading}
               loading={loading}
               className="self-start"
             >

@@ -159,21 +159,25 @@ function PreviewQuestion({ q }: { q: Question }) {
   }
 
   if (q.type === "mood_tags") {
-    const tags = ["平靜", "開心", "感謝", "踏實"];
+    const customTags = Array.isArray(q.options) ? (q.options as string[]) : null;
+    const tags =
+      customTags && customTags.length > 0
+        ? customTags
+        : ["開心", "六六大順", "心煩", "低氣壓", "平常心"];
     return (
       <div className="flex flex-col gap-1.5">
         <span className="text-xs text-[var(--color-ink)]">{q.text}</span>
         <div className="flex flex-wrap gap-1.5">
-          {tags.map((t, i) => (
+          {tags.map((tag, i) => (
             <span
-              key={t}
+              key={`${tag}-${i}`}
               className={`px-2 py-1 rounded-full text-[10px] border ${
                 i < 2
                   ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
                   : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
               }`}
             >
-              {t}
+              {tag}
             </span>
           ))}
         </div>
