@@ -1,8 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { requireUser, getActiveCouple } from "@/lib/supabase/auth";
 import { InviteHub } from "@/components/invite/InviteHub";
 import { PausedScreen } from "@/components/screens/PausedScreen";
-import { RecoveryScreen } from "@/components/screens/RecoveryScreen";
 import { TodayScreen } from "@/components/today/TodayScreen";
 
 export default async function HomePage({
@@ -23,7 +23,8 @@ export default async function HomePage({
     return <PausedScreen />;
   }
   if (couple.status === "recovery") {
-    return <RecoveryScreen recoveryUntil={couple.recovery_until} />;
+    // 解除綁定後唯一可見的就是回憶冊
+    redirect("/memories/book");
   }
 
   return <TodayScreen user={user} couple={couple} />;

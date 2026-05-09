@@ -16,13 +16,14 @@ export default async function AppLayout({
   const user = await getUser();
   if (!user) redirect("/login");
 
-  // 還沒配對 → 邀請頁(允許 settings 進入做基本資料設定)
   const couple = await getActiveCouple(user.id);
+  // 解除綁定 recovery 期間 → 隱藏底部 nav,讓使用者只看到回憶冊
+  const showNav = !!couple && couple.status === "active";
 
   return (
     <div className="flex flex-col flex-1 min-h-screen">
       <main className="flex-1 w-full max-w-2xl mx-auto px-4 pt-6 pb-24">{children}</main>
-      {couple && <AppNav />}
+      {showNav && <AppNav />}
     </div>
   );
 }

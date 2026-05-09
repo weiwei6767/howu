@@ -7,18 +7,16 @@ interface Props {
 }
 
 export function PhotoGrid({ photos }: Props) {
-  if (!photos.length) {
-    return null;
-  }
+  if (!photos.length) return null;
   return (
-    <div className="grid grid-cols-3 gap-1">
+    <>
       {photos.map((p) => (
         <a
           key={p.id}
           href={p.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] hover:opacity-90 transition"
+          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] active:opacity-80 transition"
           title={p.caption ?? ""}
         >
           <Image
@@ -30,6 +28,6 @@ export function PhotoGrid({ photos }: Props) {
           />
         </a>
       ))}
-    </div>
+    </>
   );
 }

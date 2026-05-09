@@ -2,10 +2,8 @@ import { Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser, requireCouple } from "@/lib/supabase/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getMilestones } from "@/lib/supabase/queries";
-import { nextSpecialDays, daysUntil } from "@/lib/special-days";
-import { PhotoUpload } from "@/components/memories/PhotoUpload";
 import { PhotoGrid } from "@/components/memories/PhotoGrid";
+import { PhotoUploadTile } from "@/components/memories/PhotoUploadTile";
 
 interface PhotoRow {
   id: string;
@@ -17,13 +15,6 @@ interface PhotoRow {
 interface ResponseRow {
   date: string;
   responder_id: string;
-  template_id: string | null;
-}
-
-interface TemplateRow {
-  id: string;
-  name: string;
-  emoji: string | null;
 }
 
 export default async function MemoriesPage({
@@ -48,7 +39,7 @@ export default async function MemoriesPage({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: respRaw } = await (supabase as any)
     .from("daily_responses")
-    .select("date, responder_id, template_id")
+    .select("date, responder_id")
     .eq("couple_id", couple.id)
     .gte("date", monthStart)
     .lte("date", monthEnd);
@@ -60,36 +51,10 @@ export default async function MemoriesPage({
     set.add(r.responder_id);
     dayResponders.set(r.date, set);
   }
-  const daysBothDone = Array.from(dayResponders.values()).filter((s) => s.size === 2).length;
+  const daysBothDone = Array.from(dayResponders.values()).filter(
+    (s) => s.size === 2,
+  ).length;
   const totalEntries = responses.length;
-
-  const templateCount = new Map<string, number>();
-  for (const r of responses) {
-    if (!r.template_id) continue;
-    templateCount.set(r.template_id, (templateCount.get(r.template_id) ?? 0) + 1);
-  }
-  const topTemplateIds = Array.from(templateCount.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([id]) => id);
-
-  let topTemplates: Array<TemplateRow & { count: number }> = [];
-  if (topTemplateIds.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: tplsRaw } = await (supabase as any)
-      .from("templates")
-      .select("id, name, emoji")
-      .in("id", topTemplateIds);
-    const tplMap = new Map<string, TemplateRow>(
-      ((tplsRaw as TemplateRow[] | null) ?? []).map((tpl) => [tpl.id, tpl]),
-    );
-    topTemplates = topTemplateIds
-      .map((id) => {
-        const tpl = tplMap.get(id);
-        return tpl ? { ...tpl, count: templateCount.get(id) ?? 0 } : null;
-      })
-      .filter((x): x is TemplateRow & { count: number } => !!x);
-  }
 
   const { data: rawPhotos } = await supabase
     .from("shared_photos")
@@ -98,8 +63,9 @@ export default async function MemoriesPage({
     .order("taken_at", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(60);
-  const photos = ((rawPhotos as PhotoRow[] | null) ?? [])
-    .filter((p) => p.url && !p.url.includes("/bg/"));
+  const photos = ((rawPhotos as PhotoRow[] | null) ?? []).filter(
+    (p) => p.url && !p.url.includes("/bg/"),
+  );
 
   const signed = photos.map((p) => ({
     id: p.id,
@@ -107,23 +73,10 @@ export default async function MemoriesPage({
     caption: p.caption,
   }));
 
-  const milestones = await getMilestones(couple.id);
-  const upcoming = nextSpecialDays(
-    milestones.map((m) => ({
-      id: m.id,
-      title: m.title,
-      date: m.date,
-      recurring: m.recurring,
-      type: m.type,
-    })),
-    1,
-  );
-  const next = upcoming[0];
-
   const ymLabel = `${yyyy}-${String(mm).padStart(2, "0")}`;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-7">
       <header>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
           {t("memories.section_title")}
@@ -131,138 +84,116 @@ export default async function MemoriesPage({
         <h1 className="font-serif text-3xl mt-1">{t("memories.title")}</h1>
       </header>
 
+      {/* 月度小數據 */}
       {totalEntries > 0 ? (
-        <section className="border-b border-[var(--color-paper-line)] pb-6">
-          <header className="flex items-baseline justify-between mb-4">
-            <h2 className="text-sm text-[var(--color-ink-mid)]">
-              {t("memories.monthly", { ym: ymLabel })}
-            </h2>
-            <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-              {t("memories.history_total", { days: daysBothDone, entries: totalEntries })}
-            </span>
-          </header>
-          <div className="grid grid-cols-2 gap-4">
-            <Stat label={t("memories.stat_wrote_together")} value={daysBothDone} unit={t("memories.unit_days")} />
-            <Stat label={t("memories.stat_total")} value={totalEntries} unit={t("memories.unit_entries")} />
-          </div>
-
-          {topTemplates.length > 0 && (
-            <div className="mt-6">
-              <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-wider mb-2">
-                {t("memories.month_top_templates")}
-              </p>
-              <ul className="flex flex-col">
-                {topTemplates.map((tpl) => (
-                  <li
-                    key={tpl.id}
-                    className="flex items-center gap-3 py-2 border-b border-[var(--color-paper-line)] last:border-b-0"
-                  >
-                    <span className="w-6 text-center" aria-hidden>
-                      {tpl.emoji ?? ""}
-                    </span>
-                    <span className="flex-1 text-sm">{tpl.name}</span>
-                    <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-                      × {tpl.count}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+        <section className="grid grid-cols-3 gap-2 border-b border-[var(--color-paper-line)] pb-5">
+          <Stat
+            label={t("memories.stat_wrote_together")}
+            value={daysBothDone}
+            unit={t("memories.unit_days")}
+          />
+          <Stat
+            label={t("memories.stat_total")}
+            value={totalEntries}
+            unit={t("memories.unit_entries")}
+          />
+          <Stat label={ymLabel} value={signed.length} unit="" hideUnit hint />
         </section>
       ) : (
-        <p className="text-sm text-[var(--color-ink-soft)]">
+        <p className="text-sm text-[var(--color-ink-soft)] leading-relaxed">
           {t("memories.month_no_entries_yet")}
         </p>
       )}
 
-      <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
-        <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
-          {t("memories.slideshow_label")}
-        </p>
-        <p className="text-sm mt-1 leading-relaxed text-[var(--color-ink-mid)]">
-          {t("memories.slideshow_intro")}
-        </p>
-        {next ? (
-          <div className="flex items-baseline justify-between mt-3">
-            <p className="text-sm">
-              <span className="text-[var(--color-ink)]">{next.name}</span>
-              <span className="text-xs text-[var(--color-ink-soft)] ml-2">
-                {t("memories.slideshow_days_until", { n: Math.max(0, daysUntil(next.date)) })}
-              </span>
-            </p>
-            <Link
-              href={`/memories/slideshow?occasion=${next.id}`}
-              className="text-xs underline underline-offset-2 hover:text-[var(--color-ink-mid)]"
-            >
-              {t("common.preview")}
-            </Link>
-          </div>
-        ) : (
-          <Link
-            href="/memories/slideshow"
-            className="text-xs underline underline-offset-2 mt-3 inline-block"
-          >
-            {t("memories.see_now")}
-          </Link>
-        )}
-      </section>
-
-      <div className="flex flex-col border-y border-[var(--color-paper-line)]">
+      {/* 主要兩個入口:過去的問卷 + 我們的回憶冊 */}
+      <div className="flex flex-col gap-2">
         <Link
-          href="/memories/history"
-          className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors border-b border-[var(--color-paper-line)]"
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          href={"/memories/history" as any}
+          className="surface px-5 py-4 flex items-center justify-between active:bg-[var(--color-paper-dim)] transition-colors"
         >
-          <div>
-            <p className="font-serif text-lg">{t("memories.history_title")}</p>
-            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+          <div className="min-w-0">
+            <p className="font-serif text-lg leading-tight truncate">
+              {t("memories.history_title")}
+            </p>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-1 truncate">
               {t("memories.history_subtitle")}
             </p>
           </div>
-          <span className="text-[var(--color-ink-soft)]">→</span>
+          <span className="text-[var(--color-ink-soft)] shrink-0 ml-3 text-lg">→</span>
         </Link>
 
         <Link
-          href="/memories/book"
-          className="flex items-center justify-between py-4 hover:text-[var(--color-ink-mid)] transition-colors"
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          href={"/memories/book" as any}
+          className="rounded-[var(--radius-card)] bg-[var(--color-ink)] text-white px-5 py-5 flex items-center justify-between active:opacity-90 transition-opacity"
         >
-          <div>
-            <p className="font-serif text-lg">{t("memories.title")}</p>
-            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+          <div className="min-w-0">
+            <p className="font-serif text-xl leading-tight truncate">
+              {t("memories.title")}
+            </p>
+            <p className="text-xs text-white/70 mt-1 truncate">
               {t("memories.memory_book_sub")}
             </p>
           </div>
-          <span className="text-[var(--color-ink-soft)]">→</span>
+          <span className="shrink-0 ml-3 text-lg">→</span>
         </Link>
       </div>
 
-      <PhotoUpload coupleId={couple.id} />
-
+      {/* 共同相簿 */}
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm text-[var(--color-ink-mid)]">
-          {t("memories.albums")}
-        </h2>
-        {signed.length === 0 ? (
-          <p className="text-sm text-[var(--color-ink-soft)] py-6">
-            {t("journal.empty")}
+        <header className="flex items-baseline justify-between">
+          <h2 className="font-serif text-xl">{t("memories.albums")}</h2>
+          {signed.length > 0 && (
+            <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
+              {signed.length}
+            </span>
+          )}
+        </header>
+
+        <div className="grid grid-cols-3 gap-1">
+          <PhotoUploadTile coupleId={couple.id} />
+          <PhotoGrid photos={signed} />
+        </div>
+
+        {signed.length === 0 && (
+          <p className="text-xs text-[var(--color-ink-soft)] text-center pt-2">
+            {t("us_week.moments_empty")}
           </p>
-        ) : (
-          <PhotoGrid photos={signed.filter((s) => s.url)} />
         )}
       </section>
     </div>
   );
 }
 
-function Stat({ label, value, unit }: { label: string; value: number; unit: string }) {
+function Stat({
+  label,
+  value,
+  unit,
+  hideUnit,
+  hint,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  hideUnit?: boolean;
+  hint?: boolean;
+}) {
   return (
     <div className="flex flex-col">
-      <span className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+      <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)] truncate">
         {label}
       </span>
-      <div className="font-serif text-3xl tabular-nums mt-1">
+      <div className="font-serif text-2xl tabular-nums mt-1">
         {value}
-        <span className="text-base text-[var(--color-ink-mid)] ml-1">{unit}</span>
+        {!hideUnit && (
+          <span className="text-sm text-[var(--color-ink-mid)] ml-1">{unit}</span>
+        )}
+        {hint && (
+          <span className="text-[10px] text-[var(--color-ink-soft)] ml-1 uppercase">
+            photos
+          </span>
+        )}
       </div>
     </div>
   );

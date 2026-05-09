@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
-import { requireUser, requireCouple, getPartnerProfile } from "@/lib/supabase/auth";
+import { requireUser, requireCoupleAllowRecovery, getPartnerProfile } from "@/lib/supabase/auth";
+import { RecoveryBanner } from "@/components/memories/RecoveryBanner";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfile, getStreak } from "@/lib/supabase/queries";
 import { ddayCount } from "@/lib/utils/date";
@@ -37,7 +38,8 @@ export default async function MemoryBookPage({
   setRequestLocale(locale);
 
   const user = await requireUser();
-  const couple = await requireCouple(user.id);
+  const couple = await requireCoupleAllowRecovery(user.id);
+  const isRecovery = couple.status === "recovery";
   const me = await getProfile(user.id);
   const partner = await getPartnerProfile(user.id, couple);
   const streak = await getStreak(couple.id);
@@ -177,6 +179,10 @@ export default async function MemoryBookPage({
       `}</style>
 
       <BookControls />
+
+      {isRecovery && (
+        <RecoveryBanner recoveryUntil={couple.recovery_until} />
+      )}
 
       {/* ─────────── 封面 */}
       <section className="page-break relative rounded-[24px] overflow-hidden shadow-2xl mb-12 mt-2">

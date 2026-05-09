@@ -21,10 +21,20 @@ export async function requireUser() {
   return user;
 }
 
-/** 在 (app) 子頁面用:沒 couple 轉首頁(會走 InviteHub) */
+/** 在 (app) 子頁面用:沒 couple 轉首頁,recovery 狀態轉回憶冊 */
 export async function requireCouple(userId: string) {
   const couple = await getActiveCouple(userId);
-  if (!couple || couple.status !== "active") redirect("/");
+  if (!couple) redirect("/");
+  if (couple.status === "recovery") redirect("/memories/book");
+  if (couple.status !== "active") redirect("/");
+  return couple;
+}
+
+/** 給 /memories/book 用:active 跟 recovery 都讓進(避免 redirect 迴圈) */
+export async function requireCoupleAllowRecovery(userId: string) {
+  const couple = await getActiveCouple(userId);
+  if (!couple) redirect("/");
+  if (couple.status !== "active" && couple.status !== "recovery") redirect("/");
   return couple;
 }
 
