@@ -1,6 +1,6 @@
-import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
+import { PhotoUploadTile } from "@/components/memories/PhotoUploadTile";
+import { PhotoGrid } from "@/components/memories/PhotoGrid";
 
 interface MoodAnswer {
   type: string;
@@ -22,6 +22,7 @@ interface PhotoRow {
 }
 
 interface Props {
+  coupleId: string;
   myId: string;
   partnerId: string | null;
   myName: string | null;
@@ -52,6 +53,7 @@ function topMoodsFor(rows: ResponseRow[], userId: string): Array<[string, number
 }
 
 export async function WeeklySnapshot({
+  coupleId,
   myId,
   partnerId,
   myName,
@@ -66,6 +68,12 @@ export async function WeeklySnapshot({
 
   const myDisplay = myName ?? t("today_completed.partner_label");
   const partnerDisplay = partnerName ?? t("today_completed.partner_label");
+
+  const signedPhotos = photos.map((p) => ({
+    id: p.id,
+    url: `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(p.url)}`,
+    caption: p.caption,
+  }));
 
   return (
     <section className="flex flex-col gap-7">
@@ -94,41 +102,24 @@ export async function WeeklySnapshot({
         )}
       </div>
 
-      {/* 本週瞬間 */}
+      {/* 本週瞬間 — 第一格永遠是上傳,後面是本週照片 */}
       <div className="flex flex-col gap-3">
-        <h2 className="font-serif text-xl">{t("us_week.moments_title")}</h2>
-        {photos.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-6 border border-dashed border-[var(--color-paper-line)] rounded-[var(--radius-card)]">
-            <p className="text-sm text-[var(--color-ink-mid)] text-center">
-              {t("us_week.moments_empty")}
-            </p>
-            <Link
-              href="/memories"
-              className="text-sm bg-[var(--color-ink)] text-white px-4 py-2 rounded-[var(--radius-button)] hover:bg-[var(--color-ink-mid)] transition-colors"
-            >
-              {t("us_week.moments_empty_cta")}
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-1">
-            {photos.map((p) => (
-              <a
-                key={p.id}
-                href={`/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(p.url)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] hover:opacity-90 transition"
-              >
-                <Image
-                  src={`/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(p.url)}`}
-                  alt={p.caption ?? ""}
-                  fill
-                  sizes="(max-width: 768px) 33vw, 200px"
-                  className="object-cover"
-                />
-              </a>
-            ))}
-          </div>
+        <header className="flex items-baseline justify-between">
+          <h2 className="font-serif text-xl">{t("us_week.moments_title")}</h2>
+          {signedPhotos.length > 0 && (
+            <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
+              {signedPhotos.length}
+            </span>
+          )}
+        </header>
+        <div className="grid grid-cols-3 gap-1">
+          <PhotoUploadTile coupleId={coupleId} />
+          <PhotoGrid photos={signedPhotos} />
+        </div>
+        {signedPhotos.length === 0 && (
+          <p className="text-xs text-[var(--color-ink-soft)] text-center pt-1">
+            {t("us_week.moments_empty")}
+          </p>
         )}
       </div>
     </section>

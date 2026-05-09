@@ -1,33 +1,48 @@
 "use client";
 
-import Image from "next/image";
+import { useState } from "react";
+import { Lightbox } from "./Lightbox";
+
+interface Photo {
+  id: string;
+  url: string;
+  caption: string | null;
+}
 
 interface Props {
-  photos: { id: string; url: string; caption: string | null }[];
+  photos: Photo[];
 }
 
 export function PhotoGrid({ photos }: Props) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   if (!photos.length) return null;
   return (
     <>
-      {photos.map((p) => (
-        <a
+      {photos.map((p, i) => (
+        <button
           key={p.id}
-          href={p.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] active:opacity-80 transition"
+          type="button"
+          onClick={() => setOpenIndex(i)}
+          className="aspect-square relative overflow-hidden bg-[var(--color-paper-dim)] active:opacity-80 transition cursor-zoom-in"
           title={p.caption ?? ""}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={p.url}
             alt={p.caption ?? ""}
-            fill
-            sizes="(max-width: 768px) 33vw, 200px"
-            className="object-cover"
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
           />
-        </a>
+        </button>
       ))}
+      <Lightbox
+        photos={photos}
+        index={openIndex}
+        onClose={() => setOpenIndex(null)}
+        onNavigate={(i) => setOpenIndex(i)}
+      />
     </>
   );
 }

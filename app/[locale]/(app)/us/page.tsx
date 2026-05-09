@@ -113,6 +113,7 @@ export default async function UsPage({
       <PartnerToday partnerName={partnerProfile?.display_name ?? null} partner={partnerToday} />
 
       <WeeklySnapshot
+        coupleId={couple.id}
         myId={user.id}
         partnerId={partnerId}
         myName={me?.display_name ?? null}
