@@ -36,6 +36,79 @@ function isUuid(s: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 }
 
+/**
+ * 嘗試 RPC,失敗或回 0 列就改用 admin client 直接查表 fallback。
+ * 這樣即使 SQL migration 沒跑或函式名變動,只要 service_role key 還在
+ * 就能載到模板。
+ */
+async function loadSharedTemplate(id: string): Promise<{
+  template: SharedTemplate | null;
+  debug?: string;
+}> {
+  const admin = createSupabaseAdminClient();
+
+  // 1) 試 RPC
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (admin as any).rpc("get_shared_template", {
+    p_template_id: id,
+  });
+  if (!error && Array.isArray(data) && data.length > 0) {
+    return { template: data[0] as SharedTemplate };
+  }
+  if (!error && data && !Array.isArray(data)) {
+    return { template: data as SharedTemplate };
+  }
+
+  const rpcMsg = error?.message ?? "rpc returned empty";
+
+  // 2) Fallback:直接用 admin client 查 templates / questions / promises
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: tplRaw, error: tplErr } = await (admin as any)
+    .from("templates")
+    .select("id, name, description, emoji, is_archived")
+    .eq("id", id)
+    .maybeSingle();
+  if (tplErr || !tplRaw) {
+    return { template: null, debug: `rpc:${rpcMsg} | tpl:${tplErr?.message ?? "none"}` };
+  }
+  if (tplRaw.is_archived) {
+    return { template: null, debug: "archived" };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: qRaw } = await (admin as any)
+    .from("template_questions")
+    .select("id, position, type, text, options")
+    .eq("template_id", id)
+    .order("position");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: pRaw } = await (admin as any)
+    .from("template_promises")
+    .select("id, position, text")
+    .eq("template_id", id)
+    .order("position");
+
+  return {
+    template: {
+      id: tplRaw.id,
+      name: tplRaw.name,
+      description: tplRaw.description ?? null,
+      emoji: tplRaw.emoji ?? null,
+      questions: ((qRaw as Array<{
+        id: string;
+        position: number;
+        type: string;
+        text: string;
+        options: unknown;
+      }> | null) ?? []).map((q) => ({
+        ...q,
+        options: Array.isArray(q.options) ? (q.options as string[]) : null,
+      })),
+      promises: (pRaw as Array<{ id: string; position: number; text: string }> | null) ?? [],
+    },
+  };
+}
+
 export default async function TemplateSharePage({
   params,
 }: {
@@ -46,20 +119,13 @@ export default async function TemplateSharePage({
   const t = await getTranslations();
 
   if (!isUuid(id)) {
-    return <NotFound t={t} />;
+    return <NotFound t={t} debug="invalid_uuid" />;
   }
 
-  const admin = createSupabaseAdminClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any).rpc("get_shared_template", {
-    p_template_id: id,
-  });
-
-  if (error || !data || (Array.isArray(data) && data.length === 0)) {
-    return <NotFound t={t} />;
+  const { template: tpl, debug } = await loadSharedTemplate(id);
+  if (!tpl) {
+    return <NotFound t={t} debug={debug} />;
   }
-
-  const tpl: SharedTemplate = Array.isArray(data) ? data[0] : data;
 
   // 看當前 user 狀態
   const user = await getUser();
@@ -168,13 +234,28 @@ export default async function TemplateSharePage({
   );
 }
 
-function NotFound({ t }: { t: Awaited<ReturnType<typeof getTranslations>> }) {
+function NotFound({
+  t,
+  debug,
+}: {
+  t: Awaited<ReturnType<typeof getTranslations>>;
+  debug?: string;
+}) {
+  // 開發模式才印出 debug,不污染 production
+  if (debug && process.env.NODE_ENV !== "production") {
+    console.error("[template-share] not found:", debug);
+  }
   return (
     <div className="max-w-md mx-auto px-4 pt-20 pb-20 text-center flex flex-col gap-4">
       <h1 className="font-serif text-2xl">{t("template_share.not_found_title")}</h1>
       <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
         {t("template_share.not_found_body")}
       </p>
+      {debug && process.env.NODE_ENV !== "production" && (
+        <p className="text-[10px] text-[var(--color-ink-soft)] font-mono break-all">
+          debug: {debug}
+        </p>
+      )}
       <Link
         href="/"
         className="text-sm underline underline-offset-2 text-[var(--color-ink)] mt-2"
