@@ -10,22 +10,19 @@ import {
   QUESTION_SUGGESTIONS,
   PROMISE_SUGGESTIONS,
   type SuggestionType,
-  type SuggestionCategory,
 } from "@/lib/templates/suggestions";
 import { TemplatePreview } from "./TemplatePreview";
 
-const DAILY_TYPES: { value: SuggestionType; label: string }[] = [
+const TYPE_OPTIONS: { value: SuggestionType; label: string }[] = [
   { value: "slider", label: "1-10 滑桿" },
-  { value: "multi_choice", label: "多選" },
   { value: "short_text", label: "短文字" },
-  { value: "guess_partner", label: "猜對方" },
-  { value: "mood_tags", label: "心情標籤" },
 ];
 
 const TYPE_LABEL_SHORT: Record<string, string> = {
   slider: "滑桿",
-  multi_choice: "多選",
   short_text: "短文",
+  // 舊資料相容(不會在新模板建立)
+  multi_choice: "多選",
   guess_partner: "猜對方",
   mood_tags: "心情",
   letter: "信",
@@ -70,15 +67,12 @@ export function TemplateEditor({
   const [description, setDescription] = useState(templateDescription);
   const [metaDirty, setMetaDirty] = useState(false);
 
-  const [tab, setTab] = useState<SuggestionCategory>("daily");
-
   const [newType, setNewType] = useState<SuggestionType>("short_text");
   const [newText, setNewText] = useState("");
-  const [newOptions, setNewOptions] = useState("");
-  const [newLetterText, setNewLetterText] = useState("");
   const [newPromise, setNewPromise] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const usedQuestionTexts = useMemo(
     () => new Set(questions.map((q) => q.text)),
@@ -90,14 +84,15 @@ export function TemplateEditor({
   );
 
   const visibleSuggestions = useMemo(
-    () =>
-      QUESTION_SUGGESTIONS.filter(
-        (s) => s.category === tab && !usedQuestionTexts.has(s.text),
-      ),
-    [tab, usedQuestionTexts],
+    () => QUESTION_SUGGESTIONS.filter((s) => !usedQuestionTexts.has(s.text)),
+    [usedQuestionTexts],
+  );
+  const visiblePromiseSugs = useMemo(
+    () => PROMISE_SUGGESTIONS.filter((s) => !usedPromiseTexts.has(s.text)),
+    [usedPromiseTexts],
   );
 
-  async function addQuestion(text: string, type: SuggestionType, options: string[] | null) {
+  async function addQuestion(text: string, type: SuggestionType) {
     if (!text.trim()) return;
     setLoading(true);
     try {
@@ -110,7 +105,7 @@ export function TemplateEditor({
           position: questions.length,
           type,
           text: text.trim(),
-          options: type === "multi_choice" && options ? options : null,
+          options: null,
         })
         .select("id, position, type, text, options")
         .single();
@@ -201,9 +196,19 @@ export function TemplateEditor({
     router.push("/templates");
   }
 
+  const previewBlock = (
+    <TemplatePreview
+      emoji={emoji}
+      name={name}
+      description={description}
+      questions={questions}
+      promises={promises}
+    />
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      {/* 模板基本資料 */}
+      {/* ─── 模板基本資料 + 儲存 ─── */}
       <section className="flex flex-col gap-3 border-b border-[var(--color-paper-line)] pb-5">
         <div className="flex items-center gap-2">
           <input
@@ -213,7 +218,6 @@ export function TemplateEditor({
               setMetaDirty(true);
             }}
             maxLength={4}
-            placeholder=""
             className="w-12 h-11 rounded-[var(--radius-button)] border border-[var(--color-paper-line)] text-2xl text-center bg-white shrink-0"
           />
           <Input
@@ -237,189 +241,39 @@ export function TemplateEditor({
           placeholder="描述(選填) — 什麼時候適合用這份"
           maxLength={120}
         />
-        <Button onClick={saveAll} loading={loading} fullWidth disabled={!metaDirty}>
-          {metaDirty ? "儲存模板" : "已儲存"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={saveAll} loading={loading} fullWidth disabled={!metaDirty}>
+            {metaDirty ? "儲存模板" : "已儲存"}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setPreviewOpen(true)}
+            className="lg:hidden shrink-0"
+          >
+            預覽
+          </Button>
+        </div>
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_1fr_1fr] gap-6">
-        {/* 1. 預覽 */}
-        <aside className="lg:sticky lg:top-4 lg:self-start">
-          <TemplatePreview
-            emoji={emoji}
-            name={name}
-            description={description}
-            questions={questions}
-            promises={promises}
-          />
-          <p className="text-center text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)] mt-3">
-            即時預覽
-          </p>
-        </aside>
-
-        {/* 2. 待選 */}
-        <section className="flex flex-col gap-4">
-          <header className="flex items-baseline justify-between">
-            <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em]">
-              待選
-            </h2>
-            <span className="text-xs text-[var(--color-ink-soft)]">點擊加入 →</span>
-          </header>
-
-          <div className="grid grid-cols-2 border border-[var(--color-paper-line)] rounded-[var(--radius-button)] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setTab("daily")}
-              className={`py-2 text-sm transition-colors ${
-                tab === "daily"
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "text-[var(--color-ink-mid)] hover:bg-[var(--color-paper-dim)]"
-              }`}
-            >
-              日常題
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("letter")}
-              className={`py-2 text-sm transition-colors ${
-                tab === "letter"
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "text-[var(--color-ink-mid)] hover:bg-[var(--color-paper-dim)]"
-              }`}
-            >
-              寫信給對方
-            </button>
-          </div>
-
-          {tab === "letter" && (
-            <p className="text-xs text-[var(--color-ink-mid)] leading-relaxed border-l-2 border-[var(--color-accent)] pl-3 py-1">
-              情侶常想寫小作文,結果留在 LINE 散失。
-              <span className="block mt-0.5 text-[var(--color-ink)]">
-                這裡寫,我們幫你存下來。
-              </span>
-            </p>
-          )}
-
-          {visibleSuggestions.length === 0 ? (
-            <p className="text-sm text-[var(--color-ink-soft)] py-3 text-center">
-              這類建議都加完了
-            </p>
-          ) : (
-            <ul className="flex flex-col">
-              {visibleSuggestions.map((s, i) => (
-                <li
-                  key={i}
-                  className="border-b border-[var(--color-paper-line)] last:border-b-0"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      addQuestion(s.text, s.type, s.options ? [...s.options] : null)
-                    }
-                    disabled={loading}
-                    className="w-full flex items-center gap-2 py-2.5 text-left text-sm group"
-                  >
-                    <span className="flex-1 truncate">{s.text}</span>
-                    <span className="text-[10px] text-[var(--color-ink-soft)] tabular-nums">
-                      {s.popularity}%
-                    </span>
-                    <span className="text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink)] text-lg leading-none w-5 text-center">
-                      +
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="border-t border-[var(--color-paper-line)] pt-4 flex flex-col gap-2">
-            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
-              自己加一題
-            </p>
-            {tab === "daily" ? (
-              <>
-                <select
-                  value={newType}
-                  onChange={(e) => setNewType(e.target.value as SuggestionType)}
-                  className="px-3 py-2 rounded-[var(--radius-button)] border border-[var(--color-paper-line)] text-sm bg-white"
-                >
-                  {DAILY_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-                <Input
-                  value={newText}
-                  onChange={(e) => setNewText(e.target.value)}
-                  placeholder="題目內容"
-                  maxLength={80}
-                />
-                {newType === "multi_choice" && (
-                  <Textarea
-                    rows={3}
-                    value={newOptions}
-                    onChange={(e) => setNewOptions(e.target.value)}
-                    placeholder="選項(每行一個)"
-                  />
-                )}
-                <Button
-                  onClick={() => {
-                    const opts =
-                      newType === "multi_choice"
-                        ? newOptions.split("\n").map((s) => s.trim()).filter(Boolean)
-                        : null;
-                    addQuestion(newText, newType, opts);
-                    setNewText("");
-                    setNewOptions("");
-                  }}
-                  disabled={!newText.trim() || loading}
-                  size="sm"
-                  className="self-start"
-                >
-                  加進來
-                </Button>
-              </>
-            ) : (
-              <>
-                <Input
-                  value={newLetterText}
-                  onChange={(e) => setNewLetterText(e.target.value)}
-                  placeholder="例:今天最想跟你說的長話"
-                  maxLength={80}
-                />
-                <Button
-                  onClick={() => {
-                    addQuestion(newLetterText, "letter", null);
-                    setNewLetterText("");
-                  }}
-                  disabled={!newLetterText.trim() || loading}
-                  size="sm"
-                  className="self-start"
-                >
-                  加寫信題
-                </Button>
-              </>
-            )}
-          </div>
-        </section>
-
-        {/* 3. 已選 + 承諾 */}
-        <section className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
+      {/* ─── 桌面三欄、手機單欄 ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(280px,340px)] gap-8">
+        {/* 左:題目 + 承諾(主要編輯區) */}
+        <div className="flex flex-col gap-7 min-w-0">
+          {/* 已選 */}
+          <section className="flex flex-col gap-3">
             <header className="flex items-baseline justify-between">
-              <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em]">
+              <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
                 已選 ({questions.length})
               </h2>
               <span className="text-xs text-[var(--color-ink-soft)]">
                 依順序出現
               </span>
             </header>
-
             {questions.length === 0 ? (
               <div className="text-center text-sm text-[var(--color-ink-soft)] py-8 border border-dashed border-[var(--color-paper-line)] rounded-[var(--radius-card)]">
                 還沒加題目
-                <br />← 從左邊待選挑一條
+                <br />從下面挑一條
               </div>
             ) : (
               <ul className="flex flex-col">
@@ -428,18 +282,19 @@ export function TemplateEditor({
                     key={q.id}
                     className="flex items-center gap-2 py-2.5 border-b border-[var(--color-paper-line)] last:border-b-0"
                   >
-                    <span className="text-xs text-[var(--color-ink-soft)] w-5 tabular-nums">
+                    <span className="text-xs text-[var(--color-ink-soft)] w-5 tabular-nums shrink-0">
                       {i + 1}
                     </span>
                     <span className="flex-1 truncate text-sm">{q.text}</span>
-                    <span className="text-[10px] text-[var(--color-ink-soft)] uppercase tracking-wider">
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)] shrink-0">
                       {TYPE_LABEL_SHORT[q.type] ?? q.type}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeQuestion(q.id)}
-                      className="text-[var(--color-ink-soft)] hover:text-[var(--color-danger)] px-1"
+                      className="text-[var(--color-ink-soft)] hover:text-[var(--color-danger)] px-1 shrink-0 text-lg leading-none"
                       title="刪除"
+                      aria-label="刪除"
                     >
                       ×
                     </button>
@@ -447,11 +302,94 @@ export function TemplateEditor({
                 ))}
               </ul>
             )}
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
+          {/* 推薦題目 */}
+          <section className="flex flex-col gap-3">
             <header className="flex items-baseline justify-between">
-              <h2 className="text-sm text-[var(--color-ink-mid)] uppercase tracking-[0.18em]">
+              <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
+                推薦題目
+              </h2>
+              <span className="text-xs text-[var(--color-ink-soft)]">點擊加入 →</span>
+            </header>
+            {visibleSuggestions.length === 0 ? (
+              <p className="text-sm text-[var(--color-ink-soft)] py-3 text-center">
+                推薦的都加完了
+              </p>
+            ) : (
+              <ul className="flex flex-col">
+                {visibleSuggestions.map((s, i) => (
+                  <li
+                    key={i}
+                    className="border-b border-[var(--color-paper-line)] last:border-b-0"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => addQuestion(s.text, s.type)}
+                      disabled={loading}
+                      className="w-full flex items-center gap-2 py-3 text-left text-sm group active:bg-[var(--color-paper-dim)] transition-colors px-1 rounded"
+                    >
+                      <span className="flex-1 min-w-0 truncate">{s.text}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)] shrink-0">
+                        {TYPE_LABEL_SHORT[s.type] ?? s.type}
+                      </span>
+                      <span className="text-[10px] text-[var(--color-ink-soft)] tabular-nums shrink-0">
+                        {s.popularity}%
+                      </span>
+                      <span className="text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink)] text-lg leading-none w-5 text-center shrink-0">
+                        +
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* 自己加一題 */}
+          <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
+            <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
+              自己加一題
+            </h2>
+            <div className="grid grid-cols-2 gap-px border border-[var(--color-paper-line)] rounded-[var(--radius-button)] overflow-hidden bg-[var(--color-paper-line)]">
+              {TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setNewType(opt.value)}
+                  className={`py-2 text-sm transition-colors ${
+                    newType === opt.value
+                      ? "bg-[var(--color-ink)] text-white"
+                      : "bg-white text-[var(--color-ink-mid)]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <Input
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              placeholder="題目內容(例:今天的滿足度)"
+              maxLength={80}
+            />
+            <Button
+              onClick={() => {
+                addQuestion(newText, newType);
+                setNewText("");
+              }}
+              disabled={!newText.trim() || loading}
+              loading={loading}
+              className="self-start"
+            >
+              加進來
+            </Button>
+          </section>
+
+          {/* 承諾 */}
+          <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
+            <header className="flex items-baseline justify-between">
+              <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
                 承諾 ({promises.length})
               </h2>
             </header>
@@ -467,7 +405,8 @@ export function TemplateEditor({
                     <button
                       type="button"
                       onClick={() => removePromise(p.id)}
-                      className="text-[var(--color-ink-soft)] hover:text-[var(--color-danger)] px-1"
+                      className="text-[var(--color-ink-soft)] hover:text-[var(--color-danger)] px-1 text-lg leading-none"
+                      aria-label="刪除"
                     >
                       ×
                     </button>
@@ -476,12 +415,12 @@ export function TemplateEditor({
               </ul>
             )}
 
-            {PROMISE_SUGGESTIONS.filter((s) => !usedPromiseTexts.has(s.text)).length > 0 && (
+            {visiblePromiseSugs.length > 0 && (
               <div className="flex flex-col">
                 <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)] mb-1">
-                  推薦承諾(點擊加入)
+                  推薦承諾
                 </p>
-                {PROMISE_SUGGESTIONS.filter((s) => !usedPromiseTexts.has(s.text)).map((s, i) => (
+                {visiblePromiseSugs.map((s, i) => (
                   <button
                     key={i}
                     type="button"
@@ -490,10 +429,10 @@ export function TemplateEditor({
                     className="flex items-center gap-2 py-2 text-left text-sm border-b border-[var(--color-paper-line)] last:border-b-0 group"
                   >
                     <span className="flex-1 truncate">{s.text}</span>
-                    <span className="text-[10px] text-[var(--color-ink-soft)] tabular-nums">
+                    <span className="text-[10px] text-[var(--color-ink-soft)] tabular-nums shrink-0">
                       {s.popularity}%
                     </span>
-                    <span className="text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink)] text-lg leading-none w-5 text-center">
+                    <span className="text-[var(--color-ink-soft)] group-hover:text-[var(--color-ink)] text-lg leading-none w-5 text-center shrink-0">
                       +
                     </span>
                   </button>
@@ -516,13 +455,49 @@ export function TemplateEditor({
                 加
               </Button>
             </div>
-          </div>
+          </section>
 
           <Button variant="danger" onClick={deleteTemplate} fullWidth>
             刪除這份模板
           </Button>
-        </section>
+        </div>
+
+        {/* 右:預覽(只在桌面顯示) */}
+        <aside className="hidden lg:block lg:sticky lg:top-4 lg:self-start">
+          {previewBlock}
+          <p className="text-center text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)] mt-3">
+            即時預覽
+          </p>
+        </aside>
       </div>
+
+      {/* 手機:預覽全螢幕 sheet */}
+      {previewOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 bg-black/55 backdrop-blur-sm flex items-end justify-center"
+          onClick={() => setPreviewOpen(false)}
+        >
+          <div
+            className="w-full bg-[var(--color-paper)] rounded-t-[24px] max-h-[90vh] overflow-y-auto p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
+                即時預覽
+              </h3>
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-[var(--color-paper-dim)] flex items-center justify-center text-[var(--color-ink-mid)]"
+                aria-label="關閉"
+              >
+                ✕
+              </button>
+            </div>
+            {previewBlock}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
