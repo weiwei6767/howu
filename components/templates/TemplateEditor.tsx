@@ -16,6 +16,7 @@ import { TemplatePreview } from "./TemplatePreview";
 const TYPE_OPTIONS: { value: SuggestionType; label: string }[] = [
   { value: "slider", label: "1-10 滑桿" },
   { value: "short_text", label: "短文字" },
+  { value: "mood_tags", label: "心情標籤" },
 ];
 
 const TYPE_LABEL_SHORT: Record<string, string> = {
