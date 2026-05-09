@@ -6,7 +6,7 @@ import { strip } from "@/lib/utils/env";
 
 const VAPID_PUBLIC = strip(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
 const VAPID_PRIVATE = strip(process.env.VAPID_PRIVATE_KEY);
-const VAPID_SUBJECT = strip(process.env.VAPID_SUBJECT) || "mailto:contact@howu.online";
+const VAPID_SUBJECT = strip(process.env.VAPID_SUBJECT) || "mailto:hello@loamia.xyz";
 
 if (VAPID_PUBLIC && VAPID_PRIVATE) {
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
