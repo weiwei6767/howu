@@ -151,3 +151,42 @@ export async function getRecentJournalEntries(
     .limit(limit);
   return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
 }
+
+/** 對方分享給我的最近 N 篇 — 透過 journal_shared_read RLS 政策可讀 */
+export async function getPartnerSharedRecent(
+  partnerId: string,
+  limit: number,
+): Promise<JournalEntryFull[]> {
+  const supabase = await createSupabaseServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("journal_entries")
+    .select(
+      "id, date, content, shared_with_partner, attached_response_id, photos, created_at, updated_at",
+    )
+    .eq("user_id", partnerId)
+    .eq("shared_with_partner", true)
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
+}
+
+/** 對方在某天分享給我的 entries */
+export async function getPartnerSharedOfDate(
+  partnerId: string,
+  date: string,
+): Promise<JournalEntryFull[]> {
+  const supabase = await createSupabaseServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("journal_entries")
+    .select(
+      "id, date, content, shared_with_partner, attached_response_id, photos, created_at, updated_at",
+    )
+    .eq("user_id", partnerId)
+    .eq("date", date)
+    .eq("shared_with_partner", true)
+    .order("created_at", { ascending: true });
+  return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
+}

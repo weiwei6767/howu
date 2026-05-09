@@ -1,10 +1,11 @@
 import { Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { requireUser } from "@/lib/supabase/auth";
+import { requireUser, getActiveCouple, getPartnerProfile } from "@/lib/supabase/auth";
 import {
   getJournalEntriesOfDate,
   getRecentJournalEntries,
   getJournalMonthSummary,
+  getPartnerSharedRecent,
 } from "@/lib/journal/queries";
 import { Sparkle, ArcUnderline, HeartScribble } from "@/components/ui/Ornaments";
 
@@ -20,6 +21,12 @@ export default async function JournalPage({
   const t = await getTranslations();
 
   const user = await requireUser();
+  const couple = await getActiveCouple(user.id);
+  const partnerId = couple
+    ? couple.partner_a_id === user.id
+      ? couple.partner_b_id
+      : couple.partner_a_id
+    : null;
 
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
@@ -27,13 +34,16 @@ export default async function JournalPage({
   const yyyy = now.getFullYear();
   const mm = now.getMonth() + 1;
 
-  const [todayEntries, recent, monthStats] = await Promise.all([
+  const [todayEntries, recent, monthStats, partnerShared, partnerProfile] = await Promise.all([
     getJournalEntriesOfDate(user.id, today),
     getRecentJournalEntries(user.id, 5),
     getJournalMonthSummary(user.id, yyyy, mm),
+    partnerId ? getPartnerSharedRecent(partnerId, 3) : Promise.resolve([]),
+    couple ? getPartnerProfile(user.id, couple) : Promise.resolve(null),
   ]);
 
   const monthDays = monthStats.size;
+  const partnerName = partnerProfile?.display_name ?? "對方";
 
   return (
     <div className="flex flex-col gap-8">
@@ -126,6 +136,31 @@ export default async function JournalPage({
         </p>
       )}
 
+      {/* ─── 對方分享給你的 ─── */}
+      {partnerShared.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <header className="flex items-center justify-center gap-3">
+            <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
+            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.32em] text-[var(--color-accent-deep)]">
+              <Sparkle className="w-3 h-3 text-[var(--color-accent)]/70" />
+              {partnerName} 分享給你的
+            </span>
+            <span className="h-px flex-1 bg-[var(--color-paper-line)]" />
+          </header>
+          <ul className="flex flex-col gap-4">
+            {partnerShared.map((e, i) => (
+              <PartnerSharedCard
+                key={e.id}
+                entry={e}
+                index={i}
+                authorName={partnerName}
+                t={t}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ─── 過去的日記入口 ─── */}
       <Link
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,6 +187,96 @@ interface EntryLike {
   content: string | null;
   shared_with_partner: boolean | null;
   signed_photo_urls: string[];
+}
+
+function PartnerSharedCard({
+  entry,
+  index,
+  authorName,
+  t,
+}: {
+  entry: EntryLike;
+  index: number;
+  authorName: string;
+  t: T;
+}) {
+  const d = new Date(`${entry.date}T00:00:00`);
+  const wd = String(d.getDay());
+  const monthDay = `${d.getMonth() + 1}.${d.getDate()}`;
+  const snippet = (entry.content ?? "").trim();
+  const limited = snippet.length > 90 ? snippet.slice(0, 90) + "…" : snippet;
+  const tilt = index % 2 === 0 ? "rotate-[0.4deg]" : "rotate-[-0.4deg]";
+
+  return (
+    <li>
+      <div
+        className={`relative bg-gradient-to-br from-[var(--color-accent-soft)]/45 to-white border border-[var(--color-accent)]/25 rounded-[14px] px-4 py-4 shadow-[0_4px_18px_-8px_rgba(184,50,77,0.18)] ${tilt}`}
+      >
+        <div className="flex items-baseline gap-2 mb-2">
+          <span
+            className="text-[var(--color-accent-deep)] leading-none"
+            style={{
+              fontFamily: "var(--font-caveat), Georgia, serif",
+              fontSize: "1.4rem",
+            }}
+          >
+            {monthDay}
+          </span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-ink-soft)]">
+            {t(`weekday.${wd}` as "weekday.0")}
+          </span>
+          <span className="ml-auto text-[10px] uppercase tracking-wider text-[var(--color-accent-deep)]">
+            from {authorName}
+          </span>
+        </div>
+
+        {limited ? (
+          <p
+            className="text-[var(--color-ink)] leading-relaxed"
+            style={{
+              fontFamily: "var(--font-caveat), Georgia, serif",
+              fontSize: "1.1rem",
+            }}
+          >
+            {limited}
+          </p>
+        ) : entry.signed_photo_urls.length === 0 ? (
+          <p className="text-xs text-[var(--color-ink-soft)] italic">
+            (這篇沒寫文字)
+          </p>
+        ) : null}
+
+        {entry.signed_photo_urls.length > 0 && (
+          <div className="flex gap-1.5 mt-3 overflow-hidden">
+            {entry.signed_photo_urls.slice(0, 4).map((url, i) => (
+              <div
+                key={i}
+                className="bg-white p-1 pb-2 shadow-[0_2px_6px_-2px_rgba(0,0,0,0.18)]"
+                style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 1.5}deg)` }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="w-12 h-12 object-cover bg-[var(--color-paper-dim)]"
+                />
+              </div>
+            ))}
+            {entry.signed_photo_urls.length > 4 && (
+              <div
+                className="w-12 h-[60px] bg-[var(--color-paper-dim)] border border-[var(--color-paper-line)] flex items-center justify-center text-xs text-[var(--color-ink-mid)] tabular-nums shrink-0"
+                style={{ transform: "rotate(1deg)" }}
+              >
+                +{entry.signed_photo_urls.length - 4}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </li>
+  );
 }
 
 function RecentEntryCard({
