@@ -57,22 +57,33 @@ export default async function MemoriesPage({
   ).length;
   const totalEntries = responses.length;
 
+  // 取最近 12 張(過濾 bg 後選前 5)
   const { data: rawPhotos } = await supabase
     .from("shared_photos")
     .select("id, url, caption, taken_at")
     .eq("couple_id", couple.id)
     .order("taken_at", { ascending: false })
     .order("created_at", { ascending: false })
-    .limit(60);
-  const photos = ((rawPhotos as PhotoRow[] | null) ?? []).filter(
+    .limit(12);
+  const usablePhotos = ((rawPhotos as PhotoRow[] | null) ?? []).filter(
     (p) => p.url && !p.url.includes("/bg/"),
   );
 
-  const signed = photos.map((p) => ({
+  // 排除 bg 的全站總張數
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count: totalUsableRaw } = await (supabase as any)
+    .from("shared_photos")
+    .select("id", { count: "exact", head: true })
+    .eq("couple_id", couple.id)
+    .not("url", "ilike", "%/bg/%");
+  const totalCount = (totalUsableRaw as number | null) ?? usablePhotos.length;
+
+  const signed = usablePhotos.slice(0, 5).map((p) => ({
     id: p.id,
     url: `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(p.url)}`,
     caption: p.caption,
   }));
+  const hasMore = totalCount > 5;
 
   const ymLabel = `${yyyy}-${String(mm).padStart(2, "0")}`;
 
@@ -101,7 +112,7 @@ export default async function MemoriesPage({
             value={totalEntries}
             unit={t("memories.unit_entries")}
           />
-          <Stat label={ymLabel} value={signed.length} unit="" hideUnit hint />
+          <Stat label={ymLabel} value={totalCount} unit="" hideUnit hint />
         </section>
       ) : (
         <p className="text-sm text-[var(--color-ink-soft)] leading-relaxed">
@@ -160,9 +171,9 @@ export default async function MemoriesPage({
       <section className="flex flex-col gap-3">
         <header className="flex items-baseline justify-between">
           <h2 className="font-serif text-xl">{t("memories.albums")}</h2>
-          {signed.length > 0 && (
+          {totalCount > 0 && (
             <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
-              {signed.length}
+              {totalCount}
             </span>
           )}
         </header>
@@ -176,6 +187,16 @@ export default async function MemoriesPage({
           <p className="text-xs text-[var(--color-ink-soft)] text-center pt-2">
             {t("us_week.moments_empty")}
           </p>
+        )}
+
+        {hasMore && (
+          <Link
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            href={"/memories/album" as any}
+            className="self-end inline-flex items-center gap-1 text-sm text-[var(--color-ink-mid)] hover:text-[var(--color-ink)] underline underline-offset-2 mt-1"
+          >
+            查看更多 ({totalCount}) →
+          </Link>
         )}
       </section>
     </div>
