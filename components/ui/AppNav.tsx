@@ -62,7 +62,8 @@ export function AppNav() {
     <>
       <InstallPrompt />
       <nav
-        className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--color-paper-line)] bg-[var(--color-paper)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-paper)]/80"
+        data-app-nav
+        className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--color-paper-line)] bg-[var(--color-paper)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-paper)]/80 print:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="grid grid-cols-5 max-w-2xl mx-auto">
