@@ -385,35 +385,36 @@ export function TemplateEditor({
                 </button>
               ))}
             </div>
-            <Input
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              placeholder={
-                newType === "mood_tags"
-                  ? "題目內容(例:今天的心情)"
-                  : "題目內容(例:今天的滿足度)"
-              }
-              maxLength={80}
-            />
-            {newType === "mood_tags" && (
+            {newType === "mood_tags" ? (
               <MoodTagPicker
                 selected={newMoodTags}
                 onChange={setNewMoodTags}
               />
+            ) : (
+              <Input
+                value={newText}
+                onChange={(e) => setNewText(e.target.value)}
+                placeholder="題目內容(例:今天的滿足度)"
+                maxLength={80}
+              />
             )}
             <Button
               onClick={() => {
-                addQuestion(
-                  newText,
-                  newType,
-                  newType === "mood_tags" ? newMoodTags : null,
-                );
-                setNewText("");
                 if (newType === "mood_tags") {
+                  // 心情題不需要使用者打字題目,固定用「今天的心情」
+                  addQuestion("今天的心情", "mood_tags", newMoodTags);
                   setNewMoodTags([...DEFAULT_MOOD_TAGS]);
+                } else {
+                  addQuestion(newText, newType);
+                  setNewText("");
                 }
               }}
-              disabled={!newText.trim() || loading}
+              disabled={
+                loading ||
+                (newType === "mood_tags"
+                  ? newMoodTags.length === 0
+                  : !newText.trim())
+              }
               loading={loading}
               className="self-start"
             >
