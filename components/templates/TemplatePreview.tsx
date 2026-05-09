@@ -70,12 +70,15 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
         )}
 
         {promises.length > 0 && (
-          <div className="border-l-2 border-[var(--color-accent)] pl-3 py-1 text-[11px] flex flex-col gap-0.5">
-            <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+          <div className="rounded-[10px] bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-accent-soft)]/40 border border-[var(--color-accent)]/35 px-3 py-2.5 text-[11px] flex flex-col gap-1 shadow-[0_1px_3px_-1px_rgba(184,50,77,0.12)]">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent-deep)] flex items-center gap-1">
+              <span>✦</span>
               如果今天沒寫的小懲罰
             </span>
             {promises.map((p) => (
-              <div key={p.id} className="text-[var(--color-ink)]">{p.text}</div>
+              <div key={p.id} className="text-[var(--color-ink)] leading-relaxed">
+                · {p.text}
+              </div>
             ))}
           </div>
         )}

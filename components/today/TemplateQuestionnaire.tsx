@@ -103,14 +103,19 @@ export function TemplateQuestionnaire({
       className="flex flex-col gap-7"
     >
       {promises.length > 0 && (
-        <section className="border-l-2 border-[var(--color-accent)] pl-4 py-1">
-          <h3 className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+        <section className="rounded-[var(--radius-card)] bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-accent-soft)]/30 border border-[var(--color-accent)]/30 px-4 py-3.5 shadow-[0_2px_8px_-3px_rgba(184,50,77,0.18)]">
+          <h3 className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-accent-deep)] flex items-center gap-1.5">
+            <span>✦</span>
             {t("questionnaire.section_promises")}
           </h3>
-          <ul className="flex flex-col gap-1 mt-1.5">
+          <ul className="flex flex-col gap-1 mt-2">
             {promises.map((p) => (
-              <li key={p.id} className="text-sm leading-relaxed">
-                {p.text}
+              <li
+                key={p.id}
+                className="text-sm leading-relaxed text-[var(--color-ink)] flex items-baseline gap-2"
+              >
+                <span className="text-[var(--color-accent)] shrink-0">·</span>
+                <span>{p.text}</span>
               </li>
             ))}
           </ul>

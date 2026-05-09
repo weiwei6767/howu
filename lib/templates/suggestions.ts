@@ -1,7 +1,7 @@
 // 模板建議題庫 — 只剩日常題,question type 只支援 slider 與 short_text
 // popularity 是引導用的假百分比,只是視覺提示,不是真實統計。
 
-export type SuggestionType = "slider" | "short_text";
+export type SuggestionType = "slider" | "short_text" | "mood_tags";
 
 export type SuggestionCategory = "daily";
 
