@@ -123,15 +123,18 @@
     "mood": {
       "title": "心情標籤(可複選)",
       "tags": {
-        "calm": "平靜",
         "happy": "開心",
+        "smooth": "六六大順",
+        "frustrated": "心煩",
+        "low": "低氣壓",
+        "neutral": "平常心",
+        "calm": "平靜",
+        "grateful": "感謝",
         "tired": "累",
         "anxious": "焦慮",
         "loved": "被愛",
         "proud": "驕傲",
         "lonely": "寂寞",
-        "grateful": "感謝",
-        "frustrated": "煩躁",
         "excited": "興奮",
         "thoughtful": "思緒多",
         "peaceful": "踏實"

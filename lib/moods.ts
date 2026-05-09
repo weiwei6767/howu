@@ -2,15 +2,19 @@
 // DB 內仍存中文 tag,顯示時依 locale 透過 t() 翻譯。
 
 export const MOOD_TAG_TO_KEY: Record<string, string> = {
-  平靜: "calm",
   開心: "happy",
+  六六大順: "smooth",
+  心煩: "frustrated",
+  低氣壓: "low",
+  平常心: "neutral",
+  平靜: "calm",
+  感謝: "grateful",
   累: "tired",
+  // 舊資料相容
   焦慮: "anxious",
   被愛: "loved",
   驕傲: "proud",
   寂寞: "lonely",
-  感謝: "grateful",
-  煩躁: "frustrated",
   興奮: "excited",
   思緒多: "thoughtful",
   踏實: "peaceful",

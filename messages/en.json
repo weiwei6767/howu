@@ -123,15 +123,18 @@
     "mood": {
       "title": "Pick what fits today",
       "tags": {
-        "calm": "calm",
         "happy": "happy",
+        "smooth": "smooth day",
+        "frustrated": "frustrated",
+        "low": "low energy",
+        "neutral": "even keel",
+        "calm": "calm",
+        "grateful": "grateful",
         "tired": "tired",
         "anxious": "anxious",
         "loved": "loved",
         "proud": "proud",
         "lonely": "lonely",
-        "grateful": "grateful",
-        "frustrated": "frustrated",
         "excited": "excited",
         "thoughtful": "thoughtful",
         "peaceful": "peaceful"

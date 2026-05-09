@@ -1,19 +1,12 @@
 "use client";
 
-const TAG_KEYS = [
-  "平靜",
-  "開心",
-  "累",
-  "焦慮",
-  "被愛",
-  "驕傲",
-  "寂寞",
-  "感謝",
-  "煩躁",
-  "興奮",
-  "思緒多",
-  "踏實",
-] as const;
+import { moodLabel } from "@/lib/moods";
+import { useTranslations } from "next-intl";
+
+// 預設 5 個 + 推薦 3 個 = 共 8 個情緒
+const DEFAULT_TAGS = ["開心", "六六大順", "心煩", "低氣壓", "平常心"] as const;
+const RECOMMENDED_TAGS = ["平靜", "感謝", "累"] as const;
+const ALL_TAGS = [...DEFAULT_TAGS, ...RECOMMENDED_TAGS] as const;
 
 interface Props {
   values: string[];
@@ -21,9 +14,10 @@ interface Props {
 }
 
 export function MoodTags({ values, onChange }: Props) {
+  const t = useTranslations();
   return (
     <div className="flex flex-wrap gap-2">
-      {TAG_KEYS.map((key) => {
+      {ALL_TAGS.map((key) => {
         const active = values.includes(key);
         return (
           <button
@@ -38,7 +32,7 @@ export function MoodTags({ values, onChange }: Props) {
                 : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
             }`}
           >
-            {key}
+            {moodLabel(key, t)}
           </button>
         );
       })}
