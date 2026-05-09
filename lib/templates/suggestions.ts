@@ -18,6 +18,7 @@ const DAILY: QuestionSuggestion[] = [
   { type: "slider", text: "今日的壓力指數", popularity: 78, category: "daily" },
   { type: "slider", text: "今日好心情指數", popularity: 84, category: "daily" },
   { type: "slider", text: "想念對方的程度", popularity: 81, category: "daily" },
+  { type: "mood_tags", text: "今天的心情", popularity: 90, category: "daily" },
   { type: "short_text", text: "今天不開心的地方", popularity: 64, category: "daily" },
   { type: "short_text", text: "今天不滿意的地方", popularity: 60, category: "daily" },
   { type: "short_text", text: "用一個字形容今天", popularity: 70, category: "daily" },
