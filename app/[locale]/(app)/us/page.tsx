@@ -30,6 +30,8 @@ export default async function UsPage({
   const user = await requireUser();
   const couple = await requireCouple(user.id);
 
+  const partnerId =
+    couple.partner_a_id === user.id ? couple.partner_b_id : couple.partner_a_id;
   const [me, partnerProfile, milestones, streak] = await Promise.all([
     getProfile(user.id),
     getPartnerProfile(user.id, couple),
@@ -126,6 +128,12 @@ export default async function UsPage({
 
       <WeeklySnapshot
         coupleId={couple.id}
+        myId={user.id}
+        partnerId={partnerId}
+        myName={me?.display_name ?? t("today_completed.partner_label")}
+        partnerName={
+          partnerProfile?.display_name ?? t("today_completed.partner_label")
+        }
         responses={yearResponses}
         photos={weekPhotos}
         weekStart={weekStart}

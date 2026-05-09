@@ -4,6 +4,7 @@ import { PhotoGrid } from "@/components/memories/PhotoGrid";
 import { MoodRanking } from "./MoodRanking";
 
 interface ResponseRow {
+  responder_id: string;
   date: string;
   mood_tags: string[] | null;
   rotating_answers: unknown;
@@ -18,6 +19,10 @@ interface PhotoRow {
 
 interface Props {
   coupleId: string;
+  myId: string;
+  partnerId: string | null;
+  myName: string;
+  partnerName: string;
   responses: ResponseRow[];
   photos: PhotoRow[];
   weekStart: string;
@@ -30,6 +35,10 @@ interface Props {
 
 export async function WeeklySnapshot({
   coupleId,
+  myId,
+  partnerId,
+  myName,
+  partnerName,
   responses,
   photos,
   weekStart,
@@ -49,9 +58,13 @@ export async function WeeklySnapshot({
 
   return (
     <section className="flex flex-col gap-7">
-      {/* 我們的心情 — 排行 + 區間切換 */}
+      {/* 我們的心情 — 雙人排行 + 區間切換 */}
       <MoodRanking
         responses={responses}
+        myId={myId}
+        partnerId={partnerId}
+        myName={myName}
+        partnerName={partnerName}
         weekStart={weekStart}
         weekEnd={weekEnd}
         monthStart={monthStart}
