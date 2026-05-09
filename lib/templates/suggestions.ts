@@ -36,8 +36,6 @@ export const PROMISE_SUGGESTIONS: readonly { text: string; popularity: number }[
   { text: "幫對方按摩 10 分鐘", popularity: 79 },
   { text: "包辦今天的洗碗", popularity: 72 },
   { text: "早餐買對方愛吃的", popularity: 68 },
-  { text: "請看一場電影", popularity: 60 },
-  { text: "寫一張手寫小卡道歉", popularity: 54 },
   { text: "陪做一件對方想做的事", popularity: 49 },
   { text: "包辦下一次倒垃圾", popularity: 42 },
 ];
