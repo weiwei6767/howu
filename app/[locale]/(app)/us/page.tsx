@@ -3,15 +3,12 @@ import { Link } from "@/i18n/navigation";
 import { requireUser, requireCouple, getPartnerProfile } from "@/lib/supabase/auth";
 import {
   getProfile,
-  getPartnerTodayResponse,
   getMilestones,
   getStreak,
 } from "@/lib/supabase/queries";
-import { todayISO } from "@/lib/utils/date";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DDayCard } from "@/components/us/DDayCard";
 import { MilestoneList } from "@/components/us/MilestoneList";
-import { PartnerToday } from "@/components/us/PartnerToday";
 import { WeeklySnapshot } from "@/components/us/WeeklySnapshot";
 
 export default async function UsPage({
@@ -27,10 +24,9 @@ export default async function UsPage({
   const couple = await requireCouple(user.id);
 
   const partnerId = couple.partner_a_id === user.id ? couple.partner_b_id : couple.partner_a_id;
-  const [me, partnerProfile, partnerToday, milestones, streak] = await Promise.all([
+  const [me, partnerProfile, milestones, streak] = await Promise.all([
     getProfile(user.id),
     getPartnerProfile(user.id, couple),
-    partnerId ? getPartnerTodayResponse(couple.id, partnerId, todayISO()) : Promise.resolve(null),
     getMilestones(couple.id),
     getStreak(couple.id),
   ]);
@@ -47,7 +43,7 @@ export default async function UsPage({
   const tpNow = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
   );
-  const dow = tpNow.getDay(); // 0=Sun
+  const dow = tpNow.getDay();
   const monOffset = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(tpNow);
   monday.setDate(monday.getDate() + monOffset);
@@ -110,8 +106,6 @@ export default async function UsPage({
         </div>
       )}
 
-      <PartnerToday partnerName={partnerProfile?.display_name ?? null} partner={partnerToday} />
-
       <WeeklySnapshot
         coupleId={couple.id}
         myId={user.id}
@@ -132,7 +126,8 @@ export default async function UsPage({
       <MilestoneList coupleId={couple.id} milestones={milestones} />
 
       <Link
-        href="/templates"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        href={"/templates" as any}
         className="flex items-center justify-between py-4 border-t border-[var(--color-paper-line)] text-[var(--color-ink)] hover:text-[var(--color-ink-mid)] transition-colors"
       >
         <div>
