@@ -313,13 +313,17 @@ export default async function MemoryBookPage({
             {sectionPhotos.map((p) => (
               <div
                 key={p.id}
-                className="relative aspect-square rounded-md overflow-hidden bg-zinc-100 force-print-bg"
-                style={{
-                  backgroundImage: `url(${p.url})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
+                className="relative aspect-square overflow-hidden rounded-md bg-zinc-100"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.url}
+                  alt=""
+                  loading="eager"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover force-print-bg"
+                />
+              </div>
             ))}
           </div>
         </section>
