@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { createClient } from "@/lib/supabase/client";
 import { callRpcCustom } from "@/lib/supabase/rpc";
+import { todayISO } from "@/lib/utils/date";
 import type { TemplateSummary } from "@/lib/today/picker";
 
 interface Props {
@@ -27,9 +28,12 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
     setLoading(true);
     try {
       const supabase = createClient();
+      // 一定要傳 client 端 Asia/Taipei 的日期,避免 server UTC current_date 跟
+      // 客戶端日期不一致(對方查 daily_template_picks 會查不到)
       const { error } = await callRpcCustom(supabase, "pick_template", {
         p_couple_id: coupleId,
         p_template_id: selected,
+        p_date: todayISO(),
       });
       if (error) throw new Error(error.message);
       toast(t("settings.save_success"), { tone: "success" });
@@ -42,17 +46,14 @@ export function TemplatePicker({ coupleId, templates, streak }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6 mt-2">
-      <header className="flex flex-col gap-1">
-        <p className="text-xs text-[var(--color-ink-soft)] uppercase tracking-[0.18em]">
-          {t("common.today")}
+    <div className="flex flex-col gap-6 mt-1">
+      <header className="flex flex-col gap-1.5">
+        <h1 className="font-serif text-3xl leading-tight">
+          {t("today_screen.your_turn_today")}
+        </h1>
+        <p className="text-sm text-[var(--color-ink-mid)] leading-relaxed">
+          {t("templates.intro")}
         </p>
-        <h1 className="font-serif text-3xl">{t("today_screen.your_turn_today")}</h1>
-        {streak > 0 && (
-          <p className="text-xs text-[var(--color-ink-mid)] mt-1">
-            {t("today_screen.streak_count", { n: streak })}
-          </p>
-        )}
       </header>
 
       {templates.length === 0 ? (

@@ -44,18 +44,23 @@ export async function TodayScreen({ user, couple }: Props) {
   const dateLabel = `${d.getMonth() + 1} / ${d.getDate()} · ${t(`weekday.${wd}` as "weekday.0")}`;
 
   const Header = (
-    <div className="flex items-center justify-between border-b border-[var(--color-paper-line)] pb-3">
-      <div className="flex flex-col">
+    <div className="flex items-center justify-between gap-3 pb-3">
+      <div className="flex flex-col min-w-0">
         <span className="text-[11px] text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
           {dateLabel}
         </span>
-        <span className="text-sm text-[var(--color-ink)] mt-0.5">
+        <span className="text-sm text-[var(--color-ink)] mt-0.5 truncate">
           {meName ?? t("today_completed.partner_label")} & {partnerName ?? t("today_completed.partner_label")}
         </span>
       </div>
       {streak.current_streak > 0 && (
-        <span className="text-xs text-[var(--color-ink-mid)] tabular-nums">
-          {t("today_screen.streak_short", { n: streak.current_streak })}
+        <span className="shrink-0 inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-[var(--color-paper-dim)] border border-[var(--color-paper-line)]">
+          <span className="font-serif text-base tabular-nums text-[var(--color-ink)]">
+            {streak.current_streak}
+          </span>
+          <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-mid)]">
+            {t("memories.unit_days")}
+          </span>
         </span>
       )}
     </div>
@@ -79,19 +84,24 @@ export async function TodayScreen({ user, couple }: Props) {
     return (
       <div className="flex flex-col gap-5">
         {Header}
-        <div className="surface py-12 px-6 flex flex-col items-center gap-3 text-center mt-2">
-          <p className="font-serif text-2xl">
+        <div className="surface py-14 px-6 flex flex-col items-center gap-4 text-center mt-2">
+          <div
+            aria-hidden
+            className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse"
+          />
+          <p className="font-serif text-2xl leading-tight">
             {t("today_screen.partner_turn_today", {
               name: partnerName ?? t("today_completed.partner_label"),
             })}
           </p>
-          <p className="text-xs text-[var(--color-ink-mid)] max-w-xs leading-relaxed">
+          <p className="text-sm text-[var(--color-ink-mid)] max-w-xs leading-relaxed">
             {t("today_screen.wait_partner_pick_body")}
           </p>
         </div>
         <Link
-          href="/templates"
-          className="text-center text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition"
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          href={"/templates" as any}
+          className="text-center text-sm text-[var(--color-ink-mid)] underline underline-offset-2 hover:text-[var(--color-ink)] transition py-2"
         >
           {t("today_screen.manage_templates")}
         </Link>
