@@ -24,7 +24,7 @@ export function DangerZone({}: Props) {
     <section className="pt-4">
       <button
         onClick={logout}
-        className="w-full text-left py-3 text-sm text-[var(--color-ink)] hover:text-[var(--color-ink-mid)] transition-colors"
+        className="w-full py-3 text-sm font-medium rounded-[var(--radius-button)] bg-[var(--color-danger)] text-white hover:opacity-90 active:opacity-80 transition-opacity"
       >
         {t("settings.logout")}
       </button>

@@ -75,7 +75,7 @@ export function PhotoUploadTile({ coupleId }: Props) {
       onClick={() => fileRef.current?.click()}
       disabled={isUploading}
       aria-label={t("memories.upload")}
-      className="relative aspect-[5/6] bg-white p-1.5 pb-7 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.15)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all group disabled:opacity-100 flex flex-col"
+      className="relative aspect-[5/6] rounded-[10px] overflow-hidden bg-gradient-to-br from-[var(--color-accent-soft)]/80 via-white to-[var(--color-paper-dim)] border border-[var(--color-accent)]/25 hover:border-[var(--color-accent)] active:scale-[0.98] transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-100 shadow-[0_2px_8px_-3px_rgba(184,50,77,0.15)]"
     >
       <input
         ref={fileRef}
@@ -88,35 +88,43 @@ export function PhotoUploadTile({ coupleId }: Props) {
           if (e.target.files) handleFiles(e.target.files);
         }}
       />
-      <div className="flex-1 bg-gradient-to-br from-[var(--color-accent-soft)] to-[var(--color-paper-dim)] border border-dashed border-[var(--color-accent)]/35 flex flex-col items-center justify-center gap-1">
-        {isUploading ? (
-          <>
-            <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />
-            <span className="text-[10px] tabular-nums text-[var(--color-ink-mid)] mt-1">
-              {progress!.done} / {progress!.total}
-            </span>
-            <div className="absolute bottom-3 left-1.5 h-1 bg-[var(--color-accent)] transition-all" style={{ width: `calc(${pct}% - 0.75rem)` }} />
-          </>
-        ) : (
-          <>
+      {isUploading ? (
+        <>
+          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />
+          <span className="text-[11px] tabular-nums text-[var(--color-accent-deep)] font-medium">
+            {progress!.done} / {progress!.total}
+          </span>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-paper-line)]">
+            <div
+              className="h-full bg-[var(--color-accent)] transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="w-12 h-12 rounded-full bg-[var(--color-accent)] flex items-center justify-center shadow-[0_4px_12px_-3px_rgba(184,50,77,0.45)]">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth={1.5}
-              className="w-8 h-8 text-[var(--color-accent)]"
+              strokeWidth={2.5}
+              className="w-6 h-6 text-white"
             >
               <path d="M12 5v14M5 12h14" strokeLinecap="round" />
             </svg>
-            <span
-              className="text-sm text-[var(--color-accent-deep)]"
-              style={{ fontFamily: "var(--font-caveat), Georgia, serif" }}
-            >
-              {t("memories.upload")}
-            </span>
-          </>
-        )}
-      </div>
+          </div>
+          <span
+            className="text-[var(--color-accent-deep)]"
+            style={{
+              fontFamily: "var(--font-caveat), Georgia, serif",
+              fontSize: "1.05rem",
+            }}
+          >
+            加照片
+          </span>
+        </>
+      )}
     </button>
   );
 }

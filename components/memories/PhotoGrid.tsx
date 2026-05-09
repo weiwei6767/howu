@@ -15,7 +15,6 @@ interface Props {
 
 export function PhotoGrid({ photos }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  // 本地 caption override(編輯後立刻反映,不用等 router.refresh)
   const [captionOverride, setCaptionOverride] = useState<Record<string, string | null>>({});
 
   if (!photos.length) return null;
@@ -33,7 +32,7 @@ export function PhotoGrid({ photos }: Props) {
             key={p.id}
             type="button"
             onClick={() => setOpenIndex(i)}
-            className="aspect-[5/6] relative bg-white p-1.5 pb-7 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.18)] hover:-rotate-1 hover:scale-[1.02] active:opacity-90 transition-all cursor-zoom-in flex flex-col"
+            className="aspect-[5/6] relative bg-white p-1 pb-6 shadow-[0_2px_8px_-3px_rgba(40,25,30,0.18)] active:scale-[0.97] transition-transform cursor-zoom-in flex flex-col rounded-[6px] overflow-hidden"
             title={p.caption ?? ""}
           >
             <div className="relative flex-1 overflow-hidden bg-[var(--color-paper-dim)]">
@@ -41,18 +40,19 @@ export function PhotoGrid({ photos }: Props) {
               <img
                 src={p.url}
                 alt={p.caption ?? ""}
-                loading="lazy"
+                loading={i < 6 ? "eager" : "lazy"}
                 decoding="async"
+                fetchPriority={i < 6 ? "high" : "auto"}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
-            <div className="px-1 pt-1.5 pb-0 text-center min-h-[20px]">
+            <div className="px-1 pt-1 text-center">
               {cap ? (
                 <p
                   className="text-[var(--color-ink)] leading-snug line-clamp-1"
                   style={{
                     fontFamily: "var(--font-caveat), Georgia, serif",
-                    fontSize: "0.95rem",
+                    fontSize: "0.9rem",
                   }}
                 >
                   {cap}

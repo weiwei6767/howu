@@ -76,7 +76,13 @@ export function ProfileForm({ profile }: Props) {
         <label className="text-xs text-[var(--color-ink-mid)]" htmlFor="birthday">
           {t("settings.birthday")}
         </label>
-        <Input id="birthday" type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
+        <Input
+          id="birthday"
+          type="date"
+          value={birthday}
+          onChange={(e) => setBirthday(e.target.value)}
+          className="!py-3 !text-base !min-h-[44px] w-full"
+        />
       </div>
 
       <LocaleSwitcher value={locale} onChange={setLocale} />
