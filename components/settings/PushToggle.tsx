@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/store/toast";
 import { isPushSupported, subscribePush, unsubscribePush } from "@/lib/push/client";
@@ -57,7 +58,6 @@ export function PushToggle() {
     setLoading(false);
   }
 
-  // 不支援 push
   if (!supported) {
     return (
       <section className="flex flex-col gap-1 border-b border-[var(--color-paper-line)] pb-4">
@@ -69,7 +69,6 @@ export function PushToggle() {
     );
   }
 
-  // iOS 必須加到主畫面才能收推播,Android 也建議
   const needsInstall = !standalone && (platform === "ios" || platform === "android");
 
   return (
@@ -97,41 +96,22 @@ export function PushToggle() {
       </div>
 
       {needsInstall && (
-        <div className="rounded-[var(--radius-card)] border border-[var(--color-paper-line)] bg-[var(--color-paper-dim)] px-4 py-3 flex flex-col gap-2">
-          <p className="text-[11px] uppercase tracking-wider text-[var(--color-accent-deep)]">
-            ✦ 把 howu 加到主畫面才能收到每日通知
-          </p>
-          {platform === "ios" ? (
-            <ol className="flex flex-col gap-1.5 text-xs text-[var(--color-ink-mid)] leading-relaxed pl-1">
-              <Step n={1}>
-                用 Safari 打開 howu.online(其他瀏覽器收不到推播)
-              </Step>
-              <Step n={2}>
-                點底下中間的「分享」按鈕(框框 + 向上箭頭)
-              </Step>
-              <Step n={3}>選單滑下去找「加入主畫面」並按右上「加入」</Step>
-              <Step n={4}>從主畫面打開 howu,再回來這裡按「開啟」</Step>
-            </ol>
-          ) : (
-            <ol className="flex flex-col gap-1.5 text-xs text-[var(--color-ink-mid)] leading-relaxed pl-1">
-              <Step n={1}>用 Chrome 打開 howu.online</Step>
-              <Step n={2}>右上角選單 ⋮ → 「加入主畫面」</Step>
-              <Step n={3}>從主畫面打開 howu,再回來這裡按「開啟」</Step>
-            </ol>
-          )}
-        </div>
+        <Link
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          href={"/install" as any}
+          className="rounded-[var(--radius-card)] border border-[var(--color-accent)]/25 bg-gradient-to-br from-[var(--color-accent-soft)]/50 to-white px-4 py-3 flex items-center justify-between gap-3 active:opacity-90 transition-opacity"
+        >
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-accent-deep)]">
+              ✦ 需要先加到主畫面
+            </p>
+            <p className="text-sm mt-0.5 leading-snug">
+              加到主畫面才能收到每日通知
+            </p>
+          </div>
+          <span className="shrink-0 text-[var(--color-ink-soft)]">→</span>
+        </Link>
       )}
     </section>
-  );
-}
-
-function Step({ n, children }: { n: number; children: React.ReactNode }) {
-  return (
-    <li className="flex items-baseline gap-2">
-      <span className="font-serif text-[var(--color-ink)] tabular-nums w-4 shrink-0">
-        {n}.
-      </span>
-      <span className="flex-1">{children}</span>
-    </li>
   );
 }

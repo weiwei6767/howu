@@ -1,16 +1,24 @@
 {
   "name": "howu — 兩個人的日記",
   "short_name": "howu",
-  "description": "以每日問卷為核心的情侶關係 PWA",
+  "description": "情侶共寫的每日問卷、共同相簿、回憶冊",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#fff8f8",
-  "theme_color": "#c2185b",
+  "background_color": "#fbf9f6",
+  "theme_color": "#b8324d",
   "lang": "zh-TW",
+  "dir": "ltr",
   "categories": ["lifestyle", "social"],
   "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
@@ -24,10 +32,39 @@
       "purpose": "any"
     },
     {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
       "src": "/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "今天的問卷",
+      "short_name": "今天",
+      "description": "寫今天的問卷",
+      "url": "/zh-TW",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "我們的回憶冊",
+      "short_name": "回憶",
+      "description": "看你們的回憶冊",
+      "url": "/zh-TW/memories/book",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "寫日記",
+      "short_name": "日記",
+      "description": "今天的日記",
+      "url": "/zh-TW/journal",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

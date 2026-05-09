@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="howu">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbf3f0"/>
+      <stop offset="55%" stop-color="#fbf9f6"/>
+      <stop offset="100%" stop-color="#f5e8eb"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8324d"/>
+      <stop offset="100%" stop-color="#8a223a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 卡角圓 -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+
+  <!-- 細外框 -->
+  <rect x="14" y="14" width="484" height="484" rx="100" ry="100"
+        fill="none" stroke="#1a1715" stroke-opacity="0.05" stroke-width="2"/>
+
+  <!-- 大 italic serif 「h」 -->
+  <text x="256" y="378" font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
+        font-size="360" font-weight="500" font-style="italic"
+        text-anchor="middle" fill="url(#ink)">h</text>
+
+  <!-- 右上手繪愛心 -->
+  <path d="M388 130c-8-12-22-13-30-3-5 5-7 12-3 22 4 12 17 24 33 35 16-11 29-23 33-35 4-10 2-17-3-22-8-10-22-9-30 3z"
+        fill="#b8324d" opacity="0.9"/>
+
+  <!-- 底部 sparkle -->
+  <path d="M150 420c-1-6-3-8-9-9 6-1 8-3 9-9 1 6 3 8 9 9-6 1-8 3-9 9z"
+        fill="#b8324d" opacity="0.55"/>
+</svg>

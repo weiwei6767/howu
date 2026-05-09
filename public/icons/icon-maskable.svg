@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="howu">
+  <!-- maskable: 內容只能在中央 80% 安全區(座標 51 ~ 461) -->
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbf3f0"/>
+      <stop offset="100%" stop-color="#f5e8eb"/>
+    </linearGradient>
+    <linearGradient id="ink2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8324d"/>
+      <stop offset="100%" stop-color="#8a223a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg2)"/>
+  <text x="256" y="358" font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
+        font-size="280" font-weight="500" font-style="italic"
+        text-anchor="middle" fill="url(#ink2)">h</text>
+  <path d="M362 158c-6-10-18-11-25-2-4 4-5 10-2 18 3 10 14 19 27 28 13-9 24-18 27-28 3-8 2-14-2-18-7-9-19-8-25 2z"
+        fill="#b8324d" opacity="0.9"/>
+</svg>
