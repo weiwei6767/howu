@@ -1,12 +1,9 @@
 import { Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/supabase/auth";
-import {
-  getJournalEntriesOfDate,
-  getRecentJournalEntries,
-} from "@/lib/journal/queries";
+import { getRecentJournalEntries, type JournalEntryFull } from "@/lib/journal/queries";
 
-export default async function JournalPage({
+export default async function JournalAllPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -16,93 +13,78 @@ export default async function JournalPage({
   const t = await getTranslations();
 
   const user = await requireUser();
+  // 抓最近 365 篇,該日記時間區間的 sort 已是 date desc + created_at desc
+  const entries = await getRecentJournalEntries(user.id, 365);
 
-  const now = new Date();
-  const today = now.toISOString().slice(0, 10);
-  const wd = String(now.getDay());
-
-  const [todayEntries, recent] = await Promise.all([
-    getJournalEntriesOfDate(user.id, today),
-    getRecentJournalEntries(user.id, 3),
-  ]);
+  // 依年份 → 月份 分組
+  type Group = { ym: string; year: number; month: number; entries: JournalEntryFull[] };
+  const groupMap = new Map<string, Group>();
+  for (const e of entries) {
+    const ym = e.date.slice(0, 7);
+    const [y, m] = ym.split("-");
+    const g = groupMap.get(ym) ?? {
+      ym,
+      year: Number(y),
+      month: Number(m),
+      entries: [],
+    };
+    g.entries.push(e);
+    groupMap.set(ym, g);
+  }
+  const groups = Array.from(groupMap.values());
 
   return (
     <div className="flex flex-col gap-7">
+      <Link
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        href={"/journal" as any}
+        className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] self-start"
+      >
+        ← {t("journal.title")}
+      </Link>
+
       <header>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
-          Journal
+          Past Entries
         </p>
-        <h1 className="font-serif text-3xl mt-1">{t("journal.title")}</h1>
+        <h1 className="font-serif text-3xl mt-1">過去的日記</h1>
+        <p className="text-sm text-[var(--color-ink-mid)] mt-2">
+          總共 {entries.length} 篇
+        </p>
       </header>
 
-      {/* 今天 hero */}
-      <Link
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        href={`/journal/${today}` as any}
-        className="surface px-5 py-5 flex items-center justify-between gap-3 active:bg-[var(--color-paper-dim)] transition-colors"
-      >
-        <div className="flex flex-col min-w-0">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink-soft)]">
-            {t("common.today")} · {now.getMonth() + 1}/{now.getDate()} ·{" "}
-            {t(`weekday.${wd}` as "weekday.0")}
-          </p>
-          <p className="font-serif text-2xl mt-1 leading-tight truncate">
-            {todayEntries.length === 0
-              ? t("journal.today_unwritten")
-              : t("journal.today_n_entries", { n: todayEntries.length })}
-          </p>
+      {groups.length === 0 ? (
+        <p className="text-sm text-[var(--color-ink-soft)] py-12 text-center">
+          {t("journal.empty")}
+        </p>
+      ) : (
+        <div className="flex flex-col gap-8">
+          {groups.map((g) => (
+            <section key={g.ym} className="flex flex-col gap-3">
+              <h2 className="font-serif text-xl border-b border-[var(--color-paper-line)] pb-2">
+                {t("common.year_month", { y: g.year, m: g.month })}
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {g.entries.map((e) => (
+                  <EntryListRow key={e.id} entry={e} t={t} />
+                ))}
+              </ul>
+            </section>
+          ))}
         </div>
-        <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-ink)] text-white text-lg">
-          {todayEntries.length === 0 ? "+" : "→"}
-        </span>
-      </Link>
-
-      {/* 最近寫的(3 篇) */}
-      {recent.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h2 className="font-serif text-xl">最近寫的</h2>
-          <ul className="flex flex-col gap-3">
-            {recent.map((e) => (
-              <RecentEntryRow key={e.id} entry={e} t={t} />
-            ))}
-          </ul>
-        </section>
       )}
-
-      {/* 過去的日記入口 */}
-      <Link
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        href={"/journal/all" as any}
-        className="flex items-center justify-between py-4 border-y border-[var(--color-paper-line)] hover:text-[var(--color-ink-mid)] transition-colors"
-      >
-        <div>
-          <p className="font-serif text-lg leading-tight">過去的日記</p>
-          <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-            依日期排序,看你寫過的所有日記
-          </p>
-        </div>
-        <span className="text-[var(--color-ink-soft)] text-lg">→</span>
-      </Link>
     </div>
   );
 }
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
 
-interface EntryLike {
-  id: string;
-  date: string;
-  content: string | null;
-  shared_with_partner: boolean | null;
-  signed_photo_urls: string[];
-}
-
-function RecentEntryRow({ entry, t }: { entry: EntryLike; t: T }) {
+function EntryListRow({ entry, t }: { entry: JournalEntryFull; t: T }) {
   const d = new Date(`${entry.date}T00:00:00`);
   const wd = String(d.getDay());
   const monthDay = `${d.getMonth() + 1}/${d.getDate()}`;
   const snippet = (entry.content ?? "").trim();
-  const limited = snippet.length > 80 ? snippet.slice(0, 80) + "…" : snippet;
+  const limited = snippet.length > 100 ? snippet.slice(0, 100) + "…" : snippet;
 
   return (
     <li>
@@ -128,7 +110,7 @@ function RecentEntryRow({ entry, t }: { entry: EntryLike; t: T }) {
           <span className="text-[var(--color-ink-soft)] shrink-0">→</span>
         </div>
         {limited && (
-          <p className="text-sm text-[var(--color-ink-mid)] mt-2 leading-relaxed line-clamp-2">
+          <p className="text-sm text-[var(--color-ink-mid)] mt-2 leading-relaxed line-clamp-3">
             {limited}
           </p>
         )}
