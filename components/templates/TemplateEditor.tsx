@@ -273,7 +273,7 @@ export function TemplateEditor({
             {questions.length === 0 ? (
               <div className="text-center text-sm text-[var(--color-ink-soft)] py-8 border border-dashed border-[var(--color-paper-line)] rounded-[var(--radius-card)]">
                 還沒加題目
-                <br />從下面挑一條
+                <br />從下方來加入
               </div>
             ) : (
               <ul className="flex flex-col">
@@ -394,7 +394,12 @@ export function TemplateEditor({
               </h2>
             </header>
 
-            {promises.length > 0 && (
+            {promises.length === 0 ? (
+              <div className="text-center text-sm text-[var(--color-ink-soft)] py-8 border border-dashed border-[var(--color-paper-line)] rounded-[var(--radius-card)]">
+                還沒加承諾
+                <br />從下方來加入
+              </div>
+            ) : (
               <ul className="flex flex-col">
                 {promises.map((p) => (
                   <li
