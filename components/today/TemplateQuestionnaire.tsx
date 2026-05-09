@@ -78,6 +78,16 @@ export function TemplateQuestionnaire({
         return;
       }
       toast(t("questionnaire.submitted_title"), { tone: "success" });
+
+      // fire-and-forget 推播通知對方:對方還沒寫的話會收到「換你了」
+      fetch("/api/push/notify-partner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "partner_completed" }),
+      }).catch(() => {
+        // 通知失敗不影響使用流程
+      });
+
       router.refresh();
     } finally {
       setSubmitting(false);

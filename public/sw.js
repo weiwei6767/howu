@@ -1,14 +1,12 @@
-// howu service worker — Phase 1 會接上 Web Push 與 offline cache。
-// 目前僅做 install / activate / fetch 占位,讓瀏覽器把站台識別為 PWA-capable。
+// howu service worker — Web Push + 點擊開啟 PWA
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", () => {});
 
-// Web Push handler 預留(Phase 1 接上)。
 self.addEventListener("push", (event) => {
   if (!event.data) return;
-  let payload = { title: "howu", body: "" };
+  let payload = { title: "howu", body: "", url: "/", tag: undefined };
   try {
     payload = event.data.json();
   } catch {
@@ -19,6 +17,29 @@ self.addEventListener("push", (event) => {
       body: payload.body,
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
+      tag: payload.tag,
+      data: { url: payload.url || "/" },
+      vibrate: [60, 40, 60],
     }),
+  );
+});
+
+// 點擊推播 → 把 PWA / 分頁帶到前景或開新頁
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/";
+  event.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of all) {
+        if ("focus" in client) {
+          await client.navigate(url).catch(() => {});
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })(),
   );
 });
