@@ -378,7 +378,7 @@ export function TemplateEditor({
             <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
               自己加一題
             </h2>
-            <div className="grid grid-cols-3 gap-px border border-[var(--color-paper-line)] rounded-[var(--radius-button)] overflow-hidden bg-[var(--color-paper-line)]">
+            <div className="grid grid-cols-2 gap-px border border-[var(--color-paper-line)] rounded-[var(--radius-button)] overflow-hidden bg-[var(--color-paper-line)]">
               {TYPE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
