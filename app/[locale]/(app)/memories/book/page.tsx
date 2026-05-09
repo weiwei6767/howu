@@ -254,7 +254,7 @@ export default async function MemoryBookPage({
       </section>
 
       {/* ═══════════ 內頁 page 2:摘要 + 序 + 心情 ═══════════ */}
-      <SectionTitle eyebrow="In Numbers" title="本書數字" />
+      <SectionTitle eyebrow="Our Journey" title="我們的旅程" />
       <section className="grid grid-cols-3 gap-4 mb-16 px-4 max-w-xl mx-auto avoid-break">
         <Stat n={totalDaysDone} label="一起寫了" unit="天" />
         <Stat n={responses.length} label="總共" unit="份" />
