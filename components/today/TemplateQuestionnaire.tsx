@@ -33,6 +33,7 @@ interface Props {
   templateId: string;
   questions: Question[];
   promises: PromiseRow[];
+  moodTagOptions: string[] | null;
   locale: string;
 }
 
@@ -43,11 +44,15 @@ export function TemplateQuestionnaire({
   templateId,
   questions,
   promises,
+  moodTagOptions,
 }: Props) {
   const t = useTranslations();
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const [moodPicks, setMoodPicks] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const showMood = !!moodTagOptions && moodTagOptions.length > 0;
 
   function setAnswer(qid: string, v: AnswerValue) {
     setAnswers((prev) => ({ ...prev, [qid]: v }));
@@ -71,7 +76,7 @@ export function TemplateQuestionnaire({
         date,
         template_id: templateId,
         rotating_answers,
-        mood_tags: [],
+        mood_tags: moodPicks,
       });
       if (error) {
         toast(error.message, { tone: "error" });
@@ -119,6 +124,24 @@ export function TemplateQuestionnaire({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {showMood && (
+        <section>
+          <header className="flex items-baseline gap-3 mb-3">
+            <span className="font-serif text-sm text-[var(--color-ink-soft)]">
+              ✦
+            </span>
+            <h3 className="text-[15px] leading-snug flex-1 text-[var(--color-ink)] font-medium">
+              今天的心情
+            </h3>
+          </header>
+          <MoodTags
+            values={moodPicks}
+            onChange={setMoodPicks}
+            available={moodTagOptions}
+          />
         </section>
       )}
 

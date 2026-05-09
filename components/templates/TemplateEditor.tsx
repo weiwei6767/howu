@@ -20,7 +20,6 @@ import {
 const TYPE_OPTIONS: { value: SuggestionType; label: string }[] = [
   { value: "slider", label: "1-10 滑桿" },
   { value: "short_text", label: "短文字" },
-  { value: "mood_tags", label: "心情標籤" },
 ];
 
 const TYPE_LABEL_SHORT: Record<string, string> = {
@@ -51,6 +50,7 @@ interface Props {
   templateName: string;
   templateEmoji: string;
   templateDescription: string;
+  initialMoodTagOptions: string[];
   initialQuestions: Q[];
   initialPromises: P[];
 }
@@ -60,12 +60,14 @@ export function TemplateEditor({
   templateName,
   templateEmoji,
   templateDescription,
+  initialMoodTagOptions,
   initialQuestions,
   initialPromises,
 }: Props) {
   const router = useRouter();
   const [questions, setQuestions] = useState(initialQuestions);
   const [promises, setPromises] = useState(initialPromises);
+  const [moodTags, setMoodTags] = useState<string[]>(initialMoodTagOptions);
 
   const [name, setName] = useState(templateName);
   const [emoji, setEmoji] = useState(templateEmoji);
@@ -74,9 +76,6 @@ export function TemplateEditor({
 
   const [newType, setNewType] = useState<SuggestionType>("short_text");
   const [newText, setNewText] = useState("");
-  const [newMoodTags, setNewMoodTags] = useState<string[]>([
-    ...DEFAULT_MOOD_TAGS,
-  ]);
   const [newPromise, setNewPromise] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -135,6 +134,21 @@ export function TemplateEditor({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from("template_questions").delete().eq("id", id);
     setQuestions(questions.filter((q) => q.id !== id));
+  }
+
+  async function updateMoodTags(next: string[]) {
+    setMoodTags(next);
+    try {
+      const supabase = createClient();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from("templates")
+        .update({ mood_tag_options: next })
+        .eq("id", templateId);
+      if (error) throw new Error(error.message);
+    } catch (e) {
+      toast((e as Error).message, { tone: "error" });
+    }
   }
 
   async function addPromise(text: string) {
@@ -215,6 +229,7 @@ export function TemplateEditor({
       description={description}
       questions={questions}
       promises={promises}
+      moodTagOptions={moodTags}
     />
   );
 
@@ -337,13 +352,7 @@ export function TemplateEditor({
                   >
                     <button
                       type="button"
-                      onClick={() =>
-                        addQuestion(
-                          s.text,
-                          s.type,
-                          s.type === "mood_tags" ? [...DEFAULT_MOOD_TAGS] : null,
-                        )
-                      }
+                      onClick={() => addQuestion(s.text, s.type)}
                       disabled={loading}
                       className="w-full flex items-center gap-2 py-3 text-left text-sm group active:bg-[var(--color-paper-dim)] transition-colors px-1 rounded"
                     >
@@ -385,41 +394,36 @@ export function TemplateEditor({
                 </button>
               ))}
             </div>
-            {newType === "mood_tags" ? (
-              <MoodTagPicker
-                selected={newMoodTags}
-                onChange={setNewMoodTags}
-              />
-            ) : (
-              <Input
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-                placeholder="題目內容(例:今天的滿足度)"
-                maxLength={80}
-              />
-            )}
+            <Input
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              placeholder="題目內容(例:今天的滿足度)"
+              maxLength={80}
+            />
             <Button
               onClick={() => {
-                if (newType === "mood_tags") {
-                  // 心情題不需要使用者打字題目,固定用「今天的心情」
-                  addQuestion("今天的心情", "mood_tags", newMoodTags);
-                  setNewMoodTags([...DEFAULT_MOOD_TAGS]);
-                } else {
-                  addQuestion(newText, newType);
-                  setNewText("");
-                }
+                addQuestion(newText, newType);
+                setNewText("");
               }}
-              disabled={
-                loading ||
-                (newType === "mood_tags"
-                  ? newMoodTags.length === 0
-                  : !newText.trim())
-              }
+              disabled={!newText.trim() || loading}
               loading={loading}
               className="self-start"
             >
               加進來
             </Button>
+          </section>
+
+          {/* 心情標籤(模板獨立區塊) */}
+          <section className="flex flex-col gap-3 border-t border-[var(--color-paper-line)] pt-5">
+            <header className="flex items-baseline justify-between">
+              <h2 className="text-sm uppercase tracking-[0.18em] text-[var(--color-ink-mid)]">
+                心情標籤 ({moodTags.length})
+              </h2>
+            </header>
+            <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed -mt-1">
+              填問卷時會以心情泡泡顯示讓對方勾選
+            </p>
+            <MoodTagPicker selected={moodTags} onChange={updateMoodTags} />
           </section>
 
           {/* 小懲罰 */}

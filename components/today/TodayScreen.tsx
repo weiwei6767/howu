@@ -198,6 +198,7 @@ export async function TodayScreen({ user, couple }: Props) {
         templateId={template.id}
         questions={template.questions}
         promises={template.promises}
+        moodTagOptions={template.mood_tag_options}
         locale={profile?.locale ?? "zh-TW"}
       />
     </div>

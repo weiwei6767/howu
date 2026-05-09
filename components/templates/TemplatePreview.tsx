@@ -20,13 +20,23 @@ interface Props {
   description: string;
   questions: Question[];
   promises: PromiseRow[];
+  moodTagOptions: string[];
 }
 
-const MOOD_TYPES = new Set(["slider", "mood_tags"]);
+const SLIDER_TYPES = new Set(["slider", "guess_partner"]);
 
-export function TemplatePreview({ emoji, name, description, questions, promises }: Props) {
-  const moodQuestions = questions.filter((q) => MOOD_TYPES.has(q.type));
-  const otherQuestions = questions.filter((q) => !MOOD_TYPES.has(q.type));
+export function TemplatePreview({
+  emoji,
+  name,
+  description,
+  questions,
+  promises,
+  moodTagOptions,
+}: Props) {
+  const sliderQuestions = questions.filter((q) => SLIDER_TYPES.has(q.type));
+  const otherQuestions = questions.filter((q) => !SLIDER_TYPES.has(q.type));
+  const isEmpty =
+    questions.length === 0 && promises.length === 0 && moodTagOptions.length === 0;
 
   return (
     <IPhoneFrame>
@@ -45,7 +55,7 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
           )}
         </header>
 
-        {questions.length === 0 && promises.length === 0 && (
+        {isEmpty && (
           <div className="surface p-5 text-center text-xs text-[var(--color-ink-soft)]">
             還沒有題目跟小懲罰
             <br />
@@ -53,9 +63,9 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
           </div>
         )}
 
-        {moodQuestions.length > 0 && (
-          <Section title="今天的心情">
-            {moodQuestions.map((q) => (
+        {sliderQuestions.length > 0 && (
+          <Section title="今天的指數">
+            {sliderQuestions.map((q) => (
               <PreviewQuestion key={q.id} q={q} />
             ))}
           </Section>
@@ -66,6 +76,25 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
             {otherQuestions.map((q) => (
               <PreviewQuestion key={q.id} q={q} />
             ))}
+          </Section>
+        )}
+
+        {moodTagOptions.length > 0 && (
+          <Section title="今天的心情">
+            <div className="flex flex-wrap gap-1.5">
+              {moodTagOptions.slice(0, 8).map((tag, i) => (
+                <span
+                  key={`${tag}-${i}`}
+                  className={`px-2 py-1 rounded-full text-[10px] border ${
+                    i < 2
+                      ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
+                      : "border-[var(--color-paper-line)] text-[var(--color-ink-mid)]"
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </Section>
         )}
 
@@ -83,7 +112,7 @@ export function TemplatePreview({ emoji, name, description, questions, promises 
           </div>
         )}
 
-        {questions.length > 0 && (
+        {(questions.length > 0 || moodTagOptions.length > 0) && (
           <button
             type="button"
             disabled

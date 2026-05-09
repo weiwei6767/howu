@@ -69,6 +69,7 @@ export interface TemplateFull {
   name: string;
   emoji: string | null;
   description: string | null;
+  mood_tag_options: string[] | null;
   questions: Array<{
     id: string;
     position: number;
@@ -84,7 +85,7 @@ export async function getTemplate(templateId: string): Promise<TemplateFull | nu
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: tplRaw } = await (supabase as any)
     .from("templates")
-    .select("id, name, emoji, description")
+    .select("id, name, emoji, description, mood_tag_options")
     .eq("id", templateId)
     .maybeSingle();
   if (!tplRaw) return null;
@@ -100,8 +101,21 @@ export async function getTemplate(templateId: string): Promise<TemplateFull | nu
     .select("id, position, text")
     .eq("template_id", templateId)
     .order("position");
+  const t = tplRaw as {
+    id: string;
+    name: string;
+    emoji: string | null;
+    description: string | null;
+    mood_tag_options: unknown;
+  };
   return {
-    ...(tplRaw as { id: string; name: string; emoji: string | null; description: string | null }),
+    id: t.id,
+    name: t.name,
+    emoji: t.emoji,
+    description: t.description,
+    mood_tag_options: Array.isArray(t.mood_tag_options)
+      ? (t.mood_tag_options as string[])
+      : null,
     questions: ((qsRaw as Array<{
       id: string;
       position: number;

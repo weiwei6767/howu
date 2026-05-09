@@ -12,7 +12,10 @@ interface Template {
   name: string;
   description: string | null;
   emoji: string | null;
+  mood_tag_options: unknown;
 }
+
+const DEFAULT_MOOD_TAGS = ["開心", "六六大順", "心煩", "低氣壓", "平常心"];
 
 interface Question {
   id: string;
@@ -42,11 +45,14 @@ export default async function EditTemplatePage({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: tplRaw } = await (supabase as any)
     .from("templates")
-    .select("id, couple_id, name, description, emoji")
+    .select("id, couple_id, name, description, emoji, mood_tag_options")
     .eq("id", id)
     .maybeSingle();
   const tpl = tplRaw as Template | null;
   if (!tpl || tpl.couple_id !== couple.id) notFound();
+  const moodTagOptions = Array.isArray(tpl.mood_tag_options)
+    ? (tpl.mood_tag_options as string[])
+    : DEFAULT_MOOD_TAGS;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: qRaw } = await (supabase as any)
@@ -86,6 +92,7 @@ export default async function EditTemplatePage({
         templateName={tpl.name}
         templateEmoji={tpl.emoji ?? ""}
         templateDescription={tpl.description ?? ""}
+        initialMoodTagOptions={moodTagOptions}
         initialQuestions={(qRaw as Question[] | null) ?? []}
         initialPromises={(pRaw as PromiseRow[] | null) ?? []}
       />
