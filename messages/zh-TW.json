@@ -396,6 +396,42 @@
     "push_daily_subtext": "每天 20:00 提醒今日問卷",
     "turn_on": "開啟"
   },
+  "privacy": {
+    "section_title": "資料與隱私",
+    "intro": "你寫進 howu 的每一份問卷、日記、照片都是你們兩個人的。底下說明資料會怎麼處理、放多久、怎麼救回。",
+    "stored_title": "我們存什麼",
+    "stored_items": "你們的問卷答案、日記、共同照片、紀念日、模板、推播訂閱;伺服器在 Supabase(全程加密傳輸)。",
+    "retention_active_title": "正常使用期間",
+    "retention_active": "資料一直保留。隨時可以下載 / 列印回憶冊作為備份。",
+    "retention_disconnect_title": "解除綁定後",
+    "retention_disconnect": "進入 30 天恢復期,任一方按重連對方同意就可恢復;30 天到期會正式解除綁定,系統自動產一份回憶冊 PDF 寄給雙方。",
+    "retention_delete_title": "申請刪除帳號後",
+    "retention_delete": "我們收到信會在 14 天緩衝期內標記你的帳號;期間寄信到 hello@loamia.xyz 即可取消。緩衝期過後永久刪除,無法救回。",
+    "support_title": "問題回報 / 聯絡",
+    "support_email": "hello@loamia.xyz",
+    "support_email_label": "寄信給我們"
+  },
+  "delete_account_modal": {
+    "title": "申請刪除帳號",
+    "intro": "刪除是不可逆的,但我們給你 14 天反悔。",
+    "what_deleted_title": "會被永久刪除的:",
+    "what_deleted_items": "個人資料、問卷答案、日記、上傳的照片、模板、紀念日。",
+    "what_kept_title": "你能留下的:",
+    "what_kept_items": "刪除前我們會寄一份完整的回憶冊 PDF 給你;之後就沒有任何備份。",
+    "grace_period_title": "14 天緩衝期",
+    "grace_period_body": "確認後 14 天內,寄信到 hello@loamia.xyz 都可以取消。",
+    "couple_warning": "你們還在綁定中。建議先「解除綁定」讓對方也保留一份再刪除帳號。",
+    "send_email_button": "寄信給 hello@loamia.xyz 申請",
+    "email_subject": "申請刪除 howu 帳號",
+    "email_body_template": "我想申請刪除 howu 帳號。我了解這是不可逆的,並有 14 天的反悔期。\n\n我的註冊 email:{email}\n\n(可選)刪除原因:"
+  },
+  "disconnect_modal": {
+    "what_happens_title": "接下來會發生什麼",
+    "what_happens": "進入 30 天恢復期,期間問卷與默契計算暫停,但所有資料都還在。任何一方按下「申請重連」對方同意,就可以接續寫下去。",
+    "after_30d_title": "30 天到期",
+    "after_30d": "正式解除綁定,系統自動把你們累積的問卷與照片做成回憶冊 PDF 寄給雙方,作為留念。",
+    "data_kept": "你的個人帳號不受影響,還是可以另外配對其他人。"
+  },
   "promises": {
     "title": "我們的承諾",
     "subtitle": "你們之間的小約定",

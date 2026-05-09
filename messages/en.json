@@ -396,6 +396,42 @@
     "push_daily_subtext": "Reminds you at 20:00 each day",
     "turn_on": "Turn on"
   },
+  "privacy": {
+    "section_title": "Data & Privacy",
+    "intro": "Everything you write into howu — check-ins, journal, photos — belongs to the two of you. Here's how it's stored, for how long, and how to undo things.",
+    "stored_title": "What we store",
+    "stored_items": "Your check-in answers, journal entries, shared photos, milestones, templates, and push subscriptions. Hosted on Supabase, encrypted in transit.",
+    "retention_active_title": "While you're using howu",
+    "retention_active": "Data stays. You can print or save a memory book PDF anytime as backup.",
+    "retention_disconnect_title": "After you disconnect",
+    "retention_disconnect": "Starts a 30-day recovery window. Either of you can request reconnect and the other agrees to resume. After 30 days the disconnect is final and we'll auto-generate a memory book PDF for both.",
+    "retention_delete_title": "After you request deletion",
+    "retention_delete": "When we receive your email, your account is marked for deletion with a 14-day grace period. Email hello@loamia.xyz any time during those 14 days to cancel. After that it's permanent.",
+    "support_title": "Questions / Contact",
+    "support_email": "hello@loamia.xyz",
+    "support_email_label": "Email us"
+  },
+  "delete_account_modal": {
+    "title": "Request account deletion",
+    "intro": "Deletion is permanent — but you have 14 days to change your mind.",
+    "what_deleted_title": "What gets deleted:",
+    "what_deleted_items": "Profile, check-in answers, journal, uploaded photos, templates, milestones.",
+    "what_kept_title": "What you keep:",
+    "what_kept_items": "Before deletion we send you a full memory book PDF. Nothing else is kept.",
+    "grace_period_title": "14-day grace period",
+    "grace_period_body": "After confirming, you have 14 days to email hello@loamia.xyz to cancel.",
+    "couple_warning": "You're still paired. Consider 'Disconnect' first so your partner keeps a copy before you delete.",
+    "send_email_button": "Email hello@loamia.xyz to request",
+    "email_subject": "Request to delete howu account",
+    "email_body_template": "I'd like to delete my howu account. I understand this is irreversible after the 14-day grace period.\n\nMy account email: {email}\n\n(Optional) Reason: "
+  },
+  "disconnect_modal": {
+    "what_happens_title": "What happens next",
+    "what_happens": "30-day recovery period begins. Check-ins and sync pause, but all data stays. Either of you can request reconnect; the other agrees to resume.",
+    "after_30d_title": "After 30 days",
+    "after_30d": "Disconnect becomes final. We automatically generate a memory book PDF of your check-ins and photos, and email it to both of you.",
+    "data_kept": "Your individual account is fine and you can pair with someone else later."
+  },
   "promises": {
     "title": "Our Promises",
     "subtitle": "Little agreements between you two",

@@ -81,7 +81,7 @@ export function LoginForm() {
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="hello@howu.online"
+          placeholder="you@example.com"
           aria-invalid={!!errors.email}
           {...register("email")}
         />

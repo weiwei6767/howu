@@ -77,6 +77,7 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
         </Button>
       </div>
 
+      {/* Pause modal */}
       <Modal
         open={pauseOpen}
         onClose={() => setPauseOpen(false)}
@@ -95,6 +96,7 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
         <p className="text-sm leading-relaxed">{t("disconnect.pause_body")}</p>
       </Modal>
 
+      {/* Disconnect modal — 加完整政策說明 */}
       <Modal
         open={discOpen}
         onClose={() => setDiscOpen(false)}
@@ -110,7 +112,33 @@ export function CoupleSettings({ couple }: { couple: Couple }) {
           </>
         }
       >
-        <p className="text-sm leading-relaxed">{t("disconnect.disconnect_body")}</p>
+        <div className="flex flex-col gap-4">
+          <p className="text-sm leading-relaxed text-[var(--color-ink-mid)]">
+            {t("disconnect.disconnect_body")}
+          </p>
+
+          <div className="border-l-2 border-[var(--color-accent)] pl-3 py-1">
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+              {t("disconnect_modal.what_happens_title")}
+            </p>
+            <p className="text-sm leading-relaxed mt-1">
+              {t("disconnect_modal.what_happens")}
+            </p>
+          </div>
+
+          <div className="border-l-2 border-[var(--color-paper-line)] pl-3 py-1">
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ink-soft)]">
+              {t("disconnect_modal.after_30d_title")}
+            </p>
+            <p className="text-sm leading-relaxed mt-1">
+              {t("disconnect_modal.after_30d")}
+            </p>
+          </div>
+
+          <p className="text-xs text-[var(--color-ink-soft)] italic leading-relaxed">
+            {t("disconnect_modal.data_kept")}
+          </p>
+        </div>
       </Modal>
     </section>
   );

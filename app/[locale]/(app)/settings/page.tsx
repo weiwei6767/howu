@@ -7,6 +7,7 @@ import { CoupleSettings } from "@/components/settings/CoupleSettings";
 import { DangerZone } from "@/components/settings/DangerZone";
 import { PushToggle } from "@/components/settings/PushToggle";
 import { QuickLinks } from "@/components/settings/QuickLinks";
+import { PrivacySection } from "@/components/settings/PrivacySection";
 
 export default async function SettingsPage({
   params,
@@ -43,6 +44,8 @@ export default async function SettingsPage({
       {couple && <CoupleSettings couple={couple} />}
 
       <PushToggle />
+
+      <PrivacySection />
 
       <DangerZone hasCouple={!!couple} coupleStatus={couple?.status ?? null} />
     </div>
