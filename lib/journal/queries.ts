@@ -132,3 +132,22 @@ export async function getJournalEntriesOfDate(
     .order("created_at", { ascending: true });
   return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
 }
+
+/** 最近 N 篇 entries(timeline 用) */
+export async function getRecentJournalEntries(
+  userId: string,
+  limit: number,
+): Promise<JournalEntryFull[]> {
+  const supabase = await createSupabaseServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("journal_entries")
+    .select(
+      "id, date, content, shared_with_partner, attached_response_id, photos, created_at, updated_at",
+    )
+    .eq("user_id", userId)
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return withSignedUrls(supabase, (data as RawEntry[] | null) ?? []);
+}
