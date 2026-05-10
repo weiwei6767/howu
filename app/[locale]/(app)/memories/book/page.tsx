@@ -7,18 +7,22 @@ import { getProfile, getStreak } from "@/lib/supabase/queries";
 import { ddayCount } from "@/lib/utils/date";
 import { BookControls } from "@/components/memories/BookControls";
 
-// Server side:把 storage 路徑直接轉成 base64 data URL,讓列印一定看得到
-async function pathToDataUrl(path: string | null): Promise<string | null> {
+// Server side:取 Supabase signed URL,直接 https 給 <img> 用
+// 比 base64 dataURL 小很多,iOS Safari 列印也比 query-string proxy 穩定
+async function pathToSignedUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   try {
     const admin = createSupabaseAdminClient();
-    const { data, error } = await admin.storage.from("shared_photos").download(path);
-    if (error || !data) return null;
-    const buf = Buffer.from(await data.arrayBuffer());
-    const mime = data.type || "image/jpeg";
-    return `data:${mime};base64,${buf.toString("base64")}`;
+    const { data, error } = await admin.storage
+      .from("shared_photos")
+      .createSignedUrl(path, 60 * 60 * 24); // 24 小時
+    if (error || !data) {
+      console.error("[book] signed url fail:", path, error?.message);
+      return null;
+    }
+    return data.signedUrl;
   } catch (e) {
-    console.error("[book] data url fail:", path, e);
+    console.error("[book] signed url throw:", path, e);
     return null;
   }
 }
@@ -136,8 +140,8 @@ export default async function MemoryBookPage({
     const fp = firstPhoto as PhotoRow | null;
     if (fp?.url && !fp.url.includes("/bg/")) coverPath = fp.url;
   }
-  // 封面用 base64 data URL,確保列印時一定有圖
-  const coverUrl = await pathToDataUrl(coverPath);
+  // 封面用 signed URL,iOS Safari 列印對這種純 https 網址處理最可靠
+  const coverUrl = await pathToSignedUrl(coverPath);
 
   // 章節照片
   const { data: morePhotos } = await supabase
@@ -149,11 +153,11 @@ export default async function MemoryBookPage({
   const sectionPhotosRaw = ((morePhotos as PhotoRow[] | null) ?? []).filter(
     (p) => p.url && !p.url.includes("/bg/"),
   );
-  // 章節照片也轉 data URL,列印才不會掉
+  // 章節照片同樣 signed URL
   const sectionPhotos = await Promise.all(
     sectionPhotosRaw.map(async (p) => ({
       ...p,
-      url: (await pathToDataUrl(p.url)) ?? "",
+      url: (await pathToSignedUrl(p.url)) ?? "",
     })),
   );
   const sectionPhotosFiltered = sectionPhotos.filter((p) => p.url);
