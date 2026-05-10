@@ -1,19 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="howu">
   <defs>
     <linearGradient id="apl" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fbf3f0"/>
-      <stop offset="100%" stop-color="#f5e8eb"/>
+      <stop offset="0%" stop-color="#fdf3f0"/>
+      <stop offset="100%" stop-color="#f0d8dc"/>
     </linearGradient>
-    <linearGradient id="aplInk" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#b8324d"/>
-      <stop offset="100%" stop-color="#8a223a"/>
+    <linearGradient id="aplHeart" x1="0.15" y1="0.05" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#dc4b67"/>
+      <stop offset="55%" stop-color="#b8324d"/>
+      <stop offset="100%" stop-color="#7a213a"/>
     </linearGradient>
+    <radialGradient id="aplShine" cx="0.35" cy="0.3" r="0.4">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="aplShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#7a213a" flood-opacity="0.3"/>
+    </filter>
   </defs>
+
   <!-- iOS 自動套圓角,直接全填 -->
   <rect width="180" height="180" fill="url(#apl)"/>
-  <text x="90" y="135" font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
-        font-size="130" font-weight="500" font-style="italic"
-        text-anchor="middle" fill="url(#aplInk)">h</text>
-  <path d="M138 50c-3-4-9-5-12-1-2 2-2 5-1 9 2 5 7 9 13 14 6-5 11-9 13-14 1-4 1-7-1-9-3-4-9-3-12 1z"
-        fill="#b8324d"/>
+
+  <!-- Heart -->
+  <g filter="url(#aplShadow)">
+    <path d="M90 152
+             C 30 104 33 47 70 47
+             C 83 47 90 56 90 64
+             C 90 56 97 47 110 47
+             C 147 47 150 104 90 152 Z"
+          fill="url(#aplHeart)"/>
+  </g>
+  <path d="M90 152
+           C 30 104 33 47 70 47
+           C 83 47 90 56 90 64
+           C 90 56 97 47 110 47
+           C 147 47 150 104 90 152 Z"
+        fill="url(#aplShine)"/>
+
+  <!-- Italic h inside -->
+  <text x="90" y="112"
+        font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
+        font-size="64" font-weight="500" font-style="italic"
+        text-anchor="middle" fill="#fdf3f0" opacity="0.96">h</text>
 </svg>

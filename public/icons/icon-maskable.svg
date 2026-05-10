@@ -1,19 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="howu">
-  <!-- maskable: 內容只能在中央 80% 安全區(座標 51 ~ 461) -->
   <defs>
     <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fbf3f0"/>
-      <stop offset="100%" stop-color="#f5e8eb"/>
+      <stop offset="0%" stop-color="#fdf3f0"/>
+      <stop offset="100%" stop-color="#f0d8dc"/>
     </linearGradient>
-    <linearGradient id="ink2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#b8324d"/>
-      <stop offset="100%" stop-color="#8a223a"/>
+    <linearGradient id="heartGrad2" x1="0.15" y1="0.05" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#dc4b67"/>
+      <stop offset="55%" stop-color="#b8324d"/>
+      <stop offset="100%" stop-color="#7a213a"/>
     </linearGradient>
+    <radialGradient id="shine2" cx="0.35" cy="0.3" r="0.4">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
   </defs>
+
+  <!-- 滿版背景(maskable 不需要圓角,系統會裁) -->
   <rect width="512" height="512" fill="url(#bg2)"/>
-  <text x="256" y="358" font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
-        font-size="280" font-weight="500" font-style="italic"
-        text-anchor="middle" fill="url(#ink2)">h</text>
-  <path d="M362 158c-6-10-18-11-25-2-4 4-5 10-2 18 3 10 14 19 27 28 13-9 24-18 27-28 3-8 2-14-2-18-7-9-19-8-25 2z"
-        fill="#b8324d" opacity="0.9"/>
+
+  <!-- 安全區內(中央 80%)的愛心 — 放小一點 -->
+  <g transform="translate(0,10)">
+    <path d="M256 408
+             C 116 286 126 154 210 154
+             C 240 154 256 174 256 192
+             C 256 174 272 154 302 154
+             C 386 154 396 286 256 408 Z"
+          fill="url(#heartGrad2)"/>
+    <path d="M256 408
+             C 116 286 126 154 210 154
+             C 240 154 256 174 256 192
+             C 256 174 272 154 302 154
+             C 386 154 396 286 256 408 Z"
+          fill="url(#shine2)"/>
+    <text x="256" y="312"
+          font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
+          font-size="150" font-weight="500" font-style="italic"
+          text-anchor="middle" fill="#fdf3f0" opacity="0.96">h</text>
+  </g>
 </svg>

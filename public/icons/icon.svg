@@ -1,33 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="howu">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fbf3f0"/>
+      <stop offset="0%" stop-color="#fdf3f0"/>
       <stop offset="55%" stop-color="#fbf9f6"/>
-      <stop offset="100%" stop-color="#f5e8eb"/>
+      <stop offset="100%" stop-color="#f0d8dc"/>
     </linearGradient>
-    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#b8324d"/>
-      <stop offset="100%" stop-color="#8a223a"/>
+    <linearGradient id="heartGrad" x1="0.15" y1="0.05" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#dc4b67"/>
+      <stop offset="55%" stop-color="#b8324d"/>
+      <stop offset="100%" stop-color="#7a213a"/>
     </linearGradient>
+    <radialGradient id="shine" cx="0.35" cy="0.3" r="0.4">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#7a213a" flood-opacity="0.32"/>
+    </filter>
   </defs>
 
-  <!-- 卡角圓 -->
+  <!-- 卡角紙感底 -->
   <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
-
-  <!-- 細外框 -->
   <rect x="14" y="14" width="484" height="484" rx="100" ry="100"
         fill="none" stroke="#1a1715" stroke-opacity="0.05" stroke-width="2"/>
 
-  <!-- 大 italic serif 「h」 -->
-  <text x="256" y="378" font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
-        font-size="360" font-weight="500" font-style="italic"
-        text-anchor="middle" fill="url(#ink)">h</text>
+  <!-- 周圍小 sparkle 點綴 -->
+  <path d="M82 138c-1-7-3-9-10-10 7-1 9-3 10-10 1 7 3 9 10 10-7 1-9 3-10 10z"
+        fill="#b8324d" opacity="0.45"/>
+  <path d="M430 410c-1-6-2-8-8-9 6-1 8-2 8-8 1 6 2 8 8 8-6 1-8 2-8 9z"
+        fill="#b8324d" opacity="0.4"/>
 
-  <!-- 右上手繪愛心 -->
-  <path d="M388 130c-8-12-22-13-30-3-5 5-7 12-3 22 4 12 17 24 33 35 16-11 29-23 33-35 4-10 2-17-3-22-8-10-22-9-30 3z"
-        fill="#b8324d" opacity="0.9"/>
+  <!-- 主視覺:rose 大愛心 -->
+  <g filter="url(#softShadow)">
+    <path d="M256 432
+             C 86 296 96 132 200 132
+             C 236 132 256 156 256 180
+             C 256 156 276 132 312 132
+             C 416 132 426 296 256 432 Z"
+          fill="url(#heartGrad)"/>
+  </g>
+  <!-- 高光 -->
+  <path d="M256 432
+           C 86 296 96 132 200 132
+           C 236 132 256 156 256 180
+           C 256 156 276 132 312 132
+           C 416 132 426 296 256 432 Z"
+        fill="url(#shine)"/>
 
-  <!-- 底部 sparkle -->
-  <path d="M150 420c-1-6-3-8-9-9 6-1 8-3 9-9 1 6 3 8 9 9-6 1-8 3-9 9z"
-        fill="#b8324d" opacity="0.55"/>
+  <!-- 中央 italic 「h」 -->
+  <text x="256" y="318"
+        font-family="Georgia, 'Source Serif Pro', 'Noto Serif TC', serif"
+        font-size="180" font-weight="500" font-style="italic"
+        text-anchor="middle" fill="#fdf3f0" opacity="0.96"
+        style="paint-order:stroke;">h</text>
+
+  <!-- 底部 wordmark -->
+  <text x="256" y="478"
+        font-family="Georgia, serif"
+        font-size="30" letter-spacing="0.45em"
+        text-anchor="middle" fill="#5a2933" opacity="0.6">HOWU</text>
 </svg>
