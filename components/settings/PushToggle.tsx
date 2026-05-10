@@ -9,6 +9,15 @@ import { isPushSupported, subscribePush, unsubscribePush } from "@/lib/push/clie
 
 type Platform = "ios" | "android" | "desktop";
 
+const REASON_LABEL: Record<string, string> = {
+  unsupported: "這台裝置 / 瀏覽器不支援 Web Push",
+  no_sw: "Service Worker 沒註冊,試試重新載入頁面",
+  denied: "推播權限被拒絕,請到系統設定 → 通知 找到 howu 開啟",
+  no_vapid_key: "推播尚未設定(VAPID 金鑰缺失),請聯絡 hello@loamia.xyz",
+  invalid_subscription: "訂閱資料異常",
+  register_failed: "上傳訂閱失敗,稍後再試",
+};
+
 export function PushToggle() {
   const t = useTranslations();
   const [supported, setSupported] = useState(false);
@@ -16,6 +25,7 @@ export function PushToggle() {
   const [loading, setLoading] = useState(false);
   const [standalone, setStandalone] = useState(false);
   const [platform, setPlatform] = useState<Platform>("desktop");
+  const [permState, setPermState] = useState<NotificationPermission | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -29,6 +39,10 @@ export function PushToggle() {
       !!(window.navigator as any).standalone;
     setStandalone(sa);
 
+    if (typeof Notification !== "undefined") {
+      setPermState(Notification.permission);
+    }
+
     (async () => {
       const ok = await isPushSupported();
       setSupported(ok);
@@ -41,21 +55,35 @@ export function PushToggle() {
 
   async function turnOn() {
     setLoading(true);
-    const r = await subscribePush();
-    setLoading(false);
-    if (r.success) {
-      setSubscribed(true);
-      toast(t("settings.save_success"), { tone: "success" });
-    } else {
-      toast(`${r.reason ?? "unknown"}`, { tone: "error" });
+    try {
+      const r = await subscribePush();
+      if (r.success) {
+        setSubscribed(true);
+        if (typeof Notification !== "undefined") setPermState(Notification.permission);
+        toast(t("settings.save_success"), { tone: "success" });
+      } else {
+        const reason = r.reason ?? "unknown";
+        const label = REASON_LABEL[reason] ?? `推播啟用失敗(${reason})`;
+        if (typeof Notification !== "undefined") setPermState(Notification.permission);
+        console.error("[push] subscribe failed:", reason);
+        toast(label, { tone: "error", duration: 6000 });
+      }
+    } catch (e) {
+      console.error("[push] turnOn threw:", e);
+      toast(`推播啟用失敗:${(e as Error).message}`, { tone: "error", duration: 6000 });
+    } finally {
+      setLoading(false);
     }
   }
 
   async function turnOff() {
     setLoading(true);
-    await unsubscribePush();
-    setSubscribed(false);
-    setLoading(false);
+    try {
+      await unsubscribePush();
+      setSubscribed(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!supported) {
@@ -70,6 +98,7 @@ export function PushToggle() {
   }
 
   const needsInstall = !standalone && (platform === "ios" || platform === "android");
+  const denied = permState === "denied";
 
   return (
     <section className="flex flex-col gap-3 border-b border-[var(--color-paper-line)] pb-5">
@@ -111,6 +140,20 @@ export function PushToggle() {
           </div>
           <span className="shrink-0 text-[var(--color-ink-soft)]">→</span>
         </Link>
+      )}
+
+      {!needsInstall && denied && !subscribed && (
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-danger)]/30 bg-red-50/60 px-4 py-3 text-xs text-[var(--color-ink)] leading-relaxed">
+          推播權限之前被拒絕。請到{" "}
+          <span className="font-medium">
+            {platform === "ios"
+              ? "設定 → 通知 → howu"
+              : platform === "android"
+                ? "系統設定 → 通知 → howu"
+                : "瀏覽器網址列左側鎖頭 → 通知"}
+          </span>{" "}
+          手動允許,然後回到這裡按開啟。
+        </div>
       )}
     </section>
   );
