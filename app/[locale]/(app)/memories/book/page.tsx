@@ -2,9 +2,26 @@ import { setRequestLocale } from "next-intl/server";
 import { requireUser, requireCoupleAllowRecovery, getPartnerProfile } from "@/lib/supabase/auth";
 import { RecoveryBanner } from "@/components/memories/RecoveryBanner";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getProfile, getStreak } from "@/lib/supabase/queries";
 import { ddayCount } from "@/lib/utils/date";
 import { BookControls } from "@/components/memories/BookControls";
+
+// Server side:把 storage 路徑直接轉成 base64 data URL,讓列印一定看得到
+async function pathToDataUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  try {
+    const admin = createSupabaseAdminClient();
+    const { data, error } = await admin.storage.from("shared_photos").download(path);
+    if (error || !data) return null;
+    const buf = Buffer.from(await data.arrayBuffer());
+    const mime = data.type || "image/jpeg";
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch (e) {
+    console.error("[book] data url fail:", path, e);
+    return null;
+  }
+}
 
 interface ResponseRow {
   date: string;
@@ -119,9 +136,8 @@ export default async function MemoryBookPage({
     const fp = firstPhoto as PhotoRow | null;
     if (fp?.url && !fp.url.includes("/bg/")) coverPath = fp.url;
   }
-  const coverUrl = coverPath
-    ? `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(coverPath)}`
-    : null;
+  // 封面用 base64 data URL,確保列印時一定有圖
+  const coverUrl = await pathToDataUrl(coverPath);
 
   // 章節照片
   const { data: morePhotos } = await supabase
@@ -130,12 +146,17 @@ export default async function MemoryBookPage({
     .eq("couple_id", couple.id)
     .order("taken_at", { ascending: true })
     .limit(8);
-  const sectionPhotos = ((morePhotos as PhotoRow[] | null) ?? [])
-    .filter((p) => p.url && !p.url.includes("/bg/"))
-    .map((p) => ({
+  const sectionPhotosRaw = ((morePhotos as PhotoRow[] | null) ?? []).filter(
+    (p) => p.url && !p.url.includes("/bg/"),
+  );
+  // 章節照片也轉 data URL,列印才不會掉
+  const sectionPhotos = await Promise.all(
+    sectionPhotosRaw.map(async (p) => ({
       ...p,
-      url: `/api/img-proxy?bucket=shared_photos&path=${encodeURIComponent(p.url)}`,
-    }));
+      url: (await pathToDataUrl(p.url)) ?? "",
+    })),
+  );
+  const sectionPhotosFiltered = sectionPhotos.filter((p) => p.url);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -204,7 +225,7 @@ export default async function MemoryBookPage({
       {/* ═══════════ 封面 (page 1) ═══════════ */}
       <section className="page-break-after relative rounded-[24px] overflow-hidden shadow-2xl mb-12 mt-2 print:rounded-none print:shadow-none print:mb-0 print:mt-0 avoid-break">
         <div
-          className="relative aspect-[5/7] print:aspect-auto print:min-h-[22cm]"
+          className="relative aspect-[5/7] print:aspect-auto print:h-[24cm] print:max-h-[24cm]"
         >
           {coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -324,11 +345,11 @@ export default async function MemoryBookPage({
       )}
 
       {/* ═══════════ 下一頁:瞬間 ═══════════ */}
-      {sectionPhotos.length > 0 && (
+      {sectionPhotosFiltered.length > 0 && (
         <section className="px-4 mb-16 page-break-before avoid-break">
           <SectionChapter index="ii" title="瞬間" subtitle="MOMENTS" />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-w-2xl mx-auto">
-            {sectionPhotos.map((p) => (
+            {sectionPhotosFiltered.map((p) => (
               <div
                 key={p.id}
                 className="relative aspect-square overflow-hidden rounded-md bg-zinc-100"
