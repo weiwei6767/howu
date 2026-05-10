@@ -16,34 +16,62 @@ export async function ensureSwRegistered(): Promise<ServiceWorkerRegistration | 
 }
 
 export async function subscribePush(): Promise<{ success: boolean; reason?: string }> {
-  if (!(await isPushSupported())) return { success: false, reason: "unsupported" };
-  const reg = await ensureSwRegistered();
-  if (!reg) return { success: false, reason: "no_sw" };
+  try {
+    if (!(await isPushSupported())) return { success: false, reason: "unsupported" };
+    const reg = await ensureSwRegistered();
+    if (!reg) return { success: false, reason: "no_sw" };
 
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") return { success: false, reason: "denied" };
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return { success: false, reason: "denied" };
 
-  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  if (!publicKey) return { success: false, reason: "no_vapid_key" };
+    const rawKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+    const cleanedKey = sanitizeBase64Url(rawKey);
+    if (!cleanedKey) return { success: false, reason: "no_vapid_key" };
 
-  const sub = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
-  });
+    let appServerKey: Uint8Array;
+    try {
+      appServerKey = urlBase64ToUint8Array(cleanedKey);
+    } catch (e) {
+      console.error("[push] VAPID key decode failed:", e, "raw length:", rawKey.length);
+      return { success: false, reason: "invalid_vapid_key" };
+    }
+    if (appServerKey.length !== 65) {
+      // P-256 uncompressed public key 必為 65 bytes
+      console.error("[push] VAPID key wrong length:", appServerKey.length);
+      return { success: false, reason: "invalid_vapid_key" };
+    }
 
-  const json = sub.toJSON();
-  if (!json.endpoint || !json.keys) return { success: false, reason: "invalid_subscription" };
+    let sub: PushSubscription;
+    try {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: appServerKey as BufferSource,
+      });
+    } catch (e) {
+      console.error("[push] pushManager.subscribe failed:", e);
+      return {
+        success: false,
+        reason: `subscribe_failed:${(e as Error).message ?? "unknown"}`,
+      };
+    }
 
-  const res = await fetch("/api/push/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      endpoint: json.endpoint,
-      keys: { p256dh: json.keys.p256dh ?? "", auth: json.keys.auth ?? "" },
-    }),
-  });
-  if (!res.ok) return { success: false, reason: "register_failed" };
-  return { success: true };
+    const json = sub.toJSON();
+    if (!json.endpoint || !json.keys) return { success: false, reason: "invalid_subscription" };
+
+    const res = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        endpoint: json.endpoint,
+        keys: { p256dh: json.keys.p256dh ?? "", auth: json.keys.auth ?? "" },
+      }),
+    });
+    if (!res.ok) return { success: false, reason: "register_failed" };
+    return { success: true };
+  } catch (e) {
+    console.error("[push] subscribePush threw:", e);
+    return { success: false, reason: `error:${(e as Error).message ?? "unknown"}` };
+  }
 }
 
 export async function unsubscribePush(): Promise<void> {
@@ -57,6 +85,15 @@ export async function unsubscribePush(): Promise<void> {
     body: JSON.stringify({ endpoint: sub.endpoint }),
   });
   await sub.unsubscribe();
+}
+
+/** 嚴格清出合法 base64url 字元(去掉 BOM、空白、引號等) */
+function sanitizeBase64Url(s: string): string {
+  return s
+    .replace(/^﻿/, "") // BOM
+    .trim()
+    .replace(/^["']|["']$/g, "") // 引號
+    .replace(/[^A-Za-z0-9_\-]/g, ""); // 只保留 base64url 合法字元
 }
 
 function urlBase64ToUint8Array(base64: string): Uint8Array {

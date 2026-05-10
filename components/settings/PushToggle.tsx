@@ -14,9 +14,21 @@ const REASON_LABEL: Record<string, string> = {
   no_sw: "Service Worker 沒註冊,試試重新載入頁面",
   denied: "推播權限被拒絕,請到系統設定 → 通知 找到 howu 開啟",
   no_vapid_key: "推播尚未設定(VAPID 金鑰缺失),請聯絡 hello@loamia.xyz",
+  invalid_vapid_key: "VAPID 金鑰格式有問題,請聯絡 hello@loamia.xyz",
   invalid_subscription: "訂閱資料異常",
   register_failed: "上傳訂閱失敗,稍後再試",
 };
+
+function reasonLabel(reason: string): string {
+  if (REASON_LABEL[reason]) return REASON_LABEL[reason];
+  if (reason.startsWith("subscribe_failed:")) {
+    return `推播訂閱失敗:${reason.slice("subscribe_failed:".length)}`;
+  }
+  if (reason.startsWith("error:")) {
+    return `推播啟用錯誤:${reason.slice("error:".length)}`;
+  }
+  return `推播啟用失敗(${reason})`;
+}
 
 export function PushToggle() {
   const t = useTranslations();
@@ -63,10 +75,9 @@ export function PushToggle() {
         toast(t("settings.save_success"), { tone: "success" });
       } else {
         const reason = r.reason ?? "unknown";
-        const label = REASON_LABEL[reason] ?? `推播啟用失敗(${reason})`;
         if (typeof Notification !== "undefined") setPermState(Notification.permission);
         console.error("[push] subscribe failed:", reason);
-        toast(label, { tone: "error", duration: 6000 });
+        toast(reasonLabel(reason), { tone: "error", duration: 7000 });
       }
     } catch (e) {
       console.error("[push] turnOn threw:", e);
