@@ -75,7 +75,15 @@ export default async function MemoryBookPage({
     }
   }
   moments.sort((a, b) => (a.date < b.date ? 1 : -1));
-  const topMoments = moments.slice(0, 16);
+  // 一天最多挑一則(取該天最早寫的);最多 14 則
+  const seenDates = new Set<string>();
+  const topMoments = moments
+    .filter((m) => {
+      if (seenDates.has(m.date)) return false;
+      seenDates.add(m.date);
+      return true;
+    })
+    .slice(0, 14);
 
   // mood tags 全期前 3
   const moodCounts = new Map<string, number>();
@@ -196,17 +204,27 @@ export default async function MemoryBookPage({
       {/* ═══════════ 封面 (page 1) ═══════════ */}
       <section className="page-break-after relative rounded-[24px] overflow-hidden shadow-2xl mb-12 mt-2 print:rounded-none print:shadow-none print:mb-0 print:mt-0 avoid-break">
         <div
-          className="relative force-print-bg"
-          style={{
-            aspectRatio: "5 / 7",
-            minHeight: "22cm",
-            backgroundImage: coverUrl
-              ? `url(${coverUrl})`
-              : "linear-gradient(135deg, #ffd6df 0%, #fff5e8 50%, #e6dcff 100%)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className="relative aspect-[5/7] print:aspect-auto print:min-h-[22cm]"
         >
+          {coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={coverUrl}
+              alt=""
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              className="absolute inset-0 w-full h-full object-cover force-print-bg"
+            />
+          ) : (
+            <div
+              className="absolute inset-0 force-print-bg"
+              style={{
+                background:
+                  "linear-gradient(135deg, #ffd6df 0%, #fff5e8 50%, #e6dcff 100%)",
+              }}
+            />
+          )}
           <div
             className="absolute inset-0 force-print-bg"
             style={{
@@ -329,51 +347,69 @@ export default async function MemoryBookPage({
         </section>
       )}
 
-      {/* ─────────── memorable moments */}
+      {/* ─────────── memorable moments(對話框、左右交錯) */}
       {topMoments.length > 0 && (
         <>
           <Divider />
-          <section className="px-6 mb-16">
+          <section className="px-4 sm:px-6 mb-16">
             <SectionChapter
               index="iii"
               title="想被記得的話"
               subtitle="MOMENTS WORTH KEEPING"
             />
-            <ul className="flex flex-col gap-8 max-w-2xl mx-auto">
-              {topMoments.map((m, i) => (
-                <li key={i} className="flex flex-col gap-2 avoid-break">
-                  <span
-                    className="text-[10px] tracking-[0.3em] text-zinc-400"
-                    style={{ fontFamily: SERIF }}
+            <ul className="flex flex-col gap-4 max-w-2xl mx-auto">
+              {topMoments.map((m, i) => {
+                // 偶數靠左、奇數靠右(像兩個人的對話)
+                const isLeft = i % 2 === 0;
+                // 變化寬度與輕微旋轉
+                const widthClass = ["max-w-[80%]", "max-w-[70%]", "max-w-[88%]"][i % 3];
+                const tilt = ["-rotate-[0.4deg]", "rotate-[0.5deg]", "-rotate-[0.2deg]", "rotate-[0.3deg]"][i % 4];
+                return (
+                  <li
+                    key={i}
+                    className={`flex avoid-break ${isLeft ? "justify-start" : "justify-end"}`}
                   >
-                    {m.date.replace(/-/g, ".")}
-                  </span>
-                  {m.isLetter ? (
-                    <p
-                      className="text-base leading-loose pl-4 border-l-2 border-rose-300 whitespace-pre-wrap"
-                      style={{
-                        fontFamily: 'var(--font-handwritten), Georgia, serif',
-                        fontSize: "1.2rem",
-                      }}
+                    <div
+                      className={`${widthClass} ${tilt} relative rounded-[18px] px-4 py-3 ${
+                        isLeft
+                          ? "bg-white border border-rose-100 rounded-bl-[6px]"
+                          : "bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/25 rounded-br-[6px]"
+                      } shadow-[0_3px_10px_-4px_rgba(40,25,30,0.16)] force-print-bg`}
                     >
-                      {m.text}
-                    </p>
-                  ) : (
-                    <p
-                      className="text-base leading-relaxed"
-                      style={{ fontStyle: "italic" }}
-                    >
-                      <span className="text-3xl text-rose-300 leading-none align-middle mr-1">
-                        “
-                      </span>
-                      {m.text}
-                      <span className="text-3xl text-rose-300 leading-none align-middle ml-1">
-                        ”
-                      </span>
-                    </p>
-                  )}
-                </li>
-              ))}
+                      <p
+                        className="text-[9px] tracking-[0.2em] text-zinc-400"
+                        style={{ fontFamily: SERIF }}
+                      >
+                        {m.date.replace(/-/g, ".")}
+                      </p>
+                      {m.isLetter ? (
+                        <p
+                          className="leading-relaxed whitespace-pre-wrap text-[var(--color-ink)] mt-1.5"
+                          style={{
+                            fontFamily: 'var(--font-handwritten), Georgia, serif',
+                            fontSize: "1.05rem",
+                          }}
+                        >
+                          {m.text}
+                        </p>
+                      ) : (
+                        <p
+                          className="leading-relaxed text-[var(--color-ink)] mt-1.5"
+                          style={{ fontStyle: "italic", fontSize: "0.95rem" }}
+                        >
+                          <span className="text-xl text-[var(--color-accent)]/70 leading-none align-middle mr-0.5">
+                            “
+                          </span>
+                          {m.text}
+                          <span className="text-xl text-[var(--color-accent)]/70 leading-none align-middle ml-0.5">
+                            ”
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         </>
