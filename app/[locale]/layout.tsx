@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "howu",
-    startupImage: ["/icons/apple-touch-icon.svg"],
+    startupImage: ["/icons/apple-touch-icon.png"],
   },
   formatDetection: {
     telephone: false,
@@ -46,8 +46,7 @@ export const metadata: Metadata = {
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icons/apple-touch-icon.svg" },
-      { url: "/icons/icon-192.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
     other: [
       {
